@@ -1,6 +1,6 @@
 pipeline {
     environment {
-        APP_DIR = '/var/jenkins/workspace/bbbb'
+        APP_DIR = '/var/jenkins/workspace/deploy'
     }
     stages {
         stage('Install Dependencies') {
@@ -21,7 +21,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                dir('/var/jenkins/workspace/bbbb/server') {
+                dir('/var/jenkins/workspace/deploy/server') {
                         sh 'pm2 delete all || true' 
                         sh 'pm2 start ecosystem.config.js --env production' 
                         sh 'pm2 save' 
