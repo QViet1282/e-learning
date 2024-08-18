@@ -483,6 +483,3 @@
 2024-08-18T11:27:05+07:00 | INFO | Accessed /getEnrollmentByCourseId/25 | method:GET | endpoint:/getEnrollmentByCourseId/25 | request:{"courseId":"25"} | user:11
 2024-08-18T11:27:05+07:00 | INFO | Accessed /getEnrollmentByCourseId/67 | method:GET | endpoint:/getEnrollmentByCourseId/67 | request:{"courseId":"67"} | user:11
 2024-08-18T11:48:33+07:00 | INFO | Login success! | method:POST | 
-2024-08-18T20:45:44+07:00 | INFO | Login success! | method:POST | 
-2024-08-18T20:45:55+07:00 | INFO | Login success! | method:POST | 
-2024-08-18T20:54:39+07:00 | INFO | Login success! | method:POST | 
