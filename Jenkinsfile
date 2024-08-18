@@ -8,16 +8,6 @@ pipeline {
     }
     
     stages {
-        stage('Checkout') {
-            steps {
-                checkout([$class: 'GitSCM', branches: [[name: '*/Viet']],
-                    doGenerateSubmoduleConfigurations: false,
-                    extensions: [],
-                    submoduleCfg: [],
-                    userRemoteConfigs: [[url: 'https://github.com/QViet1282/e-learning']]
-                ])
-            }
-        }
         stage('Install Dependencies') {
             steps {
                 dir("${APP_DIR}/server") {
