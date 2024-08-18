@@ -1,8 +1,8 @@
 pipeline {
     agent { label 'server' }
-    triggers {
-        githubPush() 
-    }
+    // triggers {
+    //     githubPush() 
+    // }
     environment {
         APP_DIR = '/var/jenkins/workspace/deploy'
     }
