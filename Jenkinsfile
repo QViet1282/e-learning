@@ -1,7 +1,12 @@
 pipeline {
+    agent { label 'server' }
+    // triggers {
+    //     githubPush() 
+    // }
     environment {
         APP_DIR = '/var/jenkins/workspace/bbbb'
     }
+    
     stages {
         stage('Install Dependencies') {
             steps {
