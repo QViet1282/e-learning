@@ -1,0 +1,66 @@
+{
+  "translation": {
+    "welcome-to-react": "Welcome to React and react-i18next",
+    "navbar": {
+      "homepage": "Home",
+      "posts": "Bài viết",
+      "about_us": "About",
+      "contact_us": "Contact us",
+      "sign_out": "Log out",
+      "cart": "Cart"
+    },
+    "dropdown": {
+      "darkTheme": "Dark Mode",
+      "lightTheme": "Light Mode",
+      "setting": "Setting",
+      "profile": "Profile",
+      "userDashboard": "Dashboard",
+      "mycourse": "My courses",
+      "blog": "Blog",
+      "logout": "Log out",
+      "gottoadmin": "Go to Admin"
+    },
+    "login": {
+      "username": "Username",
+      "password": "Password",
+      "confirm_password": "Confirm Password",
+      "login": "Login",
+      "back": "Back",
+      "sign_up": "Sign Up",
+      "username_not_empty": "Username must not empty",
+      "password_not_empty": "Password must not empty",
+      "password_must_match": "Confirm password must match"
+    },
+    "footer":{
+      "introduction":"The company specializes in handling Offshore Japan and providing agricultural software for the Vietnamese market.",
+      "our_product": "Our products",
+      "nksxff": "FaceFarm production log",
+      "kthtxWC": "WACA Cooperative Accounting",
+      "quick_links": "Useful links",
+      "overview": "Overview",
+      "human_resource": "Human resource",
+      "recruitment": "Recruitment",
+      "contact": "Contact",
+      "compliance": "Compliance",
+      "sdgS": "SDGs",
+      "contact_with_us": "Contact with us",
+      "address": "9th Floor, Tuoi Tre Building, 60A Hoang Van Thu, Ward 9, Phu Nhuan District, City. Ho Chi Minh",
+      "facebook": "Facebook",
+      "youtube": "Youtube"
+    },
+    "sidebar":{
+      "pages": "Pages",
+      "permissions": "Permissions",
+      "users": "Users",
+      "dashboard": "Dashboard",
+      "settings": "Settings",
+      "myAccount": "My Account",
+      "returnToUser": "Return to User",
+      "logOut": "Log out"
+    },
+    "alert": {
+      "sessionExpired": "Session expired",
+      "pleaseLoginAgain": "Please login again to continue."
+    }
+  }
+}
