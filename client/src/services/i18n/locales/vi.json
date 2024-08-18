@@ -1,0 +1,66 @@
+{
+  "translation": {
+    "welcome-to-react": "Xin chào",
+    "navbar": {
+      "homepage": "Trang chủ",
+      "posts": "Bài viết",
+      "about_us": "Về chúng tôi",
+      "contact_us": "Liên hệ",
+      "sign_out": "Đăng xuất",
+      "cart": "Giỏ hàng"
+    },
+    "dropdown": {
+      "darkTheme": "Chế độ tối",
+      "lightTheme": "Chế độ sáng",
+      "setting": "Cài đặt",
+      "profile": "Hồ sơ",
+      "userDashboard": "Thống kê",
+      "mycourse": "Hồ sơ học",
+      "blog": "Blog",
+      "logout": "Đăng xuất",
+      "gottoadmin": "Trang quản trị"
+    },
+    "login": {
+      "username": "Tài khoản",
+      "password": "Mật khẩu",
+      "confirm_password": "Điền lại mật khẩu",
+      "login": "Đăng nhập",
+      "back": "Quay lại",
+      "sign_up": "Đăng ký",
+      "username_not_empty": "Tài khoản không được để trống",
+      "password_not_empty": "Mật khẩu không được để trống",
+      "password_must_match": "Điền lại mật khẩu không đúng"
+    },
+    "footer":{
+      "introduction":"Công ty chuyên đảm nhận Offshore Nhật Bản và cung cấp phần mềm nông nghiệp cho thị trường Việt Nam.",
+      "our_product": "Sản phẩm của chúng tôi",
+      "nksxff": "Nhật ký sản xuất FaceFarm",
+      "kthtxWC": "Kế toán Hợp tác xã WACA",
+      "quick_links": "Liên kết hữu ích",
+      "overview": "Tổng quan",
+      "human_resource": "Nhân sự",
+      "recruitment": "Tuyển dụng",
+      "contact": "Liên hệ",
+      "compliance": "Nguyên tắc tuân thủ",
+      "sdgS": "SDGs",
+      "contact_with_us": "Liên hệ với chúng tôi",
+      "address": "Tầng 9, Cao Ốc Tuổi Trẻ, 60A Hoàng Văn Thụ, P. 9, Quận Phú Nhuận, TP. Hồ Chí Minh",
+      "facebook": "Facebook",
+      "youtube": "Youtube"
+    },
+    "sidebar":{
+      "pages": "Trang", 
+      "permissions": "Quyền",
+      "users": "Người dùng",
+      "dashboard": "Thống kê",
+      "settings": "Cài đặt",
+      "myAccount": "Tài khoản của tôi",
+      "returnToUser": "Quay lại người dùng",
+      "logOut": "Đăng xuất"
+    },
+    "alert": {
+      "sessionExpired": "Phiên đăng nhập đã hết hạn",
+      "pleaseLoginAgain": "Vui lòng đăng nhập lại để tiếp tục."
+    }
+  }
+}
