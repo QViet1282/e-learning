@@ -1,0 +1,30 @@
+@import 'tailwindcss/tailwind.css';
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+.pdf-opacity {
+  opacity: 0.09;
+  /* Điều chỉnh giá trị opacity tùy theo độ mờ bạn muốn */
+}
+.aspect-square {
+  padding-bottom: 100%;
+  position: relative;
+}
+.dot {
+  display: inline-block;
+  transition: transform 0.5s; 
+  transform-origin: left;
+}
+
+.dot:hover {
+  transform: scaleX(5);
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* For WebKit browsers */
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none; /* For IE and Edge */
+  scrollbar-width: none; /* For Firefox */
+}
