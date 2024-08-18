@@ -4,7 +4,7 @@ pipeline {
     //     githubPush() 
     // }
     environment {
-        APP_DIR = '/var/jenkins/workspace/deploy'
+        APP_DIR = '/var/jenkins/workspace/bbbb'
     }
     
     stages {
@@ -36,7 +36,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                dir('/var/jenkins/workspace/deploy/server') {
+                dir('/var/jenkins/workspace/bbbb/server') {
                         sh 'pm2 delete all || true' 
                         sh 'pm2 start ecosystem.config.js --env production' 
                         sh 'pm2 save' 
