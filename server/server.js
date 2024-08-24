@@ -17,10 +17,18 @@ const app = express()
 
 app.set('trust proxy', true)
 
+const allowedOrigins = ['http://localhost:3000', 'https://vietcode.id.vn']
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
   credentials: true
 }))
+
 app.use(express.json())
 app.use(cookieParser())
 app.use(bodyParser.json())
@@ -32,7 +40,7 @@ app.use('/static', express.static(path.join(__dirname, 'public')))
 
 app.use(`${API_PREFIX}/auth`, authController)
 app.use(`${API_PREFIX}/init-data`, initDataController)
-app.use(`${API_PREFIX}/course`, courseController)
+app.use(`${API_PREFIX}/courses`, courseController)
 
 async function startServer () {
   try {
