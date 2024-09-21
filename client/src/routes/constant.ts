@@ -5,7 +5,11 @@ const ROUTES = {
   homePage: '/',
   notfound: '*',
   login: '/login',
-  course: '/course'
+  course: '/course',
+  management: '/management',
+  addCourse: '/management/add-course',
+  detailCourse: '/management/detail-course',
+  uploadVideo: '/management/upload'
 }
 
 export default ROUTES

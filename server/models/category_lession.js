@@ -23,12 +23,15 @@ const CategoryLession = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    checkUpDate: {
-      type: DataTypes.DATE
+    status: {
+      type: DataTypes.TINYINT,
+      allowNull: false,
+      defaultValue: 0
     }
   },
   {
     tableName: 'category_lession'
   }
 )
+
 module.exports = CategoryLession

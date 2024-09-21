@@ -23,5 +23,13 @@ export const logout = async (): Promise<AxiosResponse<any>> => {
 }
 
 export const getAllCourse = async (): Promise<AxiosResponse<any>> => {
-  return await requestWithJwt.get<any>('/course/getAllCourse', { withCredentials: true })
+  return await requestWithJwt.get<any>('/courses/getAllCourse', { withCredentials: true })
+}
+
+export const createCategoryLession = async (payload: any): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.post<any>('/courses/createCategoryLession', payload, { withCredentials: true })
+}
+
+export const updateCategoryLessions = async (payload: any): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.post<any>('/courses/updateCategoryLessions', { categoryLessions: payload }, { withCredentials: true })
 }
