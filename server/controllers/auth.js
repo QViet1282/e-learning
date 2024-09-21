@@ -88,12 +88,7 @@ router.post('/login', async (req, res) => {
     const getGroupWithRoles = async (user) => {
       const roles = await models.Role.findOne({
         where: { id: user.roleId },
-        attributes: ['id', 'name', 'description'],
-        include: {
-          model: models.Permission,
-          attributes: ['id', 'name', 'description', 'url', 'method'],
-          through: { attributes: [] }
-        }
+        attributes: ['id', 'name', 'description']
       })
       return roles
     }
@@ -215,12 +210,7 @@ router.post('/refresh', async (req, res, next) => {
     const getGroupWithRoles = async (user) => {
       const roles = await models.Role.findOne({
         where: { id: user.roleId },
-        attributes: ['id', 'name', 'description'],
-        include: {
-          model: models.Permission,
-          attributes: ['id', 'name', 'description', 'url', 'method'],
-          through: { attributes: [] }
-        }
+        attributes: ['id', 'name', 'description']
       })
       return roles
     }
