@@ -23,6 +23,10 @@ const Notification = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
       defaultValue: '/myCourses'
+    },
+    isDeleted: {
+      type: DataTypes.TINYINT,
+      defaultValue: 0
     }
   },
   {

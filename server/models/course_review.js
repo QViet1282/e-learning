@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize')
 const sequelize = require('./init')
 
-const CategoryLession = sequelize.define(
-  'CategoryLession',
+const CourseReview = sequelize.define(
+  'CourseReview',
   {
     id: {
       type: DataTypes.BIGINT,
@@ -11,25 +11,27 @@ const CategoryLession = sequelize.define(
       unique: true,
       primaryKey: true
     },
+    enrollId: {
+      type: DataTypes.BIGINT,
+      allowNull: false
+    },
     courseId: {
       type: DataTypes.BIGINT,
       allowNull: false
     },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    order: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    status: {
+    rating: {
       type: DataTypes.TINYINT,
-      defaultValue: 0
+      allowNull: false
+    },
+    comment: {
+      type: DataTypes.TEXT,
+      allowNull: true
     }
   },
   {
-    tableName: 'category_lession'
+    tableName: 'course_reviews',
+    timestamps: true
   }
 )
-module.exports = CategoryLession
+
+module.exports = CourseReview

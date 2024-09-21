@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize')
 const sequelize = require('./init')
 
-const Enrollment = sequelize.define(
-  'Enrollment',
+const OrderItem = sequelize.define(
+  'OrderItem',
   {
     id: {
       type: DataTypes.BIGINT,
@@ -11,7 +11,7 @@ const Enrollment = sequelize.define(
       unique: true,
       primaryKey: true
     },
-    userId: {
+    orderId: {
       type: DataTypes.BIGINT,
       allowNull: false
     },
@@ -19,26 +19,29 @@ const Enrollment = sequelize.define(
       type: DataTypes.BIGINT,
       allowNull: false
     },
-    orderId: {
-      type: DataTypes.BIGINT,
-      allowNull: true // Không cần references ở đây
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     },
-    enrollment_date: {
-      type: DataTypes.DATE
+    price: {
+      type: DataTypes.DECIMAL(15, 2),
+      allowNull: false
     },
-    status: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false
-    },
-    completedDate: {
+    createdAt: {
       type: DataTypes.DATE,
-      defaultValue: null
+      allowNull: false,
+      defaultValue: DataTypes.NOW
+    },
+    updatedAt: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW
     }
   },
   {
-    tableName: 'enrollments',
+    tableName: 'order_items',
     timestamps: true
   }
 )
 
-module.exports = Enrollment
+module.exports = OrderItem
