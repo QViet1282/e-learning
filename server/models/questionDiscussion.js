@@ -13,8 +13,8 @@ const QuestionDiscussion = sequelize.define(
       allowNull: false
     },
     comment: {
-      type: DataTypes.TEXT,
-      allowNull: false
+      type: DataTypes.TEXT
+      // allowNull: false
     },
     like: {
       type: DataTypes.INTEGER
