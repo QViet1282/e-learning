@@ -3,6 +3,7 @@ const { fakerEN: faker } = require('@faker-js/faker')
 const Enrollment = require('../models/enrollments')
 const User = require('../models/user')
 const Course = require('../models/course')
+const Order = require('../models/order') // Import Order model
 
 const generateUserId = async () => {
   const users = await User.findAll()
@@ -20,6 +21,14 @@ const generateCourseId = async () => {
   return randomCourseId
 }
 
+const generateOrderId = async () => {
+  const orders = await Order.findAll()
+  const orderIds = orders.map(order => order.id)
+  const randomIndex = Math.floor(Math.random() * orderIds.length)
+  const randomOrderId = orderIds[randomIndex]
+  return randomOrderId
+}
+
 const generateEnrollment = async () => {
   const usedPairs = new Set()
   const enrollments = []
@@ -27,6 +36,7 @@ const generateEnrollment = async () => {
   while (enrollments.length < 10) {
     const userId = await generateUserId()
     const courseId = await generateCourseId()
+    const orderId = await generateOrderId() // Ensure this is not null
     const pair = `${userId}-${courseId}`
 
     if (!usedPairs.has(pair)) {
@@ -35,6 +45,7 @@ const generateEnrollment = async () => {
       enrollments.push({
         userId,
         courseId,
+        orderId, // Assign the correct orderId
         enrollment_date,
         createdAt: faker.date.past(),
         updatedAt: faker.date.recent(),

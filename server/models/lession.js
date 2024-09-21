@@ -41,6 +41,10 @@ const Lession = sequelize.define(
     uploadedBy: {
       type: DataTypes.BIGINT,
       allowNull: true
+    },
+    status: {
+      type: DataTypes.TINYINT,
+      defaultValue: 0
     }
   },
   {
