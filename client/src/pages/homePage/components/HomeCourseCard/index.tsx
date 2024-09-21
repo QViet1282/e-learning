@@ -28,7 +28,7 @@ interface Props {
   enrollmentCount?: number
   createdAt?: Date
   lessonCount?: number
-
+  averageRating?: number
 }
 const HomeCourseCard = ({
   name,
@@ -43,7 +43,8 @@ const HomeCourseCard = ({
   locationPath,
   enrollmentCount,
   createdAt,
-  lessonCount
+  lessonCount,
+  averageRating = 0 // Default rating = 0 nếu không có giá trị
 }: Props): ReactElement => {
   const [isEnrolled, setIsEnrolled] = useState(false)
   const navigate = useNavigate()
@@ -55,13 +56,39 @@ const HomeCourseCard = ({
     navigate(courseDetailView, { state: { assignedBy: assignedBy } })
   }
   const priceText = useMemo(() => {
-    if (Number(price) !== 0) {
-      return (
-        `${price}`
-      )
-    }
-    return t('homepage.free')
+    return Number(price) !== 0 ? `${price}` : t('homepage.free')
   }, [price])
+
+  // Tạo các sao dựa trên giá trị `rating`
+  const renderStars = useMemo(() => {
+    const fullStars = Math.floor(averageRating) // Số sao đầy
+    const halfStar = averageRating - fullStars >= 0.5 // Có sao nửa không?
+    const emptyStars = 5 - fullStars - (halfStar ? 1 : 0) // Số sao rỗng
+
+    return (
+        <div className="flex space-x-1">
+          {Array(fullStars)
+            .fill(0)
+            .map((_, index) => (
+              <svg key={`full-${index}`} className="w-4 h-4 fill-current text-amber-500" viewBox="0 0 16 16">
+                <path d="M10 5.934L8 0 6 5.934H0l4.89 3.954L2.968 16 8 12.223 13.032 16 11.11 9.888 16 5.934z" />
+              </svg>
+            ))}
+          {halfStar && (
+            <svg className="w-4 h-4 fill-current text-amber-500" viewBox="0 0 16 16">
+              <path d="M10 5.934L8 0 6 5.934H0l4.89 3.954L2.968 16 8 12.223 13.032 16 11.11 9.888 16 5.934z" />
+            </svg>
+          )}
+          {Array(emptyStars)
+            .fill(0)
+            .map((_, index) => (
+              <svg key={`empty-${index}`} className="w-4 h-4 fill-current text-slate-300" viewBox="0 0 16 16">
+                <path d="M10 5.934L8 0 6 5.934H0l4.89 3.954L2.968 16 8 12.223 13.032 16 11.11 9.888 16 5.934z" />
+              </svg>
+            ))}
+        </div>
+    )
+  }, [averageRating])
 
   // useEffect(() => {
   //   const checkEnrollment = async () => {
@@ -165,44 +192,14 @@ const HomeCourseCard = ({
             <header className="mb-3">
               <h3 className="text-lg text-slate-800 font-semibold h-16">{name}</h3>
             </header>
+            {/* Rating and Price */}
             <div className="flex flex-wrap justify-between items-center mb-4">
               <div className="flex items-center space-x-2 mr-2">
-                <div className="flex space-x-1">
-                  <button>
-                    <span className="sr-only">1 star</span>
-                    <svg className="w-4 h-4 fill-current text-amber-500" viewBox="0 0 16 16">
-                      <path d="M10 5.934L8 0 6 5.934H0l4.89 3.954L2.968 16 8 12.223 13.032 16 11.11 9.888 16 5.934z" />
-                    </svg>
-                  </button>
-                  <button>
-                    <span className="sr-only">2 stars</span>
-                    <svg className="w-4 h-4 fill-current text-amber-500" viewBox="0 0 16 16">
-                      <path d="M10 5.934L8 0 6 5.934H0l4.89 3.954L2.968 16 8 12.223 13.032 16 11.11 9.888 16 5.934z" />
-                    </svg>
-                  </button>
-                  <button>
-                    <span className="sr-only">3 stars</span>
-                    <svg className="w-4 h-4 fill-current text-amber-500" viewBox="0 0 16 16">
-                      <path d="M10 5.934L8 0 6 5.934H0l4.89 3.954L2.968 16 8 12.223 13.032 16 11.11 9.888 16 5.934z" />
-                    </svg>
-                  </button>
-                  <button>
-                    <span className="sr-only">4 stars</span>
-                    <svg className="w-4 h-4 fill-current text-amber-500" viewBox="0 0 16 16">
-                      <path d="M10 5.934L8 0 6 5.934H0l4.89 3.954L2.968 16 8 12.223 13.032 16 11.11 9.888 16 5.934z" />
-                    </svg>
-                  </button>
-                  <button>
-                    <span className="sr-only">5 stars</span>
-                    <svg className="w-4 h-4 fill-current text-slate-300" viewBox="0 0 16 16">
-                      <path d="M10 5.934L8 0 6 5.934H0l4.89 3.954L2.968 16 8 12.223 13.032 16 11.11 9.888 16 5.934z" />
-                    </svg>
-                  </button>
-                </div>
-                <div className="inline-flex text-sm font-medium text-amber-600">4.2</div>
+                {renderStars}
+                <div className="inline-flex text-sm font-medium text-amber-600 mt-1">{averageRating.toFixed(1)}</div>
               </div>
               <div>
-                <div className="inline-flex text-sm font-bold bg-emerald-100 text-emerald-600 rounded-full text-center px-2 py-0.5">${priceText}</div>
+                <div className="inline-flex text-sm font-bold bg-emerald-100 text-emerald-600 rounded-full text-center px-2 py-0.5">  {Number(price) === 0 ? t('homepage.free') : `${price} VND`}</div>
               </div>
             </div>
             {/* Features list */}
