@@ -1,23 +1,12 @@
 const { fakerEN: faker } = require('@faker-js/faker')
 const User = require('../models/user')
 const Role = require('../models/role')
-const Group = require('../models/group')
 const generateRoleId = async () => {
   const roles = await Role.findAll()
   const roleIds = roles.map(role => role.id)
 
   const randomIndex = Math.floor(Math.random() * roleIds.length)
   const randomRoleId = roleIds[randomIndex]
-
-  console.log(randomRoleId)
-  return randomRoleId
-}
-const generateGroupId = async () => {
-  const groups = await Group.findAll()
-  const groupIds = groups.map(role => role.id)
-
-  const randomIndex = Math.floor(Math.random() * groupIds.length)
-  const randomRoleId = groupIds[randomIndex]
 
   console.log(randomRoleId)
   return randomRoleId
@@ -36,7 +25,6 @@ const generateUsers = async () => {
     refreshToken: faker.random.alphaNumeric(32),
     expiredToken: faker.date.future(),
     roleId: await generateRoleId(),
-    groupId: await generateGroupId(),
     createdAt: faker.date.past(),
     updatedAt: faker.date.recent()
   })))

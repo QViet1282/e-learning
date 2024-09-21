@@ -11,10 +11,10 @@ const Exam = sequelize.define(
       unique: true,
       primaryKey: true
     },
-    categoryExamId: {
-      type: DataTypes.BIGINT,
-      allowNull: false
-    },
+    // categoryExamId: {
+    //   type: DataTypes.BIGINT,
+    //   allowNull: false
+    // },
     lessionId: {
       type: DataTypes.BIGINT,
       allowNull: false
@@ -37,6 +37,10 @@ const Exam = sequelize.define(
     },
     numberOfAttempt: {
       type: DataTypes.TINYINT
+    },
+    status: {
+      type: DataTypes.TINYINT,
+      defaultValue: 0
     }
   },
   {
