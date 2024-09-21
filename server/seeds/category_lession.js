@@ -60,7 +60,7 @@ const generateCategoryLession = async () => {
     let sampleNamesCopy = [...sampleNames]
     const numLessons = Math.floor(Math.random() * 4) + 3
     let order = 1
-    const checkUpDate = new Date()
+    const status = 1
     for (let j = 0; j < numLessons; j++) {
       const randomIndex = Math.floor(Math.random() * sampleNamesCopy.length)
       const categoryLessonName = sampleNamesCopy[randomIndex]
@@ -70,7 +70,7 @@ const generateCategoryLession = async () => {
         courseId,
         name: categoryLessonName,
         order,
-        checkUpDate,
+        status,
         createAt: faker.date.past(),
         updatedAt: faker.date.recent()
       })

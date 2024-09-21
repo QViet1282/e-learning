@@ -51,6 +51,9 @@ User.belongsTo(Role, { foreignKey: 'roleId' })
 Group.hasMany(User, { foreignKey: 'groupId' })
 User.belongsTo(Group, { foreignKey: 'groupId' })
 
+User.hasMany(Course, { foreignKey: 'assignedBy' })
+Course.belongsTo(User, { foreignKey: 'assignedBy' })
+
 RoleToPermission.belongsTo(Role, { foreignKey: 'roleId' })
 RoleToPermission.belongsTo(Permission, { foreignKey: 'permissionId' })
 

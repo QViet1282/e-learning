@@ -424,11 +424,10 @@ const generateLessions = async () => {
   let currentCategoryId = null
   let order = 1
   let videoIndex = 0
-
+  const status = 1
   for (let i = 0; i < category_lessions.length; i++) {
     const category_lession = category_lessions[i]
     const lessionCategoryId = category_lession.id
-
     if (lessionCategoryId !== currentCategoryId) {
       order = 1
       currentCategoryId = lessionCategoryId
@@ -479,6 +478,7 @@ const generateLessions = async () => {
         order,
         locationPath: randomLocationPath,
         uploadedBy: await generateUserId(),
+        status,
         createAt: faker.date.past(),
         updatedAt: faker.date.recent()
       })
