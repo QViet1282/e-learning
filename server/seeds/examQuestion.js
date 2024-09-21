@@ -3,20 +3,26 @@ const ExamQuestion = require('../models/examQuestion')
 const Exam = require('../models/exam')
 const Question = require('../models/question')
 
+// Sửa lại hàm generateExamId
 const generateExamId = async () => {
-  const users = await Exam.findAll()
-  const userIds = users.map(user => user.id)
-  const randomIndex = Math.floor(Math.random() * userIds.length)
-  const randomUserId = userIds[randomIndex]
-  return randomUserId
+  const exams = await Exam.findAll() // Thay đổi biến tên cho dễ hiểu
+  const examIds = exams.map(exam => exam.id) // Lấy danh sách examId
+  if (examIds.length === 0) {
+    throw new Error('No exams found in the database.') // Thêm kiểm tra nếu không có dữ liệu
+  }
+  const randomIndex = Math.floor(Math.random() * examIds.length)
+  return examIds[randomIndex] // Trả về một examId hợp lệ
 }
 
+// Sửa lại hàm generateQuestionId
 const generateQuestionId = async () => {
-  const courses = await Question.findAll()
-  const courseIds = courses.map(course => course.id)
-  const randomIndex = Math.floor(Math.random() * courseIds.length)
-  const randomCourseId = courseIds[randomIndex]
-  return randomCourseId
+  const questions = await Question.findAll() // Thay đổi biến tên cho dễ hiểu
+  const questionIds = questions.map(question => question.id) // Lấy danh sách questionId
+  if (questionIds.length === 0) {
+    throw new Error('No questions found in the database.') // Thêm kiểm tra nếu không có dữ liệu
+  }
+  const randomIndex = Math.floor(Math.random() * questionIds.length)
+  return questionIds[randomIndex] // Trả về một questionId hợp lệ
 }
 
 const generateExamQuestion = async () => {
@@ -26,6 +32,13 @@ const generateExamQuestion = async () => {
   while (examQuestions.length < 6) {
     const examId = await generateExamId()
     const questionId = await generateQuestionId()
+
+    // Kiểm tra dữ liệu trước khi thêm vào examQuestions
+    if (!examId || !questionId) {
+      console.log(`Invalid data: examId = ${examId}, questionId = ${questionId}`)
+      continue
+    }
+
     const pair = `${examId}-${questionId}`
 
     if (!usedPairs.has(pair)) {

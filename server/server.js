@@ -9,6 +9,7 @@ const { sequelize } = require('./models')
 const initDataController = require('./controllers/init-data')
 const authController = require('./controllers/auth')
 const courseController = require('./controllers/course')
+const learningController = require('./controllers/learning')
 
 const seedDatabase = require('./seeds/index')
 const { API_PREFIX } = require('./utils')
@@ -41,6 +42,7 @@ app.use('/static', express.static(path.join(__dirname, 'public')))
 app.use(`${API_PREFIX}/auth`, authController)
 app.use(`${API_PREFIX}/init-data`, initDataController)
 app.use(`${API_PREFIX}/courses`, courseController)
+app.use(`${API_PREFIX}/learn`, learningController)
 
 async function startServer () {
   try {
