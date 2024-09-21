@@ -11,7 +11,7 @@
    ========================================================================== */
 
 // TODO: remove later
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState, useRef } from 'react'
 import 'react-datepicker/dist/react-datepicker.css'
 import { Pagination } from '@mui/material'
 import { styled } from '@mui/system'
@@ -24,6 +24,7 @@ import SearchIcon from '@mui/icons-material/Search'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import HomeCourseCard from 'pages/homePage/components/HomeCourseCard'
+import SlideBar from 'pages/homePage/components/Slide'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import { PacmanLoader } from 'react-spinners'
@@ -96,6 +97,7 @@ const HomePage = () => {
     }
   })
   const divRef = useContext(DivRefContext)
+  const targetDivRef = useRef<HTMLDivElement>(null)
   const { showButtonTop, setShowButtonTop } = useContext(ShowButtonTopContext)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [currentTab, setCurrentTab] = useState(0)
@@ -480,7 +482,7 @@ const HomePage = () => {
                   <div className='flex items-center sm:w-auto'>
                     <button
                       type='submit'
-                      className={`bg-custom-button-control hover:bg-custom-button-control-hover rounded-md font-bold px-7 sm:px-4 py-2 m-2 transition duration-200 ${theme === 'dark' ? 'text-black' : 'text-white'}`}
+                      className={`bg-teal-300 hover:bg-teal-500 rounded-md font-bold px-7 sm:px-4 py-2 m-2 transition duration-200 ${theme === 'dark' ? 'text-black' : 'text-white'}`}
                       onClick={handleSearch}
                     >
                       {t('homepage.find')}
@@ -490,6 +492,15 @@ const HomePage = () => {
               </form>
             </div>
           </div>
+          {displayGrid && (
+            <div className='w-full flex justify-center' id='learnerViewing' ref={targetDivRef}>
+              <div className='w-4/5'>
+                <p className='ml-5 font-bold text-2xl text-shadow-lg mt-14'>Danh Mục Hoc Tập</p>
+                {/* {isPressed && <div className="fixed inset-0 bg-black opacity-50" onClick={handlePress}></div>} */}
+                <SlideBar></SlideBar>
+              </div>
+            </div>
+          )}
           {isLoading
             ? <div className="flex justify-center items-center w-full h-140 mt-20">
               <PacmanLoader
@@ -534,6 +545,7 @@ const HomePage = () => {
                             enrollmentCount={item.enrollmentCount}
                             createdAt={item.createdAt}
                             lessonCount={item.lessonCount}
+                            averageRating={item.averageRating}
                           />
                           ))
                         )
@@ -556,7 +568,7 @@ const HomePage = () => {
           }
         </div>
         <button
-          className={`rounded-full fixed bottom-3 right-8 z-50 text-lg border-none outline-none bg-custom-button-enroll hover:bg-custom-button-enroll-hover text-white cursor-pointer p-4 transition-colors duration-500 ${showButtonTop ? '' : 'hidden'}`}
+          className={`rounded-full fixed bottom-3 right-8 z-50 text-lg border-none outline-none bg-teal-300 hover:bg-teal-500 text-white cursor-pointer p-4 transition-colors duration-500 ${showButtonTop ? '' : 'hidden'}`}
           onClick={moveToTop}
         ><KeyboardArrowUpIcon style={{ fill: 'rgba(0, 0, 0, 1)', stroke: 'black', strokeWidth: 5 }} />
         </button>

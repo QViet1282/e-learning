@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 const express = require('express')
 const { models } = require('../models')
+const { sequelize } = require('../models')
 const { isAuthenticated } = require('../middlewares/authentication')
 const jsonError = 'Internal server error'
 const router = express.Router()
@@ -173,6 +174,24 @@ router.get('/', isAuthenticated, async (req, res) => {
       limit: Number(size),
       offset
     })
+
+    // Lấy rating trung bình của mỗi khóa học
+    const ratings = await models.CourseReview.findAll({
+      attributes: [
+        'courseId',
+        [sequelize.fn('AVG', sequelize.col('rating')), 'averageRating']
+      ],
+      group: ['courseId']
+    })
+
+    // Chuyển đổi kết quả thành đối tượng dễ tìm kiếm
+    const ratingsObject = ratings.reduce((acc, curr) => {
+      const courseId = curr.getDataValue('courseId') // Lấy courseId
+      const averageRating = parseFloat(curr.getDataValue('averageRating')) // Lấy averageRating
+      acc[courseId] = averageRating || 0 // Gán giá trị averageRating vào đối tượng
+      return acc
+    }, {})
+
     const listUsers = await models.User.findAll()
     const categoryCourse = await getCourseCategory()
     const enrollmentCounts = await models.Enrollment.count({
@@ -199,23 +218,27 @@ router.get('/', isAuthenticated, async (req, res) => {
       obj[count.courseId] = count.count
       return obj
     }, {})
-    const dataFromDatabase = listCourses.map((course) => ({
-      id: course.id,
-      name: course.name,
-      summary: course.summary,
-      assignedBy: listUsers?.find((e) => course.assignedBy === e.id)?.username ?? null,
-      durationInMinute: course.durationInMinute,
-      startDate: course.startDate,
-      endDate: course.endDate,
-      description: course.description,
-      price: course.price,
-      prepare: course.prepare,
-      locationPath: course.locationPath,
-      categoryCourseName: categoryCourse?.find((e) => course.categoryCourseId === e.id)?.name ?? null,
-      enrollmentCount: enrollmentCountsObject[course.id] || 0,
-      lessonCount: lessonCountsObject[course.id] || 0,
-      createdAt: course.createdAt
-    }))
+    const dataFromDatabase = listCourses.map((course) => {
+      const rating = ratingsObject[course.id] || 0 // Lấy rating từ ratingsObject
+      return {
+        id: course.id,
+        name: course.name,
+        summary: course.summary,
+        assignedBy: listUsers?.find((e) => course.assignedBy === e.id)?.username ?? null,
+        durationInMinute: course.durationInMinute,
+        startDate: course.startDate,
+        endDate: course.endDate,
+        description: course.description,
+        price: course.price,
+        prepare: course.prepare,
+        locationPath: course.locationPath,
+        categoryCourseName: categoryCourse?.find((e) => course.categoryCourseId === e.id)?.name ?? null,
+        enrollmentCount: enrollmentCountsObject[course.id] || 0,
+        lessonCount: lessonCountsObject[course.id] || 0,
+        averageRating: rating, // Gán giá trị averageRating
+        createdAt: course.createdAt
+      }
+    })
       .sort((a, b) => {
         if (b.enrollmentCount - a.enrollmentCount !== 0) {
           return b.enrollmentCount - a.enrollmentCount
@@ -251,142 +274,7 @@ router.get('/', isAuthenticated, async (req, res) => {
     res.status(500).json({ message: jsonError })
   }
 })
-// có
-router.get('/paidCourse', isAuthenticated, async (req, res) => {
-  try {
-    const {
-      page = '1',
-      size = '8',
-      search: searchCondition,
-      startDate = '1970-01-01',
-      endDate = '9999-12-31',
-      category: categoryCondition
-    } = req.query
-    const listCourses = await models.Course.findAll()
-    const listUsers = await models.User.findAll()
-    const categoryCourse = await getCourseCategory()
 
-    const dataFromDatabase = await listCourses
-      ?.filter(course => course.price > 0)
-      .map((course) => ({
-        id: course.id,
-        name: course.name,
-        summary: course.summary,
-        assignedBy: listUsers?.find((e) => course.assignedBy === e.id)?.username ?? null,
-        durationInMinute: course.durationInMinute,
-        startDate: course.startDate,
-        endDate: course.endDate,
-        description: course.description,
-        price: course.price,
-        prepare: course.prepare,
-        locationPath: course.locationPath,
-        categoryCourseName: categoryCourse?.find((e) => course.categoryCourseId === e.id)?.name ?? null
-      }))
-    const dataAfterNameSearch = applyNameSearch(
-      searchCondition,
-      dataFromDatabase
-    )
-    const dataAfterNameAndDateSearch = applyDateRangeSearch(
-      startDate,
-      endDate,
-      dataAfterNameSearch
-    )
-    const dataAfterSearch = applyCourseCategoryNameSearch(
-      categoryCondition,
-      dataAfterNameAndDateSearch
-    )
-    const dataOfCurrentWindow = getDataInWindowSize(
-      size,
-      page,
-      dataAfterSearch
-    )
-    infoLogger.info({
-      message: `Accessed ${req.path}`,
-      method: req.method,
-      endpoint: req.path,
-      request: req.query,
-      response: dataOfCurrentWindow,
-      user: req.user.id
-    })
-    res.json({
-      page: Number(page),
-      size: Number(size),
-      totalRecords: dataAfterSearch.length,
-      data: dataOfCurrentWindow
-    })
-  } catch (error) {
-    console.log(error)
-    logError(req, error)
-    res.status(500).json({ message: jsonError })
-  }
-})
-router.get('/freeCourse', isAuthenticated, async (req, res) => {
-  try {
-    const {
-      page = '1',
-      size = '8',
-      search: searchCondition,
-      startDate = '1970-01-01',
-      endDate = '9999-12-31',
-      category: categoryCondition
-    } = req.query
-    const listCourses = await models.Course.findAll()
-    const listUsers = await models.User.findAll()
-    const categoryCourse = await getCourseCategory()
-    const dataFromDatabase = await listCourses
-      ?.filter(course => Number(course.price) === 0)
-      .map((course) => ({
-        id: course.id,
-        name: course.name,
-        summary: course.summary,
-        assignedBy: listUsers?.find((e) => course.assignedBy === e.id)?.username ?? null,
-        durationInMinute: course.durationInMinute,
-        startDate: course.startDate,
-        endDate: course.endDate,
-        description: course.description,
-        price: course.price,
-        prepare: course.prepare,
-        locationPath: course.locationPath,
-        categoryCourseName: categoryCourse?.find((e) => course.categoryCourseId === e.id)?.name ?? null
-      }))
-    const dataAfterNameSearch = applyNameSearch(
-      searchCondition,
-      dataFromDatabase
-    )
-    const dataAfterNameAndDateSearch = applyDateRangeSearch(
-      startDate,
-      endDate,
-      dataAfterNameSearch
-    )
-    const dataAfterSearch = applyCourseCategoryNameSearch(
-      categoryCondition,
-      dataAfterNameAndDateSearch
-    )
-    const dataOfCurrentWindow = getDataInWindowSize(
-      size,
-      page,
-      dataAfterSearch
-    )
-    infoLogger.info({
-      message: `Accessed ${req.path}`,
-      method: req.method,
-      endpoint: req.path,
-      request: req.query,
-      response: dataOfCurrentWindow,
-      user: req.user.id
-    })
-    res.json({
-      page: Number(page),
-      size: Number(size),
-      totalRecords: dataAfterSearch.length,
-      data: dataOfCurrentWindow
-    })
-  } catch (error) {
-    logError(req, error)
-    console.log(error)
-    res.status(500).json({ message: jsonError })
-  }
-})
 function applyDateRangeSearch (startDate, endDate, inputData) {
   const filteredData = inputData.filter((d) => {
     return new Date(d.startDate) >= new Date(startDate) && new Date(d.endDate) <= new Date(endDate)
