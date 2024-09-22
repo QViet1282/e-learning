@@ -1,32 +1,22 @@
 const { fakerEN: faker } = require('@faker-js/faker')
 const Exam = require('../models/exam')
 const Lession = require('../models/lession')
-const CategoryExam = require('../models/category_exam')
-const User = require('../models/user')
+const User = require('../models/user') // Đã loại bỏ CategoryExam
 
 const generateLessionId = async () => {
   const lessions = await Lession.findAll()
   const lessionIds = lessions.map(lession => lession.id)
   const randomIndex = Math.floor(Math.random() * lessionIds.length)
-  const randomLessionId = lessionIds[randomIndex]
-  return randomLessionId
-}
-
-const generateCategoryExamId = async () => {
-  const categoryExams = await CategoryExam.findAll()
-  const categoryExamsIds = categoryExams.map(categoryExam => categoryExam.id)
-  const randomIndex = Math.floor(Math.random() * categoryExamsIds.length)
-  const randomCategoryExamId = categoryExamsIds[randomIndex]
-  return randomCategoryExamId
+  return lessionIds[randomIndex]
 }
 
 const generateUserId = async () => {
   const users = await User.findAll()
   const userIds = users.map(user => user.id)
   const randomIndex = Math.floor(Math.random() * userIds.length)
-  const randomUserId = userIds[randomIndex]
-  return randomUserId
+  return userIds[randomIndex]
 }
+
 const examData = [
   {
     name: 'Midterm Exam',
@@ -71,20 +61,17 @@ const examData = [
 ]
 
 const generateExams = async () => {
-  const usedPairs = new Set()
+  const usedLessionIds = new Set()
   const exams = []
 
   while (exams.length < 6) {
     const lessionId = await generateLessionId()
-    const categoryExamId = await generateCategoryExamId()
-    const pair = `${lessionId}-${categoryExamId}`
 
-    if (!usedPairs.has(pair)) {
+    if (!usedLessionIds.has(lessionId)) {
       const randomIndex = Math.floor(Math.random() * examData.length)
       const exam = examData[randomIndex]
 
       exams.push({
-        categoryExamId,
         lessionId,
         name: exam.name,
         description: exam.description,
@@ -96,7 +83,7 @@ const generateExams = async () => {
         updatedAt: faker.date.recent()
       })
 
-      usedPairs.add(pair)
+      usedLessionIds.add(lessionId)
     }
   }
   return exams

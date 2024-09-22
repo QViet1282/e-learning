@@ -7,22 +7,24 @@ const ExamQuestion = require('./examQuestion')
 const UserEnterExitExamRoom = require('./userEnterExitExamRoom')
 const TempUserAnswer = require('./tempUserAnswer')
 const QuestionDiscussion = require('./questionDiscussion')
-const CategoryExam = require('./category_exam')
+// const CategoryExam = require('./category_exam')
 const Course = require('./course')
 const CourseProgress = require('./course_progress')
 const Enrollment = require('./enrollments')
 const Lession = require('./lession')
 const CategoryLession = require('./category_lession')
-const Permission = require('./permission')
 const Role = require('./role')
-const RoleToPermission = require('./role_to_permission')
 const CategoryCourse = require('./category_course')
-const Group = require('./group')
-const Route = require('./route')
+const CourseReview = require('./course_review')
+
 const Notification = require('./notification')
 const NotificationRecipient = require('./notification_recipient')
-Exam.belongsTo(CategoryExam, { foreignKey: 'categoryExamId' })
-CategoryExam.hasMany(Exam, { foreignKey: 'categoryExamId' })
+const Order = require('./order')
+const OrderItem = require('./orderItem')
+const Payment = require('./payment')
+
+// Exam.belongsTo(CategoryExam, { foreignKey: 'categoryExamId' })
+// CategoryExam.hasMany(Exam, { foreignKey: 'categoryExamId' })
 
 Exam.belongsTo(Lession, { foreignKey: 'lessionId' })
 Lession.hasMany(Exam, { foreignKey: 'lessionId' })
@@ -47,18 +49,6 @@ Lession.belongsToMany(Enrollment, { through: CourseProgress, foreignKey: 'lessio
 
 Role.hasMany(User, { foreignKey: 'roleId' })
 User.belongsTo(Role, { foreignKey: 'roleId' })
-
-Group.hasMany(User, { foreignKey: 'groupId' })
-User.belongsTo(Group, { foreignKey: 'groupId' })
-
-User.hasMany(Course, { foreignKey: 'assignedBy' })
-Course.belongsTo(User, { foreignKey: 'assignedBy' })
-
-RoleToPermission.belongsTo(Role, { foreignKey: 'roleId' })
-RoleToPermission.belongsTo(Permission, { foreignKey: 'permissionId' })
-
-Role.belongsToMany(Permission, { through: RoleToPermission, foreignKey: 'roleId' })
-Permission.belongsToMany(Role, { through: RoleToPermission, foreignKey: 'permissionId' })
 
 NotificationRecipient.belongsTo(User, { foreignKey: 'userId' })
 NotificationRecipient.belongsTo(Notification, { foreignKey: 'notificationId' })
@@ -106,6 +96,28 @@ Exam.hasMany(TempUserAnswer, { foreignKey: 'examId' })
 Course.belongsTo(CategoryCourse, { foreignKey: 'categoryCourseId' })
 CategoryCourse.hasMany(Course, { foreignKey: 'categoryCourseId' })
 
+Enrollment.hasMany(CourseReview, { foreignKey: 'enrollId' })
+CourseReview.belongsTo(Enrollment, { foreignKey: 'enrollId' })
+
+Course.hasMany(CourseReview, { foreignKey: 'courseId' })
+CourseReview.belongsTo(Course, { foreignKey: 'courseId' })
+
+// New relationships for Orders, OrderItems, and Payments
+Order.belongsTo(User, { foreignKey: 'userId' })
+User.hasMany(Order, { foreignKey: 'userId' })
+
+Order.hasMany(OrderItem, { foreignKey: 'orderId' })
+OrderItem.belongsTo(Order, { foreignKey: 'orderId' })
+
+OrderItem.belongsTo(Course, { foreignKey: 'courseId' })
+Course.hasMany(OrderItem, { foreignKey: 'courseId' })
+
+Payment.belongsTo(Order, { foreignKey: 'orderId' })
+Order.hasMany(Payment, { foreignKey: 'orderId' })
+
+Enrollment.belongsTo(Order, { foreignKey: 'orderId' })
+Order.hasMany(Enrollment, { foreignKey: 'orderId' })
+
 module.exports = {
   sequelize,
   models: {
@@ -119,17 +131,17 @@ module.exports = {
     UserEnterExitExamRoom,
     TempUserAnswer,
     QuestionDiscussion,
-    CategoryExam,
+    // CategoryExam,
     CategoryCourse,
     Course,
     Lession,
-    Permission,
+    CourseReview,
     Role,
-    RoleToPermission,
-    Route,
     CategoryLession,
     CourseProgress,
     Enrollment,
-    Group
+    Order,
+    OrderItem,
+    Payment
   }
 }
