@@ -73,6 +73,10 @@ const Question = sequelize.define(
     },
     explanation: {
       type: DataTypes.TEXT
+    },
+    isQuestionStopped: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   },
   {
