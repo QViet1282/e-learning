@@ -28,7 +28,7 @@ pipeline {
             steps {
                 dir("${APP_DIR}/server") {
                         sh 'pm2 delete all || true' 
-                        sh 'pm2 start ecosystem.config.js --env production' 
+                        sh 'pm2 start yarn --name "myapp" -- start' 
                         sh 'pm2 save' 
                     }
             }
