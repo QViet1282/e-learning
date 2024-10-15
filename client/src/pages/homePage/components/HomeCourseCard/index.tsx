@@ -251,16 +251,16 @@ const HomeCourseCard = ({
             </ul>
           </div>
           {/* Card footer */}
-          <div className='bg-red-100 items-center flex'>
+          {/* <div className='bg-red-100 items-center flex'>
             <a className="font-bold py-1 rounded-md items-center text-center px-5 w-full bg-indigo-500 hover:bg-indigo-600 text-white " href="#0">
               {Number(price) === 0 ? 'Free Now' : 'Buy Now'}
             </a>
-          </div>
-          {/* <div className='bg-red-100 items-center flex'>
+          </div> */}
+          <div className='bg-red-100 items-center flex'>
             <a className="font-bold py-1 rounded-md items-center text-center px-5 w-full bg-indigo-500 hover:bg-indigo-600 text-white" onClick={handleCourseClick}>
             {isEnrolled ? t('course.continue') : t('course.enrollNow')}
             </a>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>

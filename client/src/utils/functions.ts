@@ -67,5 +67,16 @@ export const removeLocalStorage = (key: string): void => {
   return window.localStorage.removeItem(key)
 }
 export const removeAllLocalStorage = (): void => {
-  return window.localStorage.clear()
+  const theme = window.localStorage.getItem('theme')
+  const selectedLanguage = window.localStorage.getItem('selectedLanguage')
+
+  window.localStorage.clear()
+
+  if (theme !== null) {
+    window.localStorage.setItem('theme', theme)
+  }
+
+  if (selectedLanguage !== null) {
+    window.localStorage.setItem('selectedLanguage', selectedLanguage)
+  }
 }
