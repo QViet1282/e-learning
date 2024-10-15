@@ -1,6 +1,6 @@
 const { fakerEN: faker } = require('@faker-js/faker')
 const Enrollment = require('../models/enrollments')
-const Lession = require('../models/lession')
+const StudyItem = require('../models/study_item') // Thay Lession bằng StudyItem
 const CourseProgress = require('../models/course_progress')
 
 const generateEnrollmentId = async () => {
@@ -11,12 +11,12 @@ const generateEnrollmentId = async () => {
   return randomEnrollmentId
 }
 
-const generateLessionId = async () => {
-  const lessions = await Lession.findAll()
-  const lessionIds = lessions.map(lession => lession.id)
-  const randomIndex = Math.floor(Math.random() * lessionIds.length)
-  const randomLessionId = lessionIds[randomIndex]
-  return randomLessionId
+const generateStudyItemId = async () => {
+  const studyItems = await StudyItem.findAll()
+  const studyItemIds = studyItems.map(item => item.id)
+  const randomIndex = Math.floor(Math.random() * studyItemIds.length)
+  const randomStudyItemId = studyItemIds[randomIndex]
+  return randomStudyItemId
 }
 
 const generateCourseProgress = async () => {
@@ -25,14 +25,15 @@ const generateCourseProgress = async () => {
 
   while (courseProgress.length < 10) {
     const enrollmentId = await generateEnrollmentId()
-    const lessionId = await generateLessionId()
-    const pair = `${enrollmentId}-${lessionId}`
+    const studyItemId = await generateStudyItemId()
+    const pair = `${enrollmentId}-${studyItemId}`
 
     if (!usedPairs.has(pair)) {
+      usedPairs.add(pair) // Thêm dòng này để tránh lặp lại cặp
       courseProgress.push({
         enrollmentId,
-        lessionId,
-        completeation_at: faker.date.recent(),
+        studyItemId,
+        completionAt: faker.datatype.boolean(),
         createdAt: faker.date.past(),
         updatedAt: faker.date.recent()
       })
