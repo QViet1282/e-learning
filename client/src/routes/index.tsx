@@ -16,6 +16,15 @@ import React from 'react'
 const Login = loadable(async () => await import('pages/login'), {
   fallback: <Loading />
 })
+
+const Signup = loadable(async () => await import('pages/signup'), {
+  fallback: <Loading />
+})
+
+const ForgotPassword = loadable(async () => await import('pages/forgotPassword'), {
+  fallback: <Loading />
+})
+
 const NotFound = loadable(async () => await import('pages/not-found'), {
   fallback: <Loading />
 })
@@ -23,7 +32,38 @@ const HomePage = loadable(async () => await import('pages/homePage'), {
   fallback: <Loading />
 })
 
-const CoursePage = loadable(async () => await import('pages/course'), {
+const CourseDetail = loadable(async () => await import('pages/courseDetail'), {
+  fallback: <Loading />
+})
+const Learning = loadable(async () => await import('pages/learning'), {
+  fallback: <Loading />
+})
+
+const Profile = loadable(async () => await import('pages/settings/Profile'), {
+  fallback: <Loading />
+})
+
+const Home = loadable(async () => await import('pages/home'), {
+  fallback: <Loading />
+})
+
+// TODO: remove later
+const Dashboard = loadable(async () => await import('pages/dashboard'), {
+  fallback: <Loading />
+})
+
+const Cancel = loadable(async () => await import('pages/cancel'), {
+  fallback: <Loading />
+})
+const Success = loadable(async () => await import('pages/success'), {
+  fallback: <Loading />
+})
+
+const Cart = loadable(async () => await import('pages/cart'), {
+  fallback: <Loading />
+})
+
+const MyCourse = loadable(async () => await import('pages/myCourse'), {
   fallback: <Loading />
 })
 
@@ -41,6 +81,22 @@ const routes: RouteObject[] = [
     )
   },
   {
+    path: ROUTES.signup,
+    element: (
+         <AuthRoute>
+           <Signup />
+         </AuthRoute>
+    )
+  },
+  {
+    path: ROUTES.forgotpassword,
+    element: (
+         <AuthRoute>
+           <ForgotPassword />
+         </AuthRoute>
+    )
+  },
+  {
     path: ROUTES.homePage,
     element: (
          <AuthRoute>
@@ -49,7 +105,15 @@ const routes: RouteObject[] = [
     ),
     children: [
       { index: true, element: <HomePage /> },
-      { path: ROUTES.course, element: <CoursePage /> },
+      { path: ROUTES.courseDetail, element: <CourseDetail /> },
+      { path: ROUTES.learning, element: <Learning /> },
+      { path: ROUTES.profile, element: <Profile /> },
+      { path: ROUTES.home, element: <Home /> },
+      { path: ROUTES.dashboard, element: <Dashboard /> },
+      { path: ROUTES.cancel, element: <Cancel /> },
+      { path: ROUTES.success, element: <Success /> },
+      { path: ROUTES.cart, element: <Cart /> },
+      { path: ROUTES.myCourse, element: <MyCourse /> },
       { path: ROUTES.notfound, element: <NotFound /> }
     ]
   }

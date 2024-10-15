@@ -1,13 +1,11 @@
 const sequelize = require('./init')
+const StudyItem = require('./study_item')
 const Exam = require('./exam')
 const Question = require('./question')
 const User = require('./user')
 const UserAnswerHistory = require('./userAnswerHistory')
-const ExamQuestion = require('./examQuestion')
 const UserEnterExitExamRoom = require('./userEnterExitExamRoom')
 const TempUserAnswer = require('./tempUserAnswer')
-const QuestionDiscussion = require('./questionDiscussion')
-// const CategoryExam = require('./category_exam')
 const Course = require('./course')
 const CourseProgress = require('./course_progress')
 const Enrollment = require('./enrollments')
@@ -15,37 +13,14 @@ const Lession = require('./lession')
 const CategoryLession = require('./category_lession')
 const Role = require('./role')
 const CategoryCourse = require('./category_course')
-const CourseReview = require('./course_review')
 
 const Notification = require('./notification')
 const NotificationRecipient = require('./notification_recipient')
 const Order = require('./order')
-const OrderItem = require('./orderItem')
 const Payment = require('./payment')
-
-// Exam.belongsTo(CategoryExam, { foreignKey: 'categoryExamId' })
-// CategoryExam.hasMany(Exam, { foreignKey: 'categoryExamId' })
-
-Exam.belongsTo(Lession, { foreignKey: 'lessionId' })
-Lession.hasMany(Exam, { foreignKey: 'lessionId' })
-
-Enrollment.belongsTo(User, { foreignKey: 'userId' })
-Enrollment.belongsTo(Course, { foreignKey: 'courseId' })
-
-User.belongsToMany(Course, { through: Enrollment, foreignKey: 'userId' })
-Course.belongsToMany(User, { through: Enrollment, foreignKey: 'courseId' })
 
 Course.hasMany(CategoryLession, { foreignKey: 'courseId' })
 CategoryLession.belongsTo(Course, { foreignKey: 'courseId' })
-
-CategoryLession.hasMany(Lession, { foreignKey: 'lessionCategoryId' })
-Lession.belongsTo(CategoryLession, { foreignKey: 'lessionCategoryId' })
-
-CourseProgress.belongsTo(Enrollment, { foreignKey: 'enrollmentId' })
-CourseProgress.belongsTo(Lession, { foreignKey: 'lessionId' })
-
-Enrollment.belongsToMany(Lession, { through: CourseProgress, foreignKey: 'enrollmentId' })
-Lession.belongsToMany(Enrollment, { through: CourseProgress, foreignKey: 'lessionId' })
 
 Role.hasMany(User, { foreignKey: 'roleId' })
 User.belongsTo(Role, { foreignKey: 'roleId' })
@@ -59,17 +34,8 @@ Notification.belongsToMany(User, { through: NotificationRecipient, foreignKey: '
 UserAnswerHistory.belongsTo(User, { foreignKey: 'userId' })
 UserAnswerHistory.belongsTo(Exam, { foreignKey: 'examId' })
 
-ExamQuestion.belongsTo(Exam, { foreignKey: 'examId' })
-ExamQuestion.belongsTo(Question, { foreignKey: 'questionId' })
-
-Exam.belongsToMany(Question, { through: ExamQuestion, foreignKey: 'examId' })
-Question.belongsToMany(Exam, { through: ExamQuestion, foreignKey: 'questionId' })
-
-QuestionDiscussion.belongsTo(User, { foreignKey: 'userId' })
-QuestionDiscussion.belongsTo(Question, { foreignKey: 'questionId' })
-
-User.belongsToMany(Question, { through: QuestionDiscussion, foreignKey: 'userId' })
-Question.belongsToMany(User, { through: QuestionDiscussion, foreignKey: 'questionId' })
+Question.belongsTo(Exam, { foreignKey: 'examId' })
+Exam.hasMany(Question, { foreignKey: 'examId' })
 
 UserEnterExitExamRoom.belongsTo(User, { foreignKey: 'userId' })
 UserEnterExitExamRoom.belongsTo(Exam, { foreignKey: 'examId' })
@@ -96,27 +62,45 @@ Exam.hasMany(TempUserAnswer, { foreignKey: 'examId' })
 Course.belongsTo(CategoryCourse, { foreignKey: 'categoryCourseId' })
 CategoryCourse.hasMany(Course, { foreignKey: 'categoryCourseId' })
 
-Enrollment.hasMany(CourseReview, { foreignKey: 'enrollId' })
-CourseReview.belongsTo(Enrollment, { foreignKey: 'enrollId' })
+Order.hasMany(Enrollment, { foreignKey: 'orderId' })
+Enrollment.belongsTo(Order, { foreignKey: 'orderId' })
 
-Course.hasMany(CourseReview, { foreignKey: 'courseId' })
-CourseReview.belongsTo(Course, { foreignKey: 'courseId' })
+Course.hasMany(Enrollment, { foreignKey: 'courseId' })
+Enrollment.belongsTo(Course, { foreignKey: 'courseId' })
 
 // New relationships for Orders, OrderItems, and Payments
 Order.belongsTo(User, { foreignKey: 'userId' })
 User.hasMany(Order, { foreignKey: 'userId' })
-
-Order.hasMany(OrderItem, { foreignKey: 'orderId' })
-OrderItem.belongsTo(Order, { foreignKey: 'orderId' })
-
-OrderItem.belongsTo(Course, { foreignKey: 'courseId' })
-Course.hasMany(OrderItem, { foreignKey: 'courseId' })
 
 Payment.belongsTo(Order, { foreignKey: 'orderId' })
 Order.hasMany(Payment, { foreignKey: 'orderId' })
 
 Enrollment.belongsTo(Order, { foreignKey: 'orderId' })
 Order.hasMany(Enrollment, { foreignKey: 'orderId' })
+
+// Thiết lập quan hệ giữa StudyItem và CategoryLession
+StudyItem.belongsTo(CategoryLession, { foreignKey: 'lessionCategoryId' })
+CategoryLession.hasMany(StudyItem, { foreignKey: 'lessionCategoryId' })
+
+// Thiết lập quan hệ giữa StudyItem và Lession
+Lession.belongsTo(StudyItem, { foreignKey: 'studyItemId' })
+StudyItem.hasOne(Lession, { foreignKey: 'studyItemId' })
+
+// Thiết lập quan hệ giữa StudyItem và Exam
+Exam.belongsTo(StudyItem, { foreignKey: 'studyItemId' })
+StudyItem.hasOne(Exam, { foreignKey: 'studyItemId' })
+
+// Thiết lập quan hệ giữa StudyItem và Enrollment
+CourseProgress.belongsTo(Enrollment, { foreignKey: 'enrollmentId' })
+CourseProgress.belongsTo(StudyItem, { foreignKey: 'studyItemId' })
+
+// thiết lập quan hệ giữa Enrollment và StudyItem
+Enrollment.belongsToMany(StudyItem, { through: CourseProgress, foreignKey: 'enrollmentId' })
+StudyItem.belongsToMany(Enrollment, { through: CourseProgress, foreignKey: 'studyItemId' })
+
+// One-to-Many: User can create multiple courses
+Course.belongsTo(User, { foreignKey: 'assignedBy' })
+User.hasMany(Course, { foreignKey: 'assignedBy' })
 
 module.exports = {
   sequelize,
@@ -127,21 +111,17 @@ module.exports = {
     Notification,
     NotificationRecipient,
     UserAnswerHistory,
-    ExamQuestion,
     UserEnterExitExamRoom,
     TempUserAnswer,
-    QuestionDiscussion,
-    // CategoryExam,
     CategoryCourse,
     Course,
+    StudyItem,
     Lession,
-    CourseReview,
     Role,
     CategoryLession,
     CourseProgress,
     Enrollment,
     Order,
-    OrderItem,
     Payment
   }
 }
