@@ -9,12 +9,12 @@ const CourseProgress = sequelize.define(
       allowNull: false,
       primaryKey: true
     },
-    lessionId: {
+    studyItemId: {
       type: DataTypes.BIGINT,
       primaryKey: true,
       allowNull: false
     },
-    completion_at: {
+    completionAt: {
       type: DataTypes.BOOLEAN
     }
   },
