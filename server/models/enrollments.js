@@ -11,26 +11,38 @@ const Enrollment = sequelize.define(
       unique: true,
       primaryKey: true
     },
-    userId: {
-      type: DataTypes.BIGINT,
-      allowNull: false
-    },
     courseId: {
       type: DataTypes.BIGINT,
       allowNull: false
     },
     orderId: {
       type: DataTypes.BIGINT,
-      allowNull: true // Không cần references ở đây
+      allowNull: false
     },
-    enrollment_date: {
+    enrollmentDate: {
       type: DataTypes.DATE
     },
     status: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
+    progress: {
+      type: DataTypes.DECIMAL(40, 20),
+      defaultValue: 0
+    },
     completedDate: {
+      type: DataTypes.DATE,
+      defaultValue: null
+    },
+    rating: {
+      type: DataTypes.TINYINT,
+      allowNull: true
+    },
+    comment: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    ratingDate: {
       type: DataTypes.DATE,
       defaultValue: null
     }
