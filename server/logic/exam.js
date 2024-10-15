@@ -6,9 +6,6 @@ const checkIfCorrect = (questionType, userAnswer, answer) => {
   if (questionType === 'MULTIPLE_CHOICE') {
     return !difference(answer?.split('::'), userAnswer?.split('::'))?.length
   }
-  if (questionType === 'FILL_MISSING_TEXT') {
-    userAnswer = userAnswer.replace(/^\s+|\s+$/gm, '')
-  }
   return answer === userAnswer
 }
 
