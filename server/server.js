@@ -10,6 +10,10 @@ const initDataController = require('./controllers/init-data')
 const authController = require('./controllers/auth')
 const courseController = require('./controllers/course')
 const learningController = require('./controllers/learning')
+const studyItemController = require('./controllers/studyItem')
+const questionController = require('./controllers/question')
+const lessionCategoryController = require('./controllers/categoryLession')
+const categoryCourseController = require('./controllers/categoryCourse')
 
 const seedDatabase = require('./seeds/index')
 const { API_PREFIX } = require('./utils')
@@ -43,7 +47,10 @@ app.use(`${API_PREFIX}/auth`, authController)
 app.use(`${API_PREFIX}/init-data`, initDataController)
 app.use(`${API_PREFIX}/courses`, courseController)
 app.use(`${API_PREFIX}/learn`, learningController)
-
+app.use(`${API_PREFIX}/study-items`, studyItemController)
+app.use(`${API_PREFIX}/questions`, questionController)
+app.use(`${API_PREFIX}/category-lessions`, lessionCategoryController)
+app.use(`${API_PREFIX}/categories-course`, categoryCourseController)
 async function startServer () {
   try {
     await sequelize.sync()

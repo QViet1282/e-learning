@@ -5,7 +5,7 @@
 import { requestWithJwt, requestWithoutJwt } from '../request'
 
 import { AxiosResponse } from 'axios'
-import { DataListCourse, ListCourseParams } from './post.interface'
+import { newCategory, DataListCourse, ListCourseParams, newQuestion, newStudyItemAndExam, newStudyItemAndLession, newCourse } from './post.interface'
 
 export const login = async (payload: any): Promise<AxiosResponse<any>> => {
   return await requestWithoutJwt.post<any>('/auth/login', { data: payload }, { withCredentials: true })
@@ -27,12 +27,24 @@ export const getAllCourse = async (): Promise<AxiosResponse<any>> => {
   return await requestWithJwt.get<any>('/courses/getAllCourse', { withCredentials: true })
 }
 
-export const createCategoryLession = async (payload: any): Promise<AxiosResponse<any>> => {
+export const createCourse = async (payload: newCourse): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.post<any>('/courses/createNewCourse', payload, { withCredentials: true })
+}
+
+export const createCategoryLession = async (payload: newCategory): Promise<AxiosResponse<any>> => {
   return await requestWithJwt.post<any>('/courses/createCategoryLession', payload, { withCredentials: true })
 }
 
-export const updateCategoryLessions = async (payload: any): Promise<AxiosResponse<any>> => {
-  return await requestWithJwt.post<any>('/courses/updateCategoryLessions', { categoryLessions: payload }, { withCredentials: true })
+export const createStudyItemAndLession = async (payload: newStudyItemAndLession): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.post<any>('/study-items/createStudyItemAndLession', payload, { withCredentials: true })
+}
+
+export const createStudyItemAndExam = async (payload: newStudyItemAndExam): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.post<any>('/study-items/createStudyItemAndExam', payload, { withCredentials: true })
+}
+
+export const createQuestion = async (payload: newQuestion): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.post<any>('/questions/createQuestion', payload, { withCredentials: true })
 }
 
 // trang home page

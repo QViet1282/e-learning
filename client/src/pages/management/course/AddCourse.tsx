@@ -1,28 +1,18 @@
-/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
-/* eslint-disable no-prototype-builtins */
-/* eslint-disable @typescript-eslint/prefer-optional-chain */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-misused-promises */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/no-floating-promises */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+
 /* PAGE: COURSEPAGE
    ========================================================================== */
-// AdminPage.tsx
 import React, { useState } from 'react'
 import {
   TextField,
   Button,
   Grid,
   MenuItem,
-  Typography,
   Box,
   Select,
   InputLabel,
-  FormControl,
-  AppBar,
-  Toolbar
+  FormControl
 } from '@mui/material'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 
@@ -61,7 +51,7 @@ export default function AddCoursePage (): JSX.Element {
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
     const file = event.target?.files?.[0]
-    if (file) {
+    if (file != null) {
       setCourseData((prevData) => ({
         ...prevData,
         thumbnail: file
@@ -116,7 +106,7 @@ export default function AddCoursePage (): JSX.Element {
           <Box component="form" noValidate autoComplete="off">
             <Grid container spacing={3}>
               <Grid item xs={12}>
-                <p className='text-2xl mb-2'>What would you like to name your course?</p>
+                {/* <p className='text-2xl mb-2'>What would you like to name your course?</p> */}
                 <TextField
                   fullWidth
                   label="Course Name"

@@ -1,31 +1,41 @@
+// models/StudyItem.js
+
 const { DataTypes } = require('sequelize')
 const sequelize = require('./init')
 
-const OrderItem = sequelize.define(
-  'OrderItem',
+const StudyItem = sequelize.define(
+  'StudyItem',
   {
     id: {
       type: DataTypes.BIGINT,
       autoIncrement: true,
       allowNull: false,
-      unique: true,
       primaryKey: true
     },
-    orderId: {
+    lessionCategoryId: {
       type: DataTypes.BIGINT,
       allowNull: false
     },
-    courseId: {
+    name: {
+      type: DataTypes.STRING(255),
+      allowNull: false
+    },
+    order: {
       type: DataTypes.BIGINT,
       allowNull: false
     },
-    quantity: {
-      type: DataTypes.INTEGER,
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    itemType: {
+      type: DataTypes.ENUM('lession', 'exam'),
       allowNull: false
     },
-    price: {
-      type: DataTypes.DECIMAL(15, 2),
-      allowNull: false
+    status: {
+      type: DataTypes.TINYINT(4),
+      allowNull: false,
+      defaultValue: 1
     },
     createdAt: {
       type: DataTypes.DATE,
@@ -39,9 +49,9 @@ const OrderItem = sequelize.define(
     }
   },
   {
-    tableName: 'order_items',
+    tableName: 'study_items',
     timestamps: true
   }
 )
 
-module.exports = OrderItem
+module.exports = StudyItem

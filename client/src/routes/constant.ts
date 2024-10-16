@@ -9,7 +9,7 @@ const ROUTES = {
   management: '/management',
   addCourse: '/management/add-course',
   detailCourse: '/management/detail-course',
-  uploadVideo: '/management/upload'
+  temp: '/management/temp'
 }
 
 export default ROUTES

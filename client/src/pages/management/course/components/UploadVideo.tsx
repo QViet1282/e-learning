@@ -1,208 +1,172 @@
+/* eslint-disable react/no-unknown-property */
 import React, { useState, ChangeEvent } from 'react'
-import axios, { AxiosProgressEvent } from 'axios'
-// import { Cloudinary } from '@cloudinary/url-gen'
+import axios, { AxiosProgressEvent, CancelTokenSource } from 'axios'
+import { Cloudinary } from '@cloudinary/url-gen'
 // import { scale } from '@cloudinary/url-gen/actions/resize'
 // import { quality, format } from '@cloudinary/url-gen/actions/delivery'
+import { Close } from '@mui/icons-material' // Sử dụng icon từ Material UI
+import { newStudyItemAndLession } from 'api/post/post.interface'
 
-// Khai báo kiểu cho các state và hàm
-const UploadAndDisplayVideo: React.FC = () => {
-  const [file, setFile] = useState<File | null>(null) // Kiểu File hoặc null
-  const [uploadedUrl, setUploadedUrl] = useState<string>('') // Kiểu string
-  const [upUrl, setUpUrl] = useState<string>('')
-  const [progress, setProgress] = useState<number>(0) // Kiểu number
+interface ChildComponentProps {
+  setNewLesson: React.Dispatch<React.SetStateAction<newStudyItemAndLession>>
+  newLesson: newStudyItemAndLession
+}
 
-  // Hàm xử lý upload
-  const handleUpload = async (): Promise<void> => {
-    if (file == null) return
-
+const UploadAndDisplayVideo: React.FC<ChildComponentProps> = ({ setNewLesson, newLesson }) => {
+  const [file, setFile] = useState<File | null>(null)
+  const [uploadedUrl, setUploadedUrl] = useState<string>('')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [progress, setProgress] = useState<number>(0)
+  const [cancelToken, setCancelToken] = useState<CancelTokenSource | null>(null)
+  const handleUpload = async (file: File): Promise<void> => {
     const formData = new FormData()
     formData.append('file', file)
-    formData.append('upload_preset', 'elearning') // Thay bằng upload preset của bạn
+    formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
+
+    const source = axios.CancelToken.source()
+    setCancelToken(source)
 
     try {
       const response = await axios.post(
-        'https://api.cloudinary.com/v1_1/dbtgez7ua/video/upload', // Thay YOUR_CLOUD_NAME bằng cloud name của bạn
+        `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/video/upload`,
         formData,
         {
+          cancelToken: source.token,
           onUploadProgress: (event: AxiosProgressEvent) => {
-            setProgress(Math.round((event.loaded * 100) / (event.total ?? 1))) // Bổ sung kiểm tra event.total
+            setProgress(Math.round((event.loaded * 100) / (event.total ?? 1)))
           }
         }
       )
 
-      const publicId: string = response.data.public_id
-      setUploadedUrl(publicId) // Lưu public ID của video
-      setUpUrl(response.data.url)
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // const publicId: string = response.data.public_id
+      // setUploadedUrl(response.data.secure_url)
+      setUploadedUrl(response.data.secure_url)
+      setNewLesson({ ...newLesson, locationPath: response.data.playback_url })
+      setNewLesson({ ...newLesson, type: 'MP4' })
     } catch (error) {
-      console.error('Error uploading file: ', error)
+      if (axios.isCancel(error)) {
+        console.log('Upload canceled:', error.message)
+      } else {
+        console.error('Error uploading file:', error)
+      }
     }
   }
 
   // Hàm lấy URL video tối ưu
-  const getOptimizedVideoUrl = (): string => {
-    if (uploadedUrl == null || typeof uploadedUrl !== 'string' || uploadedUrl.trim() === '') {
-      return '' // Kiểm tra rõ ràng giá trị rỗng
-    }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const getOptimizedVideoUrl = (uploadedUrl: string | null | undefined): string => {
+    if (uploadedUrl == null || typeof uploadedUrl !== 'string' || uploadedUrl.trim() === '') return ''
 
-    // const cld = new Cloudinary({
-    //   cloud: {
-    //     cloudName: 'dbtgez7ua' // Thay YOUR_CLOUD_NAME bằng cloud name của bạn
-    //   }
-    // })
+    const cld = new Cloudinary({
+      cloud: { cloudName: 'dbtgez7ua' }
+    })
 
-    // const video = cld.video(uploadedUrl)
+    const video = cld.video(uploadedUrl)
     // video
-    //   .resize(scale().width(1000)) // Tùy chỉnh kích thước
-    //   .delivery(quality('auto')) // Tối ưu chất lượng
-    //   .delivery(format('auto')) // Định dạng tự động
+    //   .resize(scale().width(1000))
 
-    // return video.toURL() // Trả về URL của video đã tối ưu
-    const httpsUrl = upUrl.replace('http://', 'https://')
-    return httpsUrl
+    return video.toURL()
   }
 
-  const handleButtonClick = (): void => {
-    void handleUpload() // Bỏ qua giá trị trả về của Promise
+  // Hàm xử lý khi chọn file
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    if (e.target.files != null) {
+      const selectedFile = e.target.files[0]
+      setFile(selectedFile)
+      void handleUpload(selectedFile) // Bắt đầu upload ngay khi chọn file
+    }
   }
+
+  // Hàm hủy upload
+  const handleCancelUpload = (): void => {
+    if (cancelToken != null) {
+      cancelToken.cancel('Upload canceled by user.')
+      setCancelToken(null)
+      setProgress(0)
+      setFile(null)
+    }
+  }
+
   const isUploadedUrlValid = (url: string | null): boolean => {
     return url !== null && url !== ''
   }
+
   return (
-    <div>
-      <h1>Upload và Hiển thị Video</h1>
-
+    <div className="p-2 border-2 rounded">
       {/* Input chọn file video */}
-      <input
-        type="file"
-        accept="video/*"
-        onChange={(e: ChangeEvent<HTMLInputElement>) => {
-          if (e.target.files != null) setFile(e.target.files[0])
-        }}
-      />
-
-      {/* Nút upload */}
-      <button onClick={handleButtonClick}>Upload Video</button>
-
-      {/* Hiển thị tiến độ upload */}
-      {progress > 0 && <p>Upload Progress: {progress}%</p>}
+      {(file == null) && (
+        <div className='flex flex-wrap gap-2'>
+          <div className='w-28 border-2 bg-teal-500 rounded-md p-2 items-center text-center hover:bg-teal-400'>
+            <label className="cursor-pointer text-white">
+              Thêm video
+              <input
+                type="file"
+                accept="video/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </label>
+          </div>
+          <div className='w-28 border-2 bg-teal-500 rounded-md p-2 items-center text-center hover:bg-teal-400'>
+            <label className="cursor-pointer text-white">
+              Thêm PDF
+              <input
+                type="file"
+                accept="video/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </label>
+          </div>
+        </div>
+      )}
 
       {/* Hiển thị video sau khi upload */}
       {isUploadedUrlValid(uploadedUrl) && (
-        <video controls controlsList='nodownloadButton' width="1000" preload="auto" src={getOptimizedVideoUrl()}>
-          {/* <source src={getOptimizedVideoUrl()} type="video/mp4" />
-          Your browser does not support the video tag. */}
-        </video>
-        // <iframe
-        //   width="1000"
-        //   height="500"
-        //   src={getOptimizedVideoUrl()}
-        //   title="Video"
-        //   frameBorder="0"
-        //   allowFullScreen
-        //   contextMenu="return false"
-        // ></iframe>
+        <div className='flex flex-1 flex-wrap gap-2'>
+          <video src={uploadedUrl} controls className='w-full aspect-[16/9] bg-black' />
+          <div className='border-2 bg-teal-500 rounded-md text-center p-2 hover:bg-teal-400'>
+            <label className="cursor-pointer text-white">
+              Thay đổi video
+              <input
+                type="file"
+                accept="video/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </label>
+          </div>
+          <div className='border-2 bg-teal-500 rounded-md text-center p-2 hover:bg-teal-400'>
+            <label className="cursor-pointer text-white">
+              Chuyển sang PDF
+              <input
+                type="file"
+                accept="video/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </label>
+          </div>
+        </div>
+      )
+      }
+
+      {/* Hiển thị tên file và tiến độ upload */}
+      {(file != null && progress < 100) && (
+        <div className="flex flex-wrap items-center justify-between">
+          <p className="text-lg font-semibold">{file.name}</p>
+          <div className="flex items-center gap-2">
+            {progress > 0 && <p>Upload Progress: {progress}%</p>}
+            <Close
+              className="cursor-pointer text-red-500"
+              onClick={handleCancelUpload}
+            />
+          </div>
+        </div>
       )}
-    </div>
+    </div >
   )
 }
 
 export default UploadAndDisplayVideo
-
-// import React, { useState, ChangeEvent, useEffect, useRef } from 'react'
-// import axios, { AxiosProgressEvent } from 'axios'
-// import './UploadAndDisplayVideo.css'
-// const UploadAndDisplayVideo: React.FC = () => {
-//   const [file, setFile] = useState<File | null>(null) // Kiểu File hoặc null
-//   const [uploadedUrl, setUploadedUrl] = useState<string>('') // Kiểu string
-//   const [upUrl, setUpUrl] = useState<string>('') // URL đã upload
-//   const [progress, setProgress] = useState<number>(0) // Kiểu number
-//   const videoRef = useRef<HTMLVideoElement>(null)
-//   // Hàm xử lý upload
-//   const handleUpload = async (): Promise<void> => {
-//     if (file == null) return
-
-//     const formData = new FormData()
-//     formData.append('file', file)
-//     formData.append('upload_preset', 'elearning') // Thay bằng upload preset của bạn
-
-//     try {
-//       const response = await axios.post(
-//         'https://api.cloudinary.com/v1_1/dbtgez7ua/video/upload', // Thay YOUR_CLOUD_NAME bằng cloud name của bạn
-//         formData,
-//         {
-//           onUploadProgress: (event: AxiosProgressEvent) => {
-//             setProgress(Math.round((event.loaded * 100) / (event.total ?? 1))) // Bổ sung kiểm tra event.total
-//           }
-//         }
-//       )
-
-//       const publicId: string = response.data.public_id
-//       setUploadedUrl(publicId) // Lưu public ID của video
-//       setUpUrl(response.data.secure_url) // Lưu URL đã upload
-//     } catch (error) {
-//       console.error('Error uploading file: ', error)
-//     }
-//   }
-
-//   // Hàm lấy URL video tối ưu
-//   const getOptimizedVideoUrl = (): string => {
-//     if (uploadedUrl == null || typeof uploadedUrl !== 'string' || uploadedUrl.trim() === '') {
-//       return '' // Kiểm tra rõ ràng giá trị rỗng
-//     }
-
-//     return upUrl.replace('http://', 'https://') // Đảm bảo URL sử dụng HTTPS
-//   }
-
-//   const handleButtonClick = (): void => {
-//     void handleUpload() // Bỏ qua giá trị trả về của Promise
-//   }
-
-//   const isUploadedUrlValid = (url: string | null): boolean => {
-//     return url !== null && url !== ''
-//   }
-
-//   useEffect(() => {
-//     if (videoRef.current != null) {
-//       const controls = videoRef.current.querySelector('video')
-//       if (controls != null) {
-//         controls.addEventListener('loadedmetadata', () => {
-//           const downloadButton = controls.querySelector('button[title="Download"]')
-//           if (downloadButton != null) {
-//             downloadButton.type.display = 'none' // Ẩn nút tải xuống
-//           }
-//         })
-//       }
-//     }
-//   }, [uploadedUrl])
-
-//   return (
-//     <div>
-//       <h1>Upload và Hiển thị Video</h1>
-
-//       {/* Input chọn file video */}
-//       <input
-//         type="file"
-//         accept="video/*"
-//         onChange={(e: ChangeEvent<HTMLInputElement>) => {
-//           if (e.target.files != null) setFile(e.target.files[0])
-//         }}
-//       />
-
-//       {/* Nút upload */}
-//       <button onClick={handleButtonClick}>Upload Video</button>
-
-//       {/* Hiển thị tiến độ upload */}
-//       {progress > 0 && <p>Upload Progress: {progress}%</p>}
-
-//       {/* Hiển thị video sau khi upload */}
-//       {isUploadedUrlValid(uploadedUrl) && (
-//         <video ref={videoRef} controls width="1000" onContextMenu={(e) => e.preventDefault()}>
-//         <source src={getOptimizedVideoUrl()} type="video/mp4" />
-//         Your browser does not support the video tag.
-//       </video>
-//       )}
-//     </div>
-//   )
-// }
-
-// export default UploadAndDisplayVideo

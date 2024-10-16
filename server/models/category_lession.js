@@ -25,7 +25,6 @@ const CategoryLession = sequelize.define(
     },
     status: {
       type: DataTypes.TINYINT,
-      allowNull: false,
       defaultValue: 0
     }
   },
@@ -33,5 +32,4 @@ const CategoryLession = sequelize.define(
     tableName: 'category_lession'
   }
 )
-
 module.exports = CategoryLession

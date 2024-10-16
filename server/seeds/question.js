@@ -1,5 +1,7 @@
+/* eslint-disable camelcase */
 const { fakerEN: faker } = require('@faker-js/faker')
 const Question = require('../models/question')
+const Exam = require('../models/exam')
 
 const instructionExamples = [
   'Choose the correct answer:',
@@ -75,15 +77,39 @@ const contentExamples = [
 
 const generateQuestions = async () => {
   const questions = []
+  const exams = await Exam.findAll() // Lấy danh sách tất cả các bài thi (exams)
+  const examIds = exams.map(exam => exam.studyItemId) // Lấy danh sách examId
+
+  if (examIds.length === 0) {
+    console.error('No exams found. Please seed exams first.')
+    return questions
+  }
+
   const options = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p']
-  const types = ['MULTIPLE_CHOICE', 'SINGLE_CHOICE', 'TRUE_FALSE']
+  const types = ['MULTIPLE_CHOICE', 'SINGLE_CHOICE']
+
   for (let i = 0; i < contentExamples.length; i++) {
     const content = contentExamples[i]
     const explanation = explanationData[i]
+
+    const examId = faker.helpers.arrayElement(examIds) // Chọn một examId hợp lệ ngẫu nhiên
+    const questionType = faker.helpers.arrayElement(types) // Chọn kiểu câu hỏi ngẫu nhiên
+
+    let answer
+    if (questionType === 'MULTIPLE_CHOICE') {
+      // Chọn ngẫu nhiên từ 2 đến 4 đáp án và nối chúng bằng '::'
+      const selectedAnswers = faker.helpers.arrayElements(options, faker.datatype.number({ min: 2, max: 4 }))
+      answer = selectedAnswers.join('::')
+    } else {
+      // Chọn một đáp án duy nhất cho SINGLE_CHOICE
+      answer = faker.helpers.arrayElement(options)
+    }
+
     questions.push({
-      instruction: instructionExamples[Math.floor(Math.random() * instructionExamples.length)],
+      examId, // Gán examId vào câu hỏi
+      instruction: faker.helpers.arrayElement(instructionExamples),
       content,
-      type: types[Math.floor(Math.random() * types.length)],
+      type: questionType,
       a: faker.lorem.sentence(),
       b: faker.lorem.sentence(),
       c: faker.lorem.sentence(),
@@ -100,7 +126,7 @@ const generateQuestions = async () => {
       n: faker.lorem.sentence(),
       o: faker.lorem.sentence(),
       p: faker.lorem.sentence(),
-      answer: options[Math.floor(Math.random() * options.length)],
+      answer, // Đáp án được gán tùy theo kiểu câu hỏi
       explanation,
       createdAt: faker.date.past(),
       updatedAt: faker.date.recent()
@@ -115,11 +141,12 @@ const seedQuestions = async () => {
     if (count === 0) {
       const questions = await generateQuestions()
       await Question.bulkCreate(questions, { validate: true })
+      console.log('Questions seeded successfully!')
     } else {
       console.log('Question table is not empty.')
     }
   } catch (error) {
-    console.log(`Failed to seed Question data: ${error}`)
+    console.log(`Failed to seed Question data: ${error.message}`)
   }
 }
 

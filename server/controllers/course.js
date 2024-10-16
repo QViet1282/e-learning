@@ -9,6 +9,7 @@ const { infoLogger, errorLogger } = require('../logs/logger')
 // const { INTEGER } = require('sequelize')
 const { Op } = require('sequelize')
 const CategoryCourse = require('../models/category_course')
+const { log } = require('winston')
 
 function logError (req, error) {
   const request = req.body.data ? req.body.data : (req.params ? req.params : req.query)
@@ -38,13 +39,11 @@ function logInfo (req, response) {
  * ROUTES FOR COURSE
  *****************************/
 
-router.get('/getAllCourse', isAuthenticated, async (req, res) => {
+router.get('/getAllCourseInfo', isAuthenticated, async (req, res) => {
   try {
-    const courses = await models.Course.findAll({
-      attributes: ['id', 'name']
-    })
+    const courses = await models.Course.findAll()
     logInfo(req, courses)
-    res.json(courses)
+    res.status(200).json(courses)
   } catch (err) {
     logError(req, err)
     console.error(err)
@@ -52,33 +51,88 @@ router.get('/getAllCourse', isAuthenticated, async (req, res) => {
   }
 })
 
-router.post('/addNewCourse', isAuthenticated, async (req, res) => {
+router.get('/getCourseById/:courseId', isAuthenticated, async (req, res) => {
+  try {
+    const { courseId } = req.params
+
+    if (!courseId) {
+      return res.status(400).json({ message: 'Thiếu id của khóa học' })
+    }
+
+    const course = await models.Course.findOne({
+      where: { id: courseId }
+    })
+
+    if (!course) {
+      return res.status(404).json({ message: 'Không tìm thấy khóa học' })
+    }
+
+    logInfo(req, course)
+    res.status(200).json(course)
+  } catch (err) {
+    logError(req, err)
+    console.error(err)
+    res.status(500).json({ message: 'Lỗi hệ thống, vui lòng thử lại sau.' })
+  }
+})
+
+router.post('/createNewCourse', isAuthenticated, async (req, res) => {
   try {
     const {
       categoryCourseId,
       name,
-      summary,
-      assignedBy,
-      durationInMinute,
-      startDate,
-      endDate,
-      description,
-      locationPath,
-      prepare,
-      price,
-      status
-    } = req.body.data
+      assignedBy
+    } = req.body
 
-    if (!name || !summary || !assignedBy) {
+    console.log('Request Body:', req.body)
+    if (!name || !assignedBy) {
       return res.status(400).json({ error: 'Required fields are missing' })
     }
 
     const newCourse = await models.Course.create({
       categoryCourseId,
       name,
+      assignedBy
+    })
+    logInfo(req, newCourse)
+    res.status(201).json(newCourse)
+  } catch (error) {
+    logError(req, error)
+    res.status(500).json({ error: jsonError })
+  }
+})
+
+router.put('/editCourse/:courseId', isAuthenticated, async (req, res) => {
+  const { courseId } = req.params
+  const {
+    categoryCourseId,
+    name,
+    summary,
+    startDate,
+    endDate,
+    description,
+    locationPath,
+    prepare,
+    price,
+    status
+  } = req.body
+
+  console.log('Request Body:', req.body)
+
+  try {
+    // Tìm khóa học theo ID
+    const course = await models.Course.findByPk(courseId)
+
+    // Kiểm tra xem khóa học có tồn tại không
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' })
+    }
+
+    // Cập nhật thông tin khóa học
+    await course.update({
+      categoryCourseId,
+      name,
       summary,
-      assignedBy,
-      durationInMinute,
       startDate,
       endDate,
       description,
@@ -87,11 +141,12 @@ router.post('/addNewCourse', isAuthenticated, async (req, res) => {
       price,
       status
     })
-    logInfo(req, newCourse)
-    res.status(201).json(newCourse)
+
+    logInfo(req, course)
+    res.status(200).json(course)
   } catch (error) {
     logError(req, error)
-    res.status(500).json({ error: jsonError })
+    res.status(500).json({ error: 'Internal server error' })
   }
 })
 
@@ -105,10 +160,6 @@ router.get('/getCategoryLessionByCourse/:courseId', isAuthenticated, async (req,
       where: { courseId },
       order: [['order', 'ASC']]
     })
-
-    if (categories.length === 0) {
-      return res.status(404).json({ error: 'No lessons found for this course' })
-    }
 
     logInfo(req, categories)
     res.status(200).json(categories)
@@ -167,53 +218,185 @@ router.post('/updateCategoryLession', isAuthenticated, async (req, res) => {
   }
 })
 
-router.post('/updateCategoryLessions', isAuthenticated, async (req, res) => {
-  try {
-    const { categoryLessions } = req.body
+router.put('/updateCategoryLessionOrder', isAuthenticated, async (req, res) => {
+  const oldOrder = Number(req.body.oldOrder)
+  const newOrder = Number(req.body.newOrder)
+  const lessionCategoryId = Number(req.body.lessionCategoryId)
+  const courseId = Number(req.body.courseId)
+  const updatedAt = req.body.updatedAt
 
-    if (!Array.isArray(categoryLessions) || categoryLessions.length === 0) {
-      return res.status(400).json({ error: 'No CategoryLessions data provided' })
+  console.log(lessionCategoryId, oldOrder, newOrder, courseId)
+  if (lessionCategoryId == null || oldOrder == null || newOrder == null || courseId == null) {
+    return res.status(400).json({ error: 'Missing or null input' })
+  }
+  const catagoryLession = await models.CategoryLession.findOne({
+    where: { id: lessionCategoryId, courseId }
+  })
+
+  if (!catagoryLession) {
+    return res.status(404).json({ error: 'Study item not found' })
+  }
+
+  if (catagoryLession.updatedAt.getTime() !== new Date(updatedAt).getTime()) {
+    return res.status(409).json({ error: 'Conflict: The item has been modified by another user.' })
+  }
+  const transaction = await sequelize.transaction()
+
+  try {
+    // Nếu newOrder nhỏ hơn oldOrder => Các mục giữa oldOrder và newOrder sẽ được tăng lên 1
+    if (newOrder < oldOrder) {
+      await models.CategoryLession.increment('order', {
+        by: 1,
+        where: {
+          order: { [Op.between]: [newOrder, oldOrder - 1] },
+          courseId
+        },
+        transaction
+      })
+    } else if (newOrder > oldOrder) {
+      // Nếu newOrder lớn hơn oldOrder => Các mục giữa oldOrder và newOrder sẽ được giảm đi 1
+      await models.CategoryLession.decrement('order', {
+        by: 1,
+        where: {
+          order: { [Op.between]: [oldOrder + 1, newOrder] },
+          courseId
+        },
+        transaction
+      })
     }
 
-    const updatePromises = categoryLessions.map(categoryLession =>
-      models.CategoryLession.update(categoryLession, { where: { id: categoryLession.id } })
+    await models.CategoryLession.update(
+      { order: newOrder },
+      {
+        where: { id: lessionCategoryId },
+        transaction
+      }
     )
 
-    const results = await Promise.all(updatePromises)
-    const allUpdated = results.every(result => result[0] > 0)
-
-    if (!allUpdated) {
-      return res.status(404).json({ error: 'Some CategoryLessions not found' })
-    }
-
-    logInfo(req, categoryLessions)
-    res.status(200).json(categoryLessions)
+    await transaction.commit()
+    res.status(200).json({ message: 'Study item order updated successfully' })
   } catch (error) {
+    await transaction.rollback()
     logError(req, error)
-    res.status(500).json({ error: jsonError })
+    res.status(500).json({ error: 'An error occurred while updating study item order' })
   }
 })
 
 /*****************************
- * ROUTES FOR LESSION
+ * ROUTES FOR StudyItem
  *****************************/
 
-router.get('/getLessionByCategory/:lessionCategoryId', isAuthenticated, async (req, res) => {
+router.get('/getStudyItemByCategoryLessionId/:lessionCategoryId', isAuthenticated, async (req, res) => {
   try {
     const { lessionCategoryId } = req.params
-    const lessons = await models.Lession.findAll({ where: { lessionCategoryId } })
+    const studyItemDetails = await models.StudyItem.findAll({
+      where: { lessionCategoryId },
+      order: [['order', 'ASC']],
+      include: [
+        {
+          model: models.Exam,
+          where: { studyItemId: sequelize.col('StudyItem.id') },
+          required: false
+        },
+        {
+          model: models.Lession,
+          where: { studyItemId: sequelize.col('StudyItem.id') },
+          required: false
+        }
+      ]
+    })
 
-    if (lessons.length === 0) {
-      return res.status(404).json({ error: 'No lessons found for this category' })
+    if (!studyItemDetails) {
+      return res.status(404).json({ error: 'StudyItem not found' })
     }
 
-    logInfo(req, lessons)
-    res.status(200).json(lessons)
+    logInfo(req, studyItemDetails)
+    res.status(200).json(studyItemDetails)
   } catch (error) {
     logError(req, error)
-    res.status(500).json({ error: 'An error occurred while fetching lessons' })
+    res.status(500).json({ error: 'An error occurred while fetching study item details' })
   }
 })
+
+router.put('/updateStudyItemOrder', isAuthenticated, async (req, res) => {
+  const oldOrder = Number(req.body.oldOrder)
+  const newOrder = Number(req.body.newOrder)
+  const studyItemId = Number(req.body.studyItemId)
+  const lessionCategoryId = Number(req.body.lessionCategoryId)
+  const updatedAt = req.body.updatedAt
+
+  console.log(studyItemId, oldOrder, newOrder, lessionCategoryId)
+  if (studyItemId == null || oldOrder == null || newOrder == null || lessionCategoryId == null | updatedAt == null) {
+    return res.status(400).json({ error: 'Missing or null input' })
+  }
+
+  const transaction = await sequelize.transaction()
+
+  try {
+    const studyItem = await models.StudyItem.findOne({
+      where: { id: studyItemId, lessionCategoryId }
+    })
+
+    if (!studyItem) {
+      return res.status(404).json({ error: 'Study item not found' })
+    }
+
+    if (studyItem.updatedAt.getTime() !== new Date(updatedAt).getTime()) {
+      return res.status(409).json({ error: 'Conflict: The item has been modified by another user.' })
+    }
+    // Nếu newOrder nhỏ hơn oldOrder => Các mục giữa oldOrder và newOrder sẽ được tăng lên 1
+    if (newOrder < oldOrder) {
+      await models.StudyItem.increment('order', {
+        by: 1,
+        where: {
+          order: { [Op.between]: [newOrder, oldOrder - 1] },
+          lessionCategoryId
+        },
+        transaction
+      })
+    } else if (newOrder > oldOrder) {
+      // Nếu newOrder lớn hơn oldOrder => Các mục giữa oldOrder và newOrder sẽ được giảm đi 1
+      await models.StudyItem.decrement('order', {
+        by: 1,
+        where: {
+          order: { [Op.between]: [oldOrder + 1, newOrder] },
+          lessionCategoryId
+        },
+        transaction
+      })
+    }
+
+    await models.StudyItem.update(
+      { order: newOrder },
+      {
+        where: { id: studyItemId },
+        transaction
+      }
+    )
+
+    await transaction.commit()
+    res.status(200).json({ message: 'Study item order updated successfully' })
+  } catch (error) {
+    await transaction.rollback()
+    logError(req, error)
+    res.status(500).json({ error: 'An error occurred while updating study item order' })
+  }
+})
+/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+router.get('/getAllCourse', isAuthenticated, async (req, res) => {
+  try {
+    const courses = await models.Course.findAll({
+      attributes: ['id', 'name']
+    })
+    logInfo(req, courses)
+    res.json(courses)
+  } catch (err) {
+    logError(req, err)
+    console.error(err)
+    res.status(500).json({ message: jsonError })
+  }
+})
+
 router.get('/getNewCourse', isAuthenticated, async (req, res) => {
   try {
     const {
@@ -538,3 +721,19 @@ async function getCourseCategory () {
 }
 
 module.exports = router
+
+router.get('/get/:courseId', isAuthenticated, async (req, res) => {
+  try {
+    const { courseId } = req.params
+    const categories = await models.StudyItem.findAll({
+      where: { courseId },
+      order: [['order', 'ASC']]
+    })
+
+    logInfo(req, categories)
+    res.status(200).json(categories)
+  } catch (error) {
+    logError(req, error)
+    res.status(500).json({ error: jsonError })
+  }
+})

@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import { DataGrid } from '@mui/x-data-grid'
-import { Button, Paper, Typography } from '@mui/material'
+import { Accordion, Button, Paper, Typography } from '@mui/material'
 
 const StyledDataGrid = styled(DataGrid)`
   .MuiDataGrid-cell:focus {
@@ -30,5 +30,8 @@ const StyledPaper = styled(Paper)`
   background-color: ${({ theme }) => theme.colors.body}; 
   box-shadow: ${({ theme }) => theme.colors.text}; /* Điều chỉnh độ bóng */
 `
+const StyledAccordion = styled(Accordion)`
+  background-color: '#F5F5F5' !important; 
+`
 
-export { StyledDataGrid, StyledTypography, StyledButton, StyledPaper }
+export { StyledDataGrid, StyledTypography, StyledButton, StyledPaper, StyledAccordion }
