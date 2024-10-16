@@ -4,34 +4,19 @@ const sequelize = require('./init')
 const Lession = sequelize.define(
   'Lession',
   {
-    id: {
+    studyItemId: {
       type: DataTypes.BIGINT,
-      autoIncrement: true,
       allowNull: false,
-      unique: true,
-      primaryKey: true
-    },
-    lessionCategoryId: {
-      type: DataTypes.BIGINT,
-      allowNull: false
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: true
-    },
-    description: {
-      type: DataTypes.STRING,
-      allowNull: true
+      primaryKey: true, // Vừa là khóa chính
+      references: {
+        model: 'study_items',
+        key: 'id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE'
     },
     type: {
       type: DataTypes.STRING,
-      allowNull: true
-    },
-    content: {
-      type: DataTypes.STRING
-    },
-    order: {
-      type: DataTypes.BIGINT,
       allowNull: true
     },
     locationPath: {
@@ -41,11 +26,6 @@ const Lession = sequelize.define(
     uploadedBy: {
       type: DataTypes.BIGINT,
       allowNull: true
-    },
-    status: {
-      type: DataTypes.TINYINT,
-      allowNull: false,
-      defaultValue: 0
     }
   },
   {

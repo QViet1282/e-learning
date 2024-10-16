@@ -12,7 +12,6 @@ import React from 'react'
 import ManagementPage from 'pages/management'
 import AddCoursePage from 'pages/management/course/AddCourse'
 import CourseDetailPage from 'pages/management/course/CourseDetail'
-import UploadAndDisplayVideo from 'pages/management/course/components/UploadVideo'
 // import HomePage from 'pages/homePage'
 /**
     * Lazy load page components. Fallback to <Loading /> when in loading phase
@@ -57,8 +56,7 @@ const routes: RouteObject[] = [
       { path: ROUTES.management, element: <ManagementPage /> },
       { path: ROUTES.addCourse, element: <AddCoursePage /> },
       { path: ROUTES.notfound, element: <NotFound /> },
-      { path: ROUTES.detailCourse, element: <CourseDetailPage/> },
-      { path: ROUTES.uploadVideo, element: <UploadAndDisplayVideo/> }
+      { path: ROUTES.detailCourse, element: <CourseDetailPage/> }
     ]
   }
 ]

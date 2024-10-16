@@ -13,7 +13,7 @@ const generateUserId = async () => {
 
 const generateExamId = async () => {
   const exams = await Exam.findAll()
-  const examIds = exams.map(exam => exam.id)
+  const examIds = exams.map(exam => exam.studyItemId)
   const randomIndex = Math.floor(Math.random() * examIds.length)
   const randomExamId = examIds[randomIndex]
   return randomExamId

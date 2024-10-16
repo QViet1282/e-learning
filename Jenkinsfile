@@ -28,7 +28,7 @@ pipeline {
             steps {
                 dir('/var/jenkins/workspace/bbbb/server') {
                         sh 'pm2 delete all || true' 
-                        sh 'pm2 start ecosystem.config.js --env production --max-memory-restart 140M' 
+                        sh 'pm2 start "yarn start" --name myapp --max-memory-restart 140M' 
                         sh 'pm2 save' 
                     }
             }

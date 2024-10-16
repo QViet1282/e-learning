@@ -1,29 +1,22 @@
-/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
-/* eslint-disable no-prototype-builtins */
-/* eslint-disable @typescript-eslint/prefer-optional-chain */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-misused-promises */
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/no-floating-promises */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/strict-boolean-expressions */
+/* eslint-disable @typescript-eslint/no-misused-promises */
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* PAGE: CURRICULUM
    ========================================================================== */
 import React, { useState, useEffect } from 'react'
 import { StyledButton, StyledTypography } from './courseList'
-import { TextField, IconButton, Box, Modal, Typography } from '@mui/material'
-import AddIcon from '@mui/icons-material/Add'
-import CloseIcon from '@mui/icons-material/Close'
 import { getCategoryLessionByCourse } from 'api/get/get.api'
 import CategoryLessionItem from './components/CategoryLesionItem'
 import { DragDropContext, Droppable, Draggable, DropResult, DroppableProvided, DraggableProvided } from 'react-beautiful-dnd'
-import { createCategoryLession, updateCategoryLessions } from 'api/post/post.api'
+import { createCategoryLession } from 'api/post/post.api'
+import { newCategory } from 'api/post/post.interface'
+import { GridCloseIcon } from '@mui/x-data-grid'
+import { categoryLessionOrderItem } from 'api/put/put.interface'
+import { updateCategoryLessionOrder } from 'api/put/put.api'
+import { Category } from 'api/get/get.interface'
 
-interface Category {
-  id: number
-  courseId: number
-  name: string
-  order: number
+interface DraggableCategory extends Category {
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement> | undefined
 }
 
@@ -31,10 +24,22 @@ interface CurriculumProps {
   courseId: number
 }
 
+interface Tokens {
+  accessToken: string
+  email: string | null
+  firstName: string | null
+  id: number
+  key: string
+  lastName: string | null
+  username: string
+}
+
 const Curriculum: React.FC<CurriculumProps> = ({ courseId }) => {
-  const [isEditing, setIsEditing] = useState(false)
+  const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
+  const tokensString = localStorage.getItem('tokens')
+  const tokens: Tokens | null = (tokensString != null) ? JSON.parse(tokensString) : null
 
   useEffect(() => {
     fetchCategories()
@@ -42,7 +47,7 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId }) => {
 
   const fetchCategories = async () => {
     try {
-      if (courseId) {
+      if (!Number.isNaN(courseId)) {
         const response = await getCategoryLessionByCourse(courseId)
         setCategories(response.data)
       }
@@ -53,9 +58,9 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId }) => {
 
   // Xử lý khi kéo và thả category
   const handleOnDragEnd = async (result: DropResult) => {
-    if (!result.destination) return
+    if (result.destination == null) return
 
-    const items = Array.from(categories)
+    const items: Category[] = Array.from(categories)
     const [reorderedItem] = items.splice(result.source.index, 1)
     items.splice(result.destination.index, 0, reorderedItem)
 
@@ -72,25 +77,29 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId }) => {
     setCategories(updatedCategories)
 
     try {
-      const response = await updateCategoryLessions(updatedCategories)
-      console.log('Ket qua keo tha', response.status)
+      const newOrder = result.destination.index + 1
+      if (reorderedItem.id != null) {
+        const categoryLessionOrderUpdate: categoryLessionOrderItem = { lessionCategoryId: reorderedItem.id, oldOrder: reorderedItem.order, newOrder, courseId, updatedAt: reorderedItem.updatedAt }
+        const response = await updateCategoryLessionOrder(categoryLessionOrderUpdate)
+        console.log('Ket qua keo tha', response.status)
+      }
     } catch (error) {
       console.error('Error updating categories:', error)
     }
   }
 
   const handleAddClick = (): void => {
-    setIsEditing(true)
+    setIsAddingCategory(true)
   }
 
   const handleCancelClick = (): void => {
-    setIsEditing(false)
+    setIsAddingCategory(false)
     setNewCategoryName('')
   }
 
   const handleSaveClick = async (): Promise<void> => {
-    const newCategory: Category = {
-      id: 0,
+    const newCategory: newCategory = {
+      id: undefined,
       courseId,
       name: newCategoryName,
       order: categories.length + 1
@@ -102,16 +111,16 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId }) => {
     } catch (error) {
       console.error('Error create new category:', error)
     }
-    setIsEditing(false)
+    setIsAddingCategory(false)
     setNewCategoryName('')
   }
 
   return (
     <div className='flex flex-col w-full max-w-6xl mx-auto'>
       <div className='w-full border-b-2'>
-        <StyledTypography variant="h4" fontWeight="bold">
-          Curriculum
-        </StyledTypography>
+        <div className="text-2xl font-bold">
+          Chương trình giảng dạy
+        </div>
       </div>
 
       <DragDropContext onDragEnd={handleOnDragEnd}>
@@ -119,18 +128,21 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId }) => {
           {(provided: DroppableProvided) => (
             <div {...provided.droppableProps} ref={provided.innerRef} className='grid grid-cols-1 gap-4 my-4'>
               {categories.map((category, index) => (
-                <Draggable key={category.id} draggableId={category.id.toString()} index={index}>
+                <Draggable key={category.id} draggableId={category.id?.toString() ?? ''} index={index}>
                   {(provided: DraggableProvided) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
                     >
                       <CategoryLessionItem
-                        id={category.id}
+                        lessionCategoryId={category.id ?? 0}
+                        userId={tokens?.id ?? 0}
                         courseId={courseId}
                         name={category.name}
                         order={category.order}
-                        dragHandleProps={provided.dragHandleProps || undefined}
+                        fetchCategories={fetchCategories}
+                        // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+                        dragHandleProps={(provided.dragHandleProps) ?? undefined}
                       />
                     </div>
                   )}
@@ -143,51 +155,34 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId }) => {
       </DragDropContext>
 
       {/* Nút mở modal thêm category */}
-      <div className='text-center border-2 mt-2 w-64'>
-        <StyledButton onClick={handleAddClick}>Add new category lesson</StyledButton>
-      </div>
 
       {/* Modal thêm category */}
-      <Modal open={isEditing} onClose={handleCancelClick}>
-        <Box
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 400,
-            bgcolor: 'background.paper',
-            border: '2px solid #000',
-            boxShadow: 24,
-            p: 4
-          }}
-        >
-          <Box display="flex" justifyContent="space-between" alignItems="center">
-            <Typography variant="h6">Add Category</Typography>
-            <IconButton onClick={handleCancelClick}>
-              <CloseIcon />
-            </IconButton>
-          </Box>
-          <TextField
-            value={newCategoryName}
-            onChange={(e) => setNewCategoryName(e.target.value)}
-            label="Enter Category Name"
-            variant="outlined"
-            size="small"
-            margin="dense"
-            fullWidth
-            style={{ marginBottom: 8 }}
-          />
-          <Box display="flex" justifyContent="flex-end">
-            <IconButton onClick={handleSaveClick} color="primary">
-              <AddIcon />
-            </IconButton>
-            <IconButton onClick={handleCancelClick} color="secondary">
-              <CloseIcon />
-            </IconButton>
-          </Box>
-        </Box>
-      </Modal>
+      {isAddingCategory
+        ? (
+          <div className="flex flex-col flex-1 p-2 md:w-1/3 relative border-4">
+            <div className="w-full flex justify-between items-center">
+              <p className='font-bold'>Thêm chương học mới</p>
+              <GridCloseIcon onClick={handleCancelClick} />
+            </div>
+            <input
+              type="text"
+              value={newCategoryName}
+              onChange={(e) => setNewCategoryName(e.target.value)}
+              className='w-full h-10 items-center justify-center px-2 border-solid border-gray-300 focus:outline-none'
+              style={{ borderWidth: '1px' }}
+              placeholder='Tên chương'
+            />
+            <div className=" mt-2 p-1 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500" onClick={handleSaveClick} >
+              Lưu
+            </div>
+          </div>
+          )
+        : (
+          <div className='text-center border-2 w-56'>
+            <div className='cursor-pointer flex justify-center text-white bg-teal-500 w-full p-2' onClick={handleAddClick}>Add new category lesson</div>
+          </div>
+
+          )}
     </div>
   )
 }
