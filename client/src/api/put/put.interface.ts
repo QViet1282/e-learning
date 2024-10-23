@@ -62,13 +62,14 @@ export interface editQuestionItem {
 }
 
 export interface editCourseItem {
-  categoryCourseId: number
-  name: string
+  categoryCourseId?: number
+  name?: string
   summary?: string
   startDate?: Date
   endDate?: Date
   description?: string
   locationPath?: string
+  videoLocationPath?: string
   prepare?: string
   price?: number
   status?: number

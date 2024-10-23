@@ -26,6 +26,9 @@ const Lession = sequelize.define(
     uploadedBy: {
       type: DataTypes.BIGINT,
       allowNull: true
+    },
+    durationInSecond: {
+      type: DataTypes.INTEGER
     }
   },
   {

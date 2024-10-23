@@ -4,23 +4,19 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { ChangeEvent, useEffect, useMemo, useState } from 'react'
+import React, { ChangeEvent, useEffect, useState } from 'react'
 import { IconButton } from '@mui/material'
-import ReactQuill, { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import axios, { AxiosProgressEvent, CancelTokenSource } from 'axios'
 import { Close, Remove } from '@mui/icons-material'
-import QuillResizeImage from 'quill-resize-image'
-import { newStudyItemAndLession } from 'api/post/post.interface'
-import { createStudyItemAndLession } from 'api/post/post.api'
-import ImageUploader from 'quill-image-uploader'
 
 import 'quill-image-uploader/dist/quill.imageUploader.min.css'
-import { GridCloseIcon } from '@mui/x-data-grid'
 import { Cloudinary } from '@cloudinary/url-gen'
 import { StudyItem } from 'api/get/get.interface'
 import { editLession } from 'api/put/put.interface'
 import { editStudyItemAndLession } from 'api/put/put.api'
+import { Document, Page } from 'react-pdf'
+import { QuillEditor } from './QuillEditor'
 
 interface EditExamFormProps {
   userId: number
@@ -42,6 +38,7 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
   const [uploadedUrl, setUploadedUrl] = useState<string>(studyItem?.Lession?.locationPath ?? '')
   const [progress, setProgress] = useState<number>(0)
   const [cancelToken, setCancelToken] = useState<CancelTokenSource | null>(null)
+  const [numPages, setNumPages] = useState<number | null>(null)
 
   useEffect(() => {
     if (studyItem.Lession != null) {
@@ -60,14 +57,14 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
 
     try {
       const response = await axios.post(
-                `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/video/upload`,
-                formData,
-                {
-                  cancelToken: source.token,
-                  onUploadProgress: (event: AxiosProgressEvent) => {
-                    setProgress(Math.round((event.loaded * 100) / (event.total ?? 1)))
-                  }
-                }
+        `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/upload`,
+        formData,
+        {
+          cancelToken: source.token,
+          onUploadProgress: (event: AxiosProgressEvent) => {
+            setProgress(Math.round((event.loaded * 100) / (event.total ?? 1)))
+          }
+        }
       )
 
       setUploadedUrl(response.data.secure_url)
@@ -76,7 +73,7 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
         Lession: {
           ...prevLesson.Lession,
           locationPath: response.data.secure_url,
-          type: 'MP4',
+          type: file.type.includes('video') ? 'MP4' : 'PDF', // Phân loại theo loại tệp
           studyItemId: prevLesson.Lession?.studyItemId ?? 0,
           uploadedBy: userId
         }
@@ -94,7 +91,7 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
     if (e.target.files != null) {
       const selectedFile = e.target.files[0]
       setFile(selectedFile)
-      void handleUpload(selectedFile)
+      void handleUpload(selectedFile) // Bắt đầu upload ngay khi chọn file
     }
   }
 
@@ -107,11 +104,11 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
     }
   }
 
-  const isUploadedUrlValid = (url: string | null): boolean => {
-    return url !== null && url !== ''
+  const isUploadedUrlValid = (url: string) => {
+    return url.length > 0
   }
 
-  const handleEditLesson = async (): Promise<void> => {
+  const handleUpdateLesson = async (): Promise<void> => {
     try {
       const payload: editLession = {
         name: lesson.name,
@@ -121,67 +118,55 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
         locationPath: lesson.Lession?.locationPath
       }
       const response = await editStudyItemAndLession(studyItem.id, payload)
-      await fetchStudyItems()
+      await fetchStudyItems() // Lấy lại danh sách bài học
+      console.log('Kết quả cập nhật bài học', response.status)
     } catch (error) {
-      console.error('Error create new category:', error)
+      console.error('Error updating lesson:', error)
     }
-    setIsEditingLession(false)
+    setIsEditingLession(false) // Đóng form chỉnh sửa
   }
 
-  const modules = useMemo(() => ({
-    toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block'],
-      ['link', 'image', 'formula'],
-      [{ header: 1 }, { header: 2 }],
-      [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
-      [{ script: 'sub' }, { script: 'super' }],
-      [{ indent: '-1' }, { indent: '+1' }],
-      [{ direction: 'rtl' }],
-      [{ size: ['small', false, 'large', 'huge'] }],
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      [{ color: [] }, { background: [] }],
-      [{ font: [] }],
-      [{ align: [] }],
-      ['clean']
-    ]
-  }), [])
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }): void => {
+    setNumPages(numPages)
+  }
 
   return (
-        <div className="flex flex-col flex-1 h-auto p-2 mb-4 relative border-4 gap-2 bg-white">
-            <div className="w-full flex justify-between items-center p-2">
-                <p className='font-bold text-xl'>Chỉnh sửa bài học</p>
-                <IconButton onClick={() => setIsEditingLession(false)}>
-                    <Close />
-                </IconButton>
-            </div>
+    <div className="flex flex-col flex-1 h-auto p-2 mb-4 md:ml-20 relative border-4 gap-2 bg-white">
+      <div className="w-full flex justify-between items-center p-2">
+        <p className='font-bold text-xl'>Chỉnh sửa bài học</p>
+        <IconButton onClick={() => {
+          setIsEditingLession(false)
+          setLesson(studyItem) // Đặt lại lesson về giá trị ban đầu
+        }}>
+          <Close />
+        </IconButton>
+      </div>
 
-            <div className='flex flex-1 items-center flex-wrap justify-between md:pr-2'>
-                <p className='ml-2'>Tên bài học </p>
-                <input
-                    type="text"
-                    value={lesson?.name ?? ''}
-                    onChange={(e) => setLesson({ ...lesson, name: e.target.value })}
-                    className='w-10/12 h-8 items-center pt-1 px-2 border-solid border-gray-300 focus:outline-none'
-                    style={{ borderWidth: '1px' }}
-                />
-            </div>
+      <div className='flex flex-1 items-center flex-wrap justify-between md:pr-2'>
+        <p className='ml-2'>Tên bài học </p>
+        <input
+          type="text"
+          value={lesson.name}
+          onChange={(e) => setLesson({ ...lesson, name: e.target.value })}
+          className='w-10/12 h-8 items-center px-2 border-solid border-gray-300 focus:outline-none'
+          style={{ borderWidth: '1px' }}
+        />
+      </div>
 
-            <div className="flex flex-1 h-auto flex-col justify-between md:pr-2">
-                <p className=' mb-2 ml-2 w-20'>Mô tả</p>
-                <ReactQuill
-                    theme='snow'
-                    value={lesson?.description ?? ''}
-                    onChange={(value) => setLesson({ ...lesson, description: value })}
-                    modules={modules}
-                    className='w-full pb-0 md:h-auto'
-                />
-            </div>
+      <div className="flex flex-1 h-auto flex-col justify-between md:pr-2">
+        <p className=' mb-2 ml-2 w-20'>Mô tả</p>
+        <QuillEditor
+          theme='snow'
+          value={lesson.description}
+          onChange={(value) => setLesson({ ...lesson, description: value })}
+          // modules={modules}
+          // className='w-full pb-0 md:h-auto'
+        />
+      </div>
 
-            <p className='mx-2'>Nội dung chính</p>
-            <div className="p-2 border-2 rounded">
-                {/* Input chọn file video */}
-                {!isUploadedUrlValid(uploadedUrl) && (
+      <p className='mx-2'>Nội dung chính</p>
+      <div className="p-2 border-2 rounded">
+      {!isUploadedUrlValid(uploadedUrl) && (
                     <div className='flex flex-wrap gap-2'>
                         <div className='w-28 border-2 bg-teal-500 rounded-md p-2 items-center text-center hover:bg-teal-400'>
                             <label className="cursor-pointer text-white">
@@ -199,63 +184,73 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
                                 Thêm PDF
                                 <input
                                     type="file"
-                                    accept="video/*"
+                                    accept="application/pdf"
                                     className="hidden"
                                     onChange={handleFileChange}
                                 />
                             </label>
                         </div>
                     </div>
-                )}
+      )}
 
-                {/* Hiển thị video sau khi upload */}
-                {isUploadedUrlValid(uploadedUrl) && (
-                    <div className='flex flex-1 flex-wrap gap-2'>
-                        <video src={uploadedUrl} controls className='w-full aspect-[16/9] bg-black' />
-                        <div className='border-2 bg-teal-500 rounded-md text-center p-2 hover:bg-teal-400'>
-                            <label className="cursor-pointer text-white">
-                                Thay đổi video
-                                <input
-                                    type="file"
-                                    accept="video/*"
-                                    className="hidden"
-                                    onChange={handleFileChange}
-                                />
-                            </label>
-                        </div>
-                        <div className='border-2 bg-teal-500 rounded-md text-center p-2 hover:bg-teal-400'>
-                            <label className="cursor-pointer text-white">
-                                Chuyển sang PDF
-                                <input
-                                    type="file"
-                                    accept="video/*"
-                                    className="hidden"
-                                    onChange={handleFileChange}
-                                />
-                            </label>
-                        </div>
-                    </div>
-                )
-                }
-
-                {/* Hiển thị tên file và tiến độ upload */}
-                {(file != null && progress < 100) && (
-                    <div className="flex flex-wrap items-center justify-between">
-                        <p className="text-lg font-semibold">{file.name}</p>
-                        <div className="flex items-center gap-2">
-                            {progress > 0 && <p>Upload Progress: {progress}%</p>}
-                            <Close
-                                className="cursor-pointer text-red-500"
-                                onClick={handleCancelUpload}
-                            />
-                        </div>
-                    </div>
-                )}
-            </div >
-            <div className='p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500' onClick={handleEditLesson}>
-                Lưu bài học
+        {(uploadedUrl.length > 0) && (
+          <div className='flex flex-1 flex-wrap gap-2'>
+            {lesson.Lession?.type === 'MP4'
+              ? (<video src={uploadedUrl} controls className='w-full aspect-[16/9] bg-black' />)
+              : (lesson.Lession?.type === 'PDF' && (
+                <div className="overflow-y-auto w-full h-96 border-2">
+                  <Document
+                    file={uploadedUrl}
+                    onLoadSuccess={onDocumentLoadSuccess}
+                  >
+                    {(numPages != null) && Array.from(new Array(numPages), (el, index) => (
+                      <Page key={`page_${index + 1}`} pageNumber={index + 1} scale={1.5} />
+                    ))}
+                  </Document>
+                </div>
+                ))}
+            <div className='border-2 bg-teal-500 rounded-md text-center p-2 hover:bg-teal-400'>
+              <label className="cursor-pointer text-white">
+                Thay đổi video
+                <input
+                  type="file"
+                  accept="video/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
             </div>
-        </div>
+            <div className='border-2 bg-teal-500 rounded-md text-center p-2 hover:bg-teal-400'>
+              <label className="cursor-pointer text-white">
+                Thay đổi PDF
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
+            </div>
+          </div>
+        )}
+
+        {file != null && progress < 100 && (
+          <div className='text-center'>
+            <p className="text-gray-700">Đang tải lên: {progress}%</p>
+            <button
+              onClick={handleCancelUpload}
+              className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400"
+            >
+              Hủy
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className='p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500' onClick={handleUpdateLesson}>
+        Lưu bài học
+      </div>
+    </div>
   )
 }
 

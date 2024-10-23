@@ -7,12 +7,11 @@ import ReactQuill, { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import axios from 'axios'
 import { Add, Close, Remove } from '@mui/icons-material'
-import QuillResizeImage from 'quill-resize-image'
 import { newStudyItemAndExam } from 'api/post/post.interface'
-import ImageUploader from 'quill-image-uploader'
 
 import 'quill-image-uploader/dist/quill.imageUploader.min.css'
 import { createStudyItemAndExam } from 'api/post/post.api'
+import { QuillEditor } from './QuillEditor'
 
 interface AddExamFormProps {
   userId: number
@@ -95,40 +94,6 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
     setIsAddingExam(false)
   }
 
-  const modules = useMemo(() => ({
-    toolbar: [
-      [{ font: [] }],
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      [{ size: ['small', false, 'large', 'huge'] }],
-      [{ color: [] }, { background: [] }],
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block'],
-      ['link', 'image'],
-      [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
-      [{ indent: '-1' }, { indent: '+1' }],
-      [{ align: [] }],
-      ['clean']
-    ],
-    imageUploader: {
-      upload: async (file: File) => {
-        const formData = new FormData()
-        formData.append('file', file)
-        formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
-        try {
-          const response = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/upload`, formData)
-          const imageUrl = response.data.secure_url
-          return imageUrl // Trả về URL của ảnh sau khi upload thành công
-        } catch (error) {
-          console.error('Error uploading image:', error)
-          throw new Error('Image upload failed')
-        }
-      }
-    },
-    resize: {
-      locale: {}
-    }
-  }), [])
-
   return (
     <div className="flex flex-col flex-1 h-auto p-2 mb-4 md:ml-20 relative border-4 gap-2 bg-white">
       <div className="w-full flex justify-between items-center p-2">
@@ -155,7 +120,7 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
       {/* Tên bài kiểm tra */}
       <div className="flex flex-1 items-center flex-wrap justify-between md:pr-2">
         <p className="ml-2">Tên bài kiểm tra</p>
-        <textarea
+        <input
           value={newExam.name}
           onChange={(e) => setNewExam({ ...newExam, name: e.target.value })}
           className="w-10/12 h-8 items-center pt-1 px-2 border-solid border-gray-300 focus:outline-none"
@@ -177,7 +142,7 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
             >
               <Remove />
             </IconButton>
-            <textarea
+            <input
               value={Number(newExam.pointToPass)}
               onChange={(e) =>
                 setNewExam({ ...newExam, pointToPass: parseInt(e.target.value) })
@@ -209,7 +174,7 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
             >
               <Remove />
             </IconButton>
-            <textarea
+            <input
               value={Number(newExam.durationInMinute)}
               onChange={(e) =>
                 setNewExam({ ...newExam, durationInMinute: parseInt(e.target.value) })
@@ -241,7 +206,7 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
             >
               <Remove />
             </IconButton>
-            <textarea
+            <input
               value={Number(newExam.numberOfAttempt)}
               onChange={(e) =>
                 setNewExam({ ...newExam, numberOfAttempt: parseInt(e.target.value) })
@@ -265,12 +230,12 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
       {/* Mô tả */}
       <div className="flex flex-1 h-auto flex-col justify-between md:pr-2 mt-4">
         <p className="mb-2 ml-2 w-20">Mô tả</p>
-        <ReactQuill
+        <QuillEditor
           theme="snow"
           value={newExam.description}
           onChange={(value) => setNewExam({ ...newExam, description: value })}
-          modules={modules}
-          className="w-full pb-0 md:h-auto"
+          // modules={modules}
+          // className="w-full pb-0 md:h-auto"
         />
       </div>
 

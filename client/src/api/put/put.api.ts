@@ -52,3 +52,10 @@ export const editCourse = async (courseId: number | undefined, payload: editCour
   }
   return await requestWithJwt.put<any>(`/courses/editCourse/${courseId}`, payload, { withCredentials: true })
 }
+
+export const updateCourseStatus = async (courseId: number | undefined, payload: { status: number | undefined, startDate: Date, endDate: Date | null }): Promise<AxiosResponse<any>> => {
+  if (courseId === undefined) {
+    throw new Error('courseId cannot be undefined')
+  }
+  return await requestWithJwt.put<any>(`/courses/updateCourseStatus/${courseId}`, payload, { withCredentials: true })
+}

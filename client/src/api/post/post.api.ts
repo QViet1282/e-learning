@@ -24,6 +24,18 @@ export const logout = async (): Promise<AxiosResponse<any>> => {
   return await requestWithJwt.post<any>('/auth/logout', {}, { withCredentials: true })
 }
 
+export const sendOTP = async (payload: any): Promise<AxiosResponse<any>> => {
+  return await requestWithoutJwt.post<any>('/auth/sendOTP', { data: payload }, { withCredentials: true })
+}
+
+export const verifyOTP = async (payload: any): Promise<AxiosResponse<any>> => {
+  return await requestWithoutJwt.post<any>('/auth/verifyOTP', { data: payload }, { withCredentials: true })
+}
+
+export const resetPassword = async (payload: any): Promise<AxiosResponse<any>> => {
+  return await requestWithoutJwt.post<any>('/auth/resetPassword', { data: payload }, { withCredentials: true })
+}
+
 export const getAllCourse = async (): Promise<AxiosResponse<any>> => {
   return await requestWithJwt.get<any>('/courses/getAllCourse', { withCredentials: true })
 }
@@ -46,18 +58,6 @@ export const createStudyItemAndExam = async (payload: newStudyItemAndExam): Prom
 
 export const createQuestion = async (payload: newQuestion): Promise<AxiosResponse<any>> => {
   return await requestWithJwt.post<any>('/questions/createQuestion', payload, { withCredentials: true })
-}
-
-export const sendOTP = async (payload: any): Promise<AxiosResponse<any>> => {
-  return await requestWithoutJwt.post<any>('/auth/sendOTP', { data: payload }, { withCredentials: true })
-}
-
-export const verifyOTP = async (payload: any): Promise<AxiosResponse<any>> => {
-  return await requestWithoutJwt.post<any>('/auth/verifyOTP', { data: payload }, { withCredentials: true })
-}
-
-export const resetPassword = async (payload: any): Promise<AxiosResponse<any>> => {
-  return await requestWithoutJwt.post<any>('/auth/resetPassword', { data: payload }, { withCredentials: true })
 }
 
 // trang home page

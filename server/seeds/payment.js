@@ -17,14 +17,13 @@ const generatePayments = async () => {
     const orderId = await generateOrderId()
     const amount = faker.finance.amount(50, 1000, 2)
     const paymentDate = faker.date.past()
-    const paymentMethod = faker.helpers.arrayElement(['Credit Card', 'PayPal', 'Bank Transfer'])
     const transactionId = faker.datatype.uuid()
-    const status = faker.helpers.arrayElement(['Completed', 'Failed', 'Pending'])
+    const status = faker.helpers.arrayElement(['COMPLETED', 'FAILED', 'PENDING'])
     payments.push({
       orderId,
       amount,
       paymentDate,
-      paymentMethod,
+      paymentMethod: 'PayOS',
       transactionId,
       status,
       createdAt: faker.date.past(),

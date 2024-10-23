@@ -160,20 +160,36 @@ router.put('/editQuestion/:questionId', isAuthenticated, async (req, res) => {
 
 router.delete('/deleteQuestion/:id', isAuthenticated, async (req, res) => {
   const { id } = req.params
+  const t = await sequelize.transaction()
 
   try {
-    const question = await models.Question.findByPk(id)
+    const question = await models.Question.findByPk(id, { transaction: t })
 
     if (!question) {
+      await t.rollback()
       return res.status(404).json({ error: 'Question not found' })
     }
 
-    await question.destroy()
+    const examId = question.examId // Lấy examId từ câu hỏi
 
+    // Giảm thứ tự cho các câu hỏi còn lại trong cùng một bài kiểm tra
+    await models.Question.decrement('order', {
+      by: 1,
+      where: {
+        order: { [Op.gt]: question.order }, // Giảm thứ tự cho các câu hỏi sau nó
+        examId
+      },
+      transaction: t
+    })
+
+    // Xóa câu hỏi
+    await question.destroy({ transaction: t })
+
+    await t.commit()
     logInfo(req, { deletedQuestionId: id })
-
     return res.status(200).json({ message: 'Question deleted successfully' })
   } catch (error) {
+    await t.rollback()
     logError(req, error)
     return res.status(500).json({ error: 'Internal server error' })
   }
