@@ -45,6 +45,10 @@ const Course = sequelize.define(
     },
     price: {
       type: DataTypes.DECIMAL(15, 2)
+    },
+    status: {
+      type: DataTypes.TINYINT,
+      defaultValue: 0
     }
   },
   {

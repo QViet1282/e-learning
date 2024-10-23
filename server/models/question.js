@@ -20,6 +20,9 @@ const Question = sequelize.define(
     type: {
       type: DataTypes.STRING
     },
+    order: {
+      type: DataTypes.INTEGER
+    },
     a: {
       type: DataTypes.TEXT
     },
@@ -73,6 +76,13 @@ const Question = sequelize.define(
     },
     explanation: {
       type: DataTypes.TEXT
+    },
+    isQuestionStopped: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
+    },
+    examId: {
+      type: DataTypes.BIGINT
     }
   },
   {

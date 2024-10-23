@@ -1,7 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit'
+import notificationReducer from '../redux/notification/notifySlice'
 import logoutReducer from '../redux/logout/logoutSlice'
-export default configureStore({
+import cartReducer from '../redux/cart/cartSlice'
+
+const store = configureStore({
   reducer: {
-    logout: logoutReducer
+    logout: logoutReducer,
+    notify: notificationReducer,
+    cart: cartReducer
   }
 })
+
+export type RootState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
+
+export default store

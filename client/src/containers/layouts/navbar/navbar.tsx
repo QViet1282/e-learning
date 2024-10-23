@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable prefer-regex-literals */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -5,28 +7,32 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* LAYOUT NAVBAR COMPONENT
    ========================================================================== */
-
-import React, { FC } from 'react'
+import React, { FC, useEffect } from 'react'
 import UserMenu from '../../../components/DropdownProfile'
 import { useLocation } from 'react-router-dom'
 import { getFromLocalStorage } from 'utils/functions'
 import CryptoJS from 'crypto-js'
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
+import { useSelector, useDispatch } from 'react-redux'
+
+import {
+  selectCartItems,
+  fetchCart
+} from '../../../redux/cart/cartSlice'
+import { AppDispatch } from '../../../redux/store'
 
 interface HeaderProps {
   sidebarOpen: boolean
   setSidebarOpen: (open: boolean) => void
 }
 
-const Navbar: FC<HeaderProps> = ({
-  sidebarOpen,
-  setSidebarOpen
-}) => {
+const Navbar: FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation()
   const { pathname } = location
 
   const tokens = getFromLocalStorage<any>('tokens')
   const userRole = tokens?.key
+  const userId = tokens?.id
   let data
   if (userRole) {
     try {
@@ -37,11 +43,26 @@ const Navbar: FC<HeaderProps> = ({
     }
   }
 
-  // eslint-disable-next-line prefer-regex-literals
+  const dispatch: AppDispatch = useDispatch()
+  const cartItems = useSelector(selectCartItems)
+  const totalItems = cartItems.length
+
+  useEffect(() => {
+    dispatch(fetchCart(userId))
+  }, [dispatch, userId])
+
+  // Regex to match specific paths
   const pathRegEx = new RegExp('^/lesson/edit/[^/]+$')
   const isPathMatch = pathRegEx.test(location.pathname)
   const isAdmin = data?.toUpperCase() === 'ADMIN'
-  const alwaysShowHamburgerPaths = ['/permission', '/user', '/settings/profile', '/lesson', '/lesson/add', '/dashboard/enrollment_dashboard']
+  const alwaysShowHamburgerPaths = [
+    '/permission',
+    '/user',
+    '/settings/profile',
+    '/lesson',
+    '/lesson/add',
+    '/dashboard/enrollment_dashboard'
+  ]
   const showHamburgerButton = (alwaysShowHamburgerPaths.includes(location.pathname) && isAdmin) || (isPathMatch && isAdmin)
 
   return (
@@ -73,6 +94,7 @@ const Navbar: FC<HeaderProps> = ({
               <p className="sm:text-sm md:text-base lg:text-xl xl:text-xl text-teal-600 font-bold">E-du</p>
             </a>
           </div>
+
           {/* Header: Center */}
           <div className="hidden lg:flex lg:items-center lg:justify-center lg:flex-1 lg:space-x-2">
             {/* Home */}
@@ -88,24 +110,33 @@ const Navbar: FC<HeaderProps> = ({
               Contact us
             </a>
             {/* Cart */}
-            <a href="/cart" className={`flex items-center block ${pathname.includes('cart') ? 'text-white bg-teal-300' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes('cart') && 'hover:text-slate-200'} rounded px-2`}>
+            <a href="/cart" className={'items-center block text-gray-500 hover:text-neutral-400 truncate transition duration-150 rounded px-2 relative'}>
               Cart
               <ShoppingCartOutlinedIcon sx={{ color: 'teal' }} />
+              {totalItems > 0 && (
+                <span className="absolute top-0 right-0 inline-block h-4 w-4 text-xs font-semibold text-white bg-red-600 rounded-full text-center">
+                  {totalItems}
+                </span>
+              )}
             </a>
           </div>
 
           {/* Header: Right side */}
           <div className="flex items-center space-x-3">
             {/* Cart */}
-            <div className='lg:hidden'>
+            <div className='lg:hidden relative'>
               <a href="/cart">
                 <ShoppingCartOutlinedIcon className="w-4 h-4" sx={{ color: 'teal' }} />
+                {totalItems > 0 && (
+                  <span className="absolute top-0 right-0 inline-block h-4 w-4 text-xs font-semibold text-white bg-red-600 rounded-full text-center">
+                    {totalItems}
+                  </span>
+                )}
               </a>
             </div>
             {/*  Divider */}
             <hr className="w-px h-6 bg-slate-200 mx-3" />
             <UserMenu align="right" />
-
           </div>
 
         </div>

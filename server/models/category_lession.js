@@ -23,8 +23,9 @@ const CategoryLession = sequelize.define(
       type: DataTypes.INTEGER,
       allowNull: false
     },
-    checkUpDate: {
-      type: DataTypes.DATE
+    status: {
+      type: DataTypes.TINYINT,
+      defaultValue: 0
     }
   },
   {

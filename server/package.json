@@ -4,8 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "env-cmd -f .env.development nodemon server.js",
-    "start": "env-cmd -f .env.production nodemon server.js"
+    "dev": "env-cmd -f .env.development nodemon --ignore *.tmp --ignore logs/ server.js",
+    "start": "env-cmd -f .env.production nodemon --ignore *.tmp --ignore logs/ server.js"
   },
   "author": "",
   "license": "ISC",
@@ -13,6 +13,7 @@
     "@elastic/ecs-winston-format": "^1.5.3",
     "@elastic/elasticsearch": "^7.15.2",
     "@faker-js/faker": "^8.4.1",
+    "@payos/node": "^1.0.10",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
@@ -26,7 +27,11 @@
     "moment-timezone": "^0.5.45",
     "morgan": "^1.10.0",
     "mysql2": "^2.3.3",
+    "nodemailer": "^6.9.15",
     "nodemon": "^2.0.20",
+    "otp-generator": "^4.0.1",
+    "passport": "^0.7.0",
+    "passport-google-oauth20": "^2.0.0",
     "rand-token": "^1.0.1",
     "sequelize": "^6.25.3",
     "winston": "^3.13.0"

@@ -4,27 +4,16 @@ const sequelize = require('./init')
 const Exam = sequelize.define(
   'Exam',
   {
-    id: {
+    studyItemId: {
       type: DataTypes.BIGINT,
-      autoIncrement: true,
       allowNull: false,
-      unique: true,
-      primaryKey: true
-    },
-    categoryExamId: {
-      type: DataTypes.BIGINT,
-      allowNull: false
-    },
-    lessionId: {
-      type: DataTypes.BIGINT,
-      allowNull: false
-    },
-    name: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    description: {
-      type: DataTypes.TEXT
+      primaryKey: true, // Vừa là khóa chính
+      references: {
+        model: 'study_items',
+        key: 'id'
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE'
     },
     durationInMinute: {
       type: DataTypes.INTEGER
