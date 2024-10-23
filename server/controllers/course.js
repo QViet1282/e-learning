@@ -9,7 +9,7 @@ const { infoLogger, errorLogger } = require('../logs/logger')
 // const { INTEGER } = require('sequelize')
 const { Op } = require('sequelize')
 const CategoryCourse = require('../models/category_course')
-const { log } = require('winston')
+const StudyItem = require('../models/study_item')
 
 function logError (req, error) {
   const request = req.body.data ? req.body.data : (req.params ? req.params : req.query)
@@ -383,20 +383,209 @@ router.put('/updateStudyItemOrder', isAuthenticated, async (req, res) => {
   }
 })
 /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-router.get('/getAllCourse', isAuthenticated, async (req, res) => {
+
+// -----------------------------------------------trang my course ----------------------------
+router.get('/myCoursesDone', isAuthenticated, async (req, res) => {
   try {
-    const courses = await models.Course.findAll({
-      attributes: ['id', 'name']
+    const loginedUserId = req.user.id
+    const {
+      page = '1',
+      size = '8',
+      search: searchCondition,
+      startDate = '1970-01-01',
+      endDate = '9999-12-31',
+      category: categoryCondition
+    } = req.query
+
+    // Lấy dữ liệu cần thiết bằng cách tối ưu hóa các truy vấn
+    const [allCourses, allUsers, orders, categoryCourse, enrollmentCounts, lessonCounts] = await Promise.all([
+      models.Course.findAll(),
+      models.User.findAll(),
+      models.Order.findAll({ where: { userId: loginedUserId }, attributes: ['id'] }),
+      getCourseCategory(),
+      models.Enrollment.count({ group: ['courseId'] }),
+      fetchLessonCounts()
+    ])
+
+    // Lấy danh sách orderId từ orders
+    const orderIds = orders.map(order => order.id)
+
+    // Truy vấn tất cả các Enrollment bằng orderIds
+    const enrollments = await models.Enrollment.findAll({
+      where: { orderId: orderIds },
+      order: [['id', 'DESC']]
     })
-    logInfo(req, courses)
-    res.json(courses)
-  } catch (err) {
-    logError(req, err)
-    console.error(err)
-    res.status(500).json({ message: jsonError })
+
+    const filteredCourses = allCourses.filter(course =>
+      enrollments.some(enrollment => enrollment.courseId === course.id)
+    )
+
+    const enrollmentCountsObject = arrayToObject(enrollmentCounts, 'courseId', 'count')
+    const lessonCountsObject = arrayToObject(lessonCounts, 'courseId', 'count')
+
+    const userEnrollments = await models.Enrollment.findAll({
+      where: {
+        orderId: orderIds,
+        courseId: filteredCourses.map(course => course.id)
+      }
+    })
+
+    const courseProgressCountsObject = await fetchCourseProgressCounts(userEnrollments)
+
+    const dataFromDatabase = transformCourseDataDone(filteredCourses, allUsers, categoryCourse, enrollmentCountsObject, lessonCountsObject, courseProgressCountsObject)
+
+    const dataAfterSearch = applyFilters(dataFromDatabase, searchCondition, startDate, endDate, categoryCondition)
+    const dataOfCurrentWindow = paginateData(dataAfterSearch, size, page)
+
+    logInfo(req, dataOfCurrentWindow)
+    res.json({
+      page: Number(page),
+      size: Number(size),
+      totalRecords: dataAfterSearch.length,
+      data: dataOfCurrentWindow
+    })
+  } catch (error) {
+    logError(req, error)
+    console.log(error)
+    res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách khóa học.' })
   }
 })
 
+router.get('/myCoursesActive', isAuthenticated, async (req, res) => {
+  try {
+    const loginedUserId = req.user.id
+    const {
+      page = '1',
+      size = '8',
+      search: searchCondition,
+      startDate = '1970-01-01',
+      endDate = '9999-12-31',
+      category: categoryCondition
+    } = req.query
+
+    // Lấy dữ liệu cần thiết bằng cách tối ưu hóa các truy vấn
+    const [allCourses, allUsers, orders, categoryCourse, enrollmentCounts, lessonCounts] = await Promise.all([
+      models.Course.findAll(),
+      models.User.findAll(),
+      models.Order.findAll({ where: { userId: loginedUserId }, attributes: ['id'] }),
+      getCourseCategory(),
+      models.Enrollment.count({ group: ['courseId'] }),
+      fetchLessonCounts()
+    ])
+
+    // Lấy danh sách orderId từ orders
+    const orderIds = orders.map(order => order.id)
+
+    // Truy vấn tất cả các Enrollment bằng orderIds
+    const enrollments = await models.Enrollment.findAll({
+      where: { orderId: orderIds },
+      order: [['id', 'DESC']]
+    })
+
+    const filteredCourses = allCourses.filter(course =>
+      enrollments.some(enrollment => enrollment.courseId === course.id)
+    )
+
+    const enrollmentCountsObject = arrayToObject(enrollmentCounts, 'courseId', 'count')
+    const lessonCountsObject = arrayToObject(lessonCounts, 'courseId', 'count')
+
+    const userEnrollments = await models.Enrollment.findAll({
+      where: {
+        orderId: orderIds,
+        courseId: filteredCourses.map(course => course.id)
+      }
+    })
+
+    const courseProgressCountsObject = await fetchCourseProgressCounts(userEnrollments)
+
+    const dataFromDatabase = transformCourseDataNotDone(filteredCourses, allUsers, categoryCourse, enrollmentCountsObject, lessonCountsObject, courseProgressCountsObject)
+
+    const dataAfterSearch = applyFilters(dataFromDatabase, searchCondition, startDate, endDate, categoryCondition)
+    const dataOfCurrentWindow = paginateData(dataAfterSearch, size, page)
+
+    logInfo(req, dataOfCurrentWindow)
+    res.json({
+      page: Number(page),
+      size: Number(size),
+      totalRecords: dataAfterSearch.length,
+      data: dataOfCurrentWindow
+    })
+  } catch (error) {
+    logError(req, error)
+    console.log(error)
+    res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách khóa học.' })
+  }
+})
+
+router.get('/myCourses', isAuthenticated, async (req, res) => {
+  try {
+    const loginedUserId = req.user.id
+    const {
+      page = '1',
+      size = '8',
+      search: searchCondition,
+      startDate = '1970-01-01',
+      endDate = '9999-12-31',
+      category: categoryCondition
+    } = req.query
+
+    // Lấy dữ liệu cần thiết bằng cách tối ưu hóa các truy vấn
+    const [allCourses, allUsers, orders, categoryCourse, enrollmentCounts, lessonCounts] = await Promise.all([
+      models.Course.findAll(),
+      models.User.findAll(),
+      models.Order.findAll({ where: { userId: loginedUserId }, attributes: ['id'] }),
+      getCourseCategory(),
+      models.Enrollment.count({ group: ['courseId'] }),
+      fetchLessonCounts()
+    ])
+
+    // Lấy danh sách orderId từ orders
+    const orderIds = orders.map(order => order.id)
+
+    // Truy vấn tất cả các Enrollment bằng orderIds
+    const enrollments = await models.Enrollment.findAll({
+      where: { orderId: orderIds },
+      order: [['id', 'DESC']]
+    })
+
+    const filteredCourses = allCourses.filter(course =>
+      enrollments.some(enrollment => enrollment.courseId === course.id)
+    )
+
+    const enrollmentCountsObject = arrayToObject(enrollmentCounts, 'courseId', 'count')
+    const lessonCountsObject = arrayToObject(lessonCounts, 'courseId', 'count')
+
+    const userEnrollments = await models.Enrollment.findAll({
+      where: {
+        orderId: orderIds,
+        courseId: filteredCourses.map(course => course.id)
+      }
+    })
+
+    const courseProgressCountsObject = await fetchCourseProgressCounts(userEnrollments)
+
+    const dataFromDatabase = transformCourseData(filteredCourses, allUsers, categoryCourse, enrollmentCountsObject, lessonCountsObject, courseProgressCountsObject)
+
+    const dataAfterSearch = applyFilters(dataFromDatabase, searchCondition, startDate, endDate, categoryCondition)
+    const dataOfCurrentWindow = paginateData(dataAfterSearch, size, page)
+
+    logInfo(req, dataOfCurrentWindow)
+    res.json({
+      page: Number(page),
+      size: Number(size),
+      totalRecords: dataAfterSearch.length,
+      data: dataOfCurrentWindow
+    })
+  } catch (error) {
+    logError(req, error)
+    console.log(error)
+    res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách khóa học.' })
+  }
+})
+// ---------------------------------------------------------------------------------------------------------
+
+// trang home page
+// đã fix
 router.get('/getNewCourse', isAuthenticated, async (req, res) => {
   try {
     const {
@@ -428,13 +617,15 @@ router.get('/getNewCourse', isAuthenticated, async (req, res) => {
       const listLessonCategories = await models.CategoryLession.findAll({
         where: { courseId: course.id },
         include: [{
-          model: models.Lession,
-          attributes: ['id']
+          model: StudyItem, // Liên kết từ CategoryLession đến StudyItem
+          include: [{
+            model: models.Lession, // Liên kết từ StudyItem đến Lession
+            attributes: ['studyItemId'] // Chỉ lấy trường studyItemId
+          }]
         }]
       })
-
       const lessonCount = listLessonCategories.reduce((sum, lessonCategory) => {
-        return sum + lessonCategory.Lessions.length
+        return sum + lessonCategory.StudyItems.length
       }, 0)
 
       return { courseId: course.id, count: lessonCount }
@@ -487,6 +678,8 @@ router.get('/getNewCourse', isAuthenticated, async (req, res) => {
     res.status(500).json({ message: jsonError })
   }
 })
+
+// đã fix - v2 fix
 router.get('/', isAuthenticated, async (req, res) => {
   try {
     const {
@@ -525,12 +718,17 @@ router.get('/', isAuthenticated, async (req, res) => {
       offset
     })
 
-    // Lấy rating trung bình của mỗi khóa học
-    const ratings = await models.CourseReview.findAll({
+    // Lấy rating trung bình của mỗi khóa học từ bảng Enrollment
+    const ratings = await models.Enrollment.findAll({
       attributes: [
         'courseId',
         [sequelize.fn('AVG', sequelize.col('rating')), 'averageRating']
       ],
+      where: {
+        rating: {
+          [Op.ne]: null // Chỉ lấy các bản ghi có rating khác null
+        }
+      },
       group: ['courseId']
     })
 
@@ -555,12 +753,15 @@ router.get('/', isAuthenticated, async (req, res) => {
       const listLessonCategories = await models.CategoryLession.findAll({
         where: { courseId: course.id },
         include: [{
-          model: models.Lession,
-          attributes: ['id']
+          model: StudyItem, // Liên kết từ CategoryLession đến StudyItem
+          include: [{
+            model: models.Lession, // Liên kết từ StudyItem đến Lession
+            attributes: ['studyItemId'] // Chỉ lấy trường studyItemId
+          }]
         }]
       })
       const lessonCount = listLessonCategories.reduce((sum, lessonCategory) => {
-        return sum + lessonCategory.Lessions.length
+        return sum + lessonCategory.StudyItems.length
       }, 0)
       return { courseId: course.id, count: lessonCount }
     }))
@@ -625,12 +826,15 @@ router.get('/', isAuthenticated, async (req, res) => {
   }
 })
 
+// đã check - không cần fix
 function applyDateRangeSearch (startDate, endDate, inputData) {
   const filteredData = inputData.filter((d) => {
     return new Date(d.startDate) >= new Date(startDate) && new Date(d.endDate) <= new Date(endDate)
   })
   return filteredData
 }
+
+// đã check - không cần fix
 router.get('/course-category', isAuthenticated, async (req, res) => {
   try {
     const courseCategory = await getCourseCategory()
@@ -650,6 +854,7 @@ router.get('/course-category', isAuthenticated, async (req, res) => {
   }
 })
 
+// trang course detail
 router.get('/:id', isAuthenticated, async (req, res) => {
   try {
     const { id } = req.params
@@ -677,6 +882,8 @@ router.get('/:id', isAuthenticated, async (req, res) => {
   }
 })
 
+// cac ham phu tro
+// đã check - không cần fix
 function applyNameSearch (searchCondition, data) {
   if (searchCondition) {
     data = data.filter(
@@ -686,6 +893,7 @@ function applyNameSearch (searchCondition, data) {
   return data
 }
 
+// đã check - không cần fix
 function applyCourseCategoryNameSearch (categoryID, data) {
   console.log(categoryID, 'courseName')
   console.log(data, 'data')
@@ -704,20 +912,184 @@ function applyCourseCategoryNameSearch (categoryID, data) {
     return data
   }
 }
-function getDataInWindowSize (size, page, data) {
-  if (!isNaN(Number(size)) && !isNaN(Number(page))) {
-    data = data.slice(
-      Number(size) * (Number(page) - 1),
-      Number(size) * Number(page)
-    )
-  }
-  return data
-}
 
+// đã check - không cần fix
 async function getCourseCategory () {
   return await models.CategoryCourse.findAll({
     order: [['id', 'DESC']]
   })
+}
+
+// -----------------------------------------------trang my course ----------------------------
+async function getEnrollmentByUserId (userId) {
+  // Lấy danh sách các order của người dùng
+  const orders = await models.Order.findAll({
+    where: { userId },
+    attributes: ['id']
+  })
+
+  // Lấy danh sách enrollment từ các order của người dùng
+  return await models.Enrollment.findAll({
+    where: {
+      orderId: orders.map(order => order.id)
+    },
+    order: [['id', 'DESC']]
+  })
+}
+
+function arrayToObject (array, keyField, valueField) {
+  return array.reduce((obj, item) => {
+    obj[item[keyField]] = item[valueField]
+    return obj
+  }, {})
+}
+
+async function fetchLessonCounts () {
+  // Lấy tất cả các khóa học
+  const allCourses = await models.Course.findAll()
+
+  // Duyệt qua từng khóa học để lấy số lượng bài học và bài kiểm tra
+  return Promise.all(allCourses.map(async (course) => {
+    // Lấy tất cả các danh mục bài học (CategoryLession) cho mỗi khóa học
+    const listLessonCategories = await models.CategoryLession.findAll({
+      where: { courseId: course.id },
+      include: [{
+        model: models.StudyItem, // Liên kết với bảng StudyItem
+        include: [{
+          model: models.Lession, // Liên kết với bảng Lession nếu có
+          attributes: ['studyItemId'] // Chỉ lấy studyItemId từ bảng Lession
+        }, {
+          model: models.Exam, // Liên kết với bảng Exam nếu có
+          attributes: ['studyItemId'] // Chỉ lấy studyItemId từ bảng Exam
+        }]
+      }]
+    })
+
+    // Tính tổng số lượng bài học và bài kiểm tra trong các danh mục bài học
+    const itemCount = listLessonCategories.reduce((sum, lessonCategory) => {
+      return sum + lessonCategory.StudyItems.length // Cộng tổng số mục (bài học và bài kiểm tra)
+    }, 0)
+
+    // Trả về kết quả cho mỗi khóa học
+    return { courseId: course.id, count: itemCount }
+  }))
+}
+
+async function fetchCourseProgressCounts (enrollments) {
+  const progressCounts = await Promise.all(enrollments.map(async (enroll) => {
+    const count = await models.CourseProgress.count({ where: { enrollmentId: enroll.id } })
+    const lastUpdate = await models.CourseProgress.findOne({
+      where: { enrollmentId: enroll.id },
+      order: [['updatedAt', 'DESC']]
+    })
+    return { courseId: enroll.courseId, count, lastUpdate: lastUpdate?.dataValues?.updatedAt }
+  }))
+  return progressCounts.reduce((obj, item) => {
+    obj[item.courseId] = { count: item.count, lastUpdate: item.lastUpdate }
+    return obj
+  }, {})
+}
+
+function transformCourseData (courses, users, categories, enrollmentCounts, lessonCounts, progressCounts) {
+  return courses.map((course) => {
+    const lessonCount = lessonCounts[course.id] || 0
+    const progressData = progressCounts[course.id] || {}
+    const doneCount = progressData.count || 0
+    const lastUpdate = progressData.lastUpdate || null
+    return {
+      id: course.id,
+      name: course.name,
+      summary: course.summary,
+      assignedBy: users.find((user) => user.id === course.assignedBy)?.username ?? null,
+      durationInMinute: course.durationInMinute,
+      startDate: course.startDate,
+      endDate: course.endDate,
+      description: course.description,
+      price: course.price,
+      prepare: course.prepare,
+      locationPath: course.locationPath,
+      categoryCourseName: categories.find((cat) => cat.id === course.categoryCourseId)?.name ?? null,
+      enrollmentCount: enrollmentCounts[course.id] || 0,
+      lessonCount,
+      createdAt: course.createdAt,
+      doneCount,
+      status: doneCount === lessonCount,
+      lastUpdate
+    }
+  })
+}
+function transformCourseDataDone (courses, users, categories, enrollmentCounts, lessonCounts, progressCounts) {
+  return courses.map((course) => {
+    const lessonCount = lessonCounts[course.id] || 0
+    const progressData = progressCounts[course.id] || {}
+    const doneCount = progressData.count || 0
+    const lastUpdate = progressData.lastUpdate || null
+    const status = doneCount === lessonCount
+    return status
+      ? {
+          id: course.id,
+          name: course.name,
+          summary: course.summary,
+          assignedBy: users.find((user) => user.id === course.assignedBy)?.username ?? null,
+          durationInMinute: course.durationInMinute,
+          startDate: course.startDate,
+          endDate: course.endDate,
+          description: course.description,
+          price: course.price,
+          prepare: course.prepare,
+          locationPath: course.locationPath,
+          categoryCourseName: categories.find((cat) => cat.id === course.categoryCourseId)?.name ?? null,
+          enrollmentCount: enrollmentCounts[course.id] || 0,
+          lessonCount,
+          createdAt: course.createdAt,
+          doneCount,
+          status,
+          lastUpdate
+        }
+      : null
+  }).filter(Boolean)
+}
+function transformCourseDataNotDone (courses, users, categories, enrollmentCounts, lessonCounts, progressCounts) {
+  return courses.map((course) => {
+    const lessonCount = lessonCounts[course.id] || 0
+    const progressData = progressCounts[course.id] || {}
+    const doneCount = progressData.count || 0
+    const lastUpdate = progressData.lastUpdate || null
+    const status = doneCount === lessonCount
+    return !status
+      ? {
+          id: course.id,
+          name: course.name,
+          summary: course.summary,
+          assignedBy: users.find((user) => user.id === course.assignedBy)?.username ?? null,
+          durationInMinute: course.durationInMinute,
+          startDate: course.startDate,
+          endDate: course.endDate,
+          description: course.description,
+          price: course.price,
+          prepare: course.prepare,
+          locationPath: course.locationPath,
+          categoryCourseName: categories.find((cat) => cat.id === course.categoryCourseId)?.name ?? null,
+          enrollmentCount: enrollmentCounts[course.id] || 0,
+          lessonCount,
+          createdAt: course.createdAt,
+          doneCount,
+          status,
+          lastUpdate
+        }
+      : null
+  }).filter(Boolean) // Loại bỏ các giá trị null
+}
+function applyFilters (data, searchCondition, startDate, endDate, categoryCondition) {
+  const dataAfterNameSearch = applyNameSearch(searchCondition, data)
+  const dataAfterNameAndDateSearch = applyDateRangeSearch(startDate, endDate, dataAfterNameSearch)
+  return applyCourseCategoryNameSearch(categoryCondition, dataAfterNameAndDateSearch)
+}
+
+function paginateData (data, size, page) {
+  const pageSize = parseInt(size, 10)
+  const pageIndex = parseInt(page, 10) - 1
+  return data.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
 }
 
 module.exports = router

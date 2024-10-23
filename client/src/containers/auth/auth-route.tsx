@@ -34,7 +34,10 @@ const AuthRoute = ({ children, allowedRoles }: IAuthRouteProps) => {
   const isAuthenticated = useMemo(() => {
     return !!tokens?.accessToken
   }, [tokens?.accessToken])
-  if (!isAuthenticated && location.pathname !== ROUTES.login) {
+  if (isAuthenticated && (location.pathname === ROUTES.login || location.pathname === ROUTES.signup)) {
+    return <Navigate to={ROUTES.home} />
+  }
+  if (!isAuthenticated && location.pathname !== ROUTES.login && location.pathname !== ROUTES.signup && location.pathname !== ROUTES.forgotpassword) {
     return <Navigate to={ROUTES.login} />
   }
   if (allowedRoles && data && !allowedRoles.includes(data)) {
@@ -42,9 +45,9 @@ const AuthRoute = ({ children, allowedRoles }: IAuthRouteProps) => {
   }
 
   return (
-       <>
-         {children}
-       </>
+             <>
+               {children}
+             </>
   )
 }
 export default AuthRoute

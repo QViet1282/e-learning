@@ -71,3 +71,19 @@ export interface newQuestion {
   answer: string
   explanation: string
 }
+// exam
+export type ExamItem = Record<string, any>
+
+export interface DataListExam {
+  durationInMinute: number
+  numberOfAttempt: number
+  attempted: number
+  id: string | undefined
+  score: string | undefined
+  description: string | undefined
+  name: string | undefined
+  data: ExamItem[]
+  page: number
+  size: number
+  totalRecords: number
+}
