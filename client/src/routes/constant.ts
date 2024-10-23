@@ -8,7 +8,6 @@ const ROUTES = {
   login: '/login',
   course: '/course',
   management: '/management',
-  addCourse: '/management/add-course',
   detailCourse: '/management/detail-course',
   temp: '/management/temp',
   signup: '/signup',

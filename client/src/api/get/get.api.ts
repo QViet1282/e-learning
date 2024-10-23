@@ -5,10 +5,13 @@
 import { requestWithJwt } from '../request'
 
 import { AxiosResponse } from 'axios'
-import { Category, CategoryCourse, Course, Question, StudyItem } from './get.interface'
+import { Category, CategoryCourse, Course, GetAllCourseParams, Question, StudyItem } from './get.interface'
 
-export const getAllCourse = async (): Promise<AxiosResponse<any>> => {
-  return await requestWithJwt.get<any>('/courses/getAllCourseInfo', { withCredentials: true })
+export const getAllCourse = async (params: GetAllCourseParams = {}): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>('/courses/getAllCourseInfo', {
+    params,
+    withCredentials: true
+  })
 }
 
 export const getCategoryLessionByCourse = async (courseId: number): Promise<AxiosResponse<any>> => {
@@ -29,4 +32,12 @@ export const getAllCategoryCourse = async (): Promise<AxiosResponse<any>> => {
 
 export const getCourseById = async (courseId: number): Promise<AxiosResponse<any>> => {
   return await requestWithJwt.get<Course>(`/courses/getCourseById/${courseId}`, { withCredentials: true })
+}
+
+export const getEnrollmentUserByCourseId = async ({ courseId, page, limit, search }: { courseId?: number | undefined, page?: number, limit?: number, search?: string }): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>(`/users/getEnrollmentUserByCourseId/${courseId}?page=${page}&limit=${limit}&search=${search}`, { withCredentials: true })
+}
+
+export const getExamsByCourseId = async ({ courseId, page, limit, search }: { courseId?: number | undefined, page?: number, limit?: number, search?: string }): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>(`/study-items/user-answer-history/${courseId}?page=${page}&limit=${limit}&search=${search}`, { withCredentials: true })
 }

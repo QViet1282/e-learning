@@ -3,10 +3,6 @@ pipeline {
     // triggers {
     //     githubPush() 
     // }
-    environment {
-        APP_DIR = '/var/jenkins/workspace/elearning'
-    }
-    
     stages {
         stage('Install Dependencies') {
             steps {

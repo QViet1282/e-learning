@@ -17,7 +17,7 @@ export interface ListCourseParams {
 export interface newCourse {
   categoryCourseId: number | undefined
   name: string
-  assignedBy: number | undefined
+  // assignedBy: number | undefined
 }
 
 export interface newCategory {

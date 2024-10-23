@@ -9,13 +9,10 @@
 /* PAGE: CategoryLessionItem
    ========================================================================== */
 import React, { useEffect, useMemo, useState } from 'react'
-import { StyledPaper, StyledTypography } from '../courseList'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
 import { Box, IconButton, Collapse, TextField, Button, Modal } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { getAllQuestionByExamId, getStudyItemByCategoryLessionId } from 'api/get/get.api'
-import { GridCloseIcon } from '@mui/x-data-grid'
-import UploadAndDisplayVideo from './UploadVideo'
 import { DragDropContext, Droppable, Draggable, DropResult, DroppableProvided, DraggableProvided } from 'react-beautiful-dnd'
 import { Question, StudyItem } from 'api/get/get.interface'
 import ReactQuill, { Quill } from 'react-quill'
@@ -23,7 +20,7 @@ import 'react-quill/dist/quill.snow.css'
 import axios from 'axios'
 import { StudyItemOrderItem } from 'api/put/put.interface'
 import { editCategoryLession, updateStudyItemOrder } from 'api/put/put.api'
-import { AssignmentTurnedIn, CheckBoxOutlineBlankSharp, CheckOutlined, ListAlt, PictureAsPdf, PictureAsPdfOutlined, Quiz, QuizOutlined, VideoLibraryOutlined, Add, Remove, Edit, EditOutlined, EditTwoTone, Close, DeleteOutline } from '@mui/icons-material'
+import { Quiz, QuizOutlined, VideoLibraryOutlined, Add, Remove, Edit, EditOutlined, EditTwoTone, Close, DeleteOutline, VideoLibrary, PictureAsPdfRounded, DisabledByDefault, DisabledByDefaultRounded, VideoLibraryRounded, QuizRounded, FiberNewRounded, FiberNewOutlined } from '@mui/icons-material'
 import QuillResizeImage from 'quill-resize-image'
 import ImageUploader from 'quill-image-uploader'
 
@@ -46,15 +43,17 @@ interface DraggableStudyItem extends StudyItem {
 interface CategoryItemProps {
   lessionCategoryId: number
   userId: number
-  courseId: number
+  // courseId: number
   name: string
   order: number
+  courseStatus: number
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement>
   fetchCategories: () => Promise<void>
 }
 
-const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, userId, courseId, name, order, dragHandleProps, fetchCategories }) => {
+const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, userId, name, order, courseStatus, dragHandleProps, fetchCategories }) => {
   const [openLessonIds, setOpenLessonIds] = useState<number[]>([])
+  const [openLoadIds, setOpenLoadIds] = useState<number[]>([])
   const [studyItems, setStudyItems] = useState<StudyItem[]>([])
   const [isAddingLesson, setIsAddingLesson] = useState(false)
   const [isAddingExam, setIsAddingExam] = useState(false)
@@ -84,6 +83,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
       setOpenLessonIds(openLessonIds.filter(id => id !== studyItemId))
     } else {
       setOpenLessonIds([...openLessonIds, studyItemId])
+      setOpenLoadIds([...openLoadIds, studyItemId])
     }
   }
 
@@ -112,6 +112,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
         const StudyItemOrderUpdate: StudyItemOrderItem = { studyItemId: reorderedItem.id, oldOrder: reorderedItem.order, newOrder, lessionCategoryId, updatedAt: reorderedItem.updatedAt }
         const response = await updateStudyItemOrder(StudyItemOrderUpdate)
         console.log('Ket qua keo tha', response.status)
+        void fetchStudyItems()
       }
     } catch (error) {
       console.error('Error updating categories:', error)
@@ -203,7 +204,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
   console.log(studyItems)
 
   return (
-    <div key={lessionCategoryId} className="px-4 py-2 flex flex-col bg-gray-100 shadow-md rounded-lg">
+    <div key={lessionCategoryId} className="px-4 py-2 my-1 flex flex-col bg-slate-100 shadow-2xl rounded-lg">
       <div className="flex items-center justify-between group">
         <div className="flex items-center w-4/5">
           <div className="text-xl font-medium leading-6 tracking-wide mr-2 whitespace-nowrap overflow-hidden break-words text-ellipsis max-w-full">
@@ -211,10 +212,10 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
           </div>
           <div className='flex opacity-0 group-hover:opacity-100'>
             <IconButton onClick={() => setOpenModalEditCategoryLession(true)}>
-              <EditTwoTone fontSize='small' />
+              <EditTwoTone fontSize='small' className='text-teal-600' />
             </IconButton>
             <IconButton onClick={() => setOpenModalDeleteLessionCategory(true)}>
-              <DeleteOutline fontSize='small' />
+              <DeleteOutline fontSize='small' className='text-teal-600' />
             </IconButton>
             <Modal open={openModalDeleteLessionCategory} onClose={() => setOpenModalDeleteLessionCategory(false)} className='flex justify-center items-center'>
               <div className="flex flex-col justify-center items-center p-6 bg-white rounded-lg shadow-lg max-w-md mx-auto">
@@ -243,7 +244,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
         </div>
         <div {...dragHandleProps} style={{ cursor: 'grab' }}>
           <IconButton style={{ cursor: 'grab' }}>
-            <DragIndicatorIcon />
+            <DragIndicatorIcon className='text-teal-600 opacity-0 group-hover:opacity-100' />
           </IconButton>
           <Modal open={openModalEditCategoryLession} onClose={() => setOpenModalEditCategoryLession(false)} className='flex justify-center items-center'>
             <div className='flex justify-center items-center md:w-4/12'>
@@ -254,7 +255,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
                     setOpenModalEditCategoryLession(false)
                     setNewNameCategory(nameCategory)
                   }}>
-                    <Close />
+                    <Close className='text-teal-600' />
                   </IconButton>
                 </div>
                 <textarea
@@ -288,14 +289,14 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
                           <div className='flex justify-between w-full group'>
                             <div className="flex items-center justify-start pl-2 bg-white">
                               {studyItem.itemType === 'lession'
-                                ? <p className='mr-2'>{studyItem.Lession?.type === 'MP4' ? <VideoLibraryOutlined /> : <PictureAsPdfOutlined />} {studyItem.order}. {studyItem.name}</p>
-                                : <p className='mr-2'><QuizOutlined /> {studyItem.order}. {studyItem.name}</p>}
+                                ? <p className='mr-2'>{(studyItem.Lession?.type === 'MP4') ? (<VideoLibraryRounded className='text-teal-600' />) : (studyItem.Lession?.type === 'PDF') ? (<PictureAsPdfRounded className='text-teal-600' />) : (<DisabledByDefaultRounded className='text-red-600' />)} {studyItem.order}. {studyItem.name}</p>
+                                : <p className='mr-2'><QuizRounded className='text-teal-600' /> {studyItem.order}. {studyItem.name}</p>}
                               <div className='flex opacity-0 group-hover:opacity-100'>
                                 <IconButton onClick={() => setSelectedStudyItem(studyItem)}>
-                                  <EditTwoTone fontSize='small' />
+                                  <EditTwoTone className='text-teal-600' fontSize='small' />
                                 </IconButton>
                                 <IconButton onClick={() => setSeletedDeleteStudyItem(studyItem.id ?? null)}>
-                                  <DeleteOutline fontSize='small' />
+                                  <DeleteOutline className='text-teal-600' fontSize='small' />
                                 </IconButton>
                                 <Modal open={seletedDeleteStudyItem === studyItem.id} onClose={() => setSeletedDeleteStudyItem(null)} className='flex justify-center items-center'>
                                   <div className="flex flex-col justify-center items-center p-6 bg-white rounded-lg shadow-lg max-w-md mx-auto">
@@ -352,15 +353,20 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
                               </Modal>
 
                               {/* Icon mở rộng bài học */}
+                              {(courseStatus === 2 || courseStatus === 3) && studyItem.status === 0 && (
+                                <IconButton>
+                                  <FiberNewOutlined className='text-teal-600' fontSize='medium' style={{ transform: 'scale(1.5)' }}/>
+                                </IconButton>
+                              )}
                               <IconButton onClick={() => handleToggle(studyItem.id ?? 0)}>
                                 {openLessonIds.includes(studyItem.id ?? 0)
-                                  ? <ExpandMoreIcon className='w-1/2' />
-                                  : <ExpandMoreIcon style={{ transform: 'rotate(180deg)' }} />}
+                                  ? <ExpandMoreIcon className='w-1/2 text-teal-600' fontSize='medium' />
+                                  : <ExpandMoreIcon style={{ transform: 'rotate(180deg)' }} fontSize='medium' className='text-teal-600' />}
                               </IconButton>
 
                               {/* Icon để kéo thả bài học */}
                               <IconButton {...provided.dragHandleProps} style={{ cursor: 'grab' }}>
-                                <DragIndicatorIcon className='w-1/2' />
+                                <DragIndicatorIcon className='w-1/2 text-teal-600 group-hover:opacity-100 opacity-0' />
                               </IconButton>
 
                             </div>
@@ -368,8 +374,8 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
                           {/* Nội dung mở rộng của bài học hoặc bài kiểm tra */}
                           <Collapse in={openLessonIds.includes(studyItem.id ?? 0)}>
                             {studyItem.itemType === 'lession'
-                              ? <LessionDetail studyItem={studyItem} load={openLessonIds.includes(studyItem.id ?? 0)} />
-                              : <ExamDetail studyItem={studyItem} userId={userId} load={openLessonIds.includes(studyItem.id ?? 0)} />}
+                              ? <LessionDetail studyItem={studyItem} load={openLoadIds.includes(studyItem.id ?? 0)} />
+                              : <ExamDetail studyItem={studyItem} userId={userId} load={openLoadIds.includes(studyItem.id ?? 0)} />}
                           </Collapse>
                         </div>
                       </div>

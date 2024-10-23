@@ -1,16 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useMemo, useState } from 'react'
 import { Checkbox, IconButton } from '@mui/material'
-import ReactQuill, { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import axios, { AxiosResponse } from 'axios'
 import { Add, Close, DeleteOutlined, Remove } from '@mui/icons-material'
-import QuillResizeImage from 'quill-resize-image'
 import { newQuestion, newStudyItemAndLession } from 'api/post/post.interface'
-import ImageUploader from 'quill-image-uploader'
 
 import 'quill-image-uploader/dist/quill.imageUploader.min.css'
 import { createQuestion } from 'api/post/post.api'
+import { QuillEditorQuestion } from './QuillEditor'
 
 interface AddExamFormProps {
   userId: number
@@ -157,38 +155,6 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
     })
   }
 
-  const Parchment = Quill.import('parchment')
-  const Block = Quill.import('blots/block')
-  Block.tagName = 'H3'
-  Quill.register(Block, true)
-
-  const modules = useMemo(() => ({
-    toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block', 'image'],
-      [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
-      [{ color: [] }, { background: [] }]
-    ],
-    imageUploader: {
-      upload: async (file: File) => {
-        const formData = new FormData()
-        formData.append('file', file)
-        formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
-        try {
-          const response = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/upload`, formData)
-          const imageUrl = response.data.secure_url
-          return imageUrl // Trả về URL của ảnh sau khi upload thành công
-        } catch (error) {
-          console.error('Error uploading image:', error)
-          throw new Error('Image upload failed')
-        }
-      }
-    },
-    resize: {
-      locale: {}
-    }
-  }), [])
-
   return (
         <div className="flex flex-col px-4 py-2 border-2 border-gray-200 bg-white">
             <div className="flex justify-between items-center">
@@ -210,9 +176,13 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
             </select>
 
             <div className="">
-                <ReactQuill value={newQuestion.content} onChange={(value) => {
+                <QuillEditorQuestion theme='snow' value={newQuestion.content} onChange={(value) => {
                   setNewQuestion({ ...newQuestion, content: value })
-                }} modules={modules} className="mt-2 text-xl" placeholder='Nội dung câu hỏi' />
+                }}
+                // modules={modules}
+                // className="mt-2 text-xl"
+                placeholder='Nội dung câu hỏi'
+                />
             </div>
 
             <div className="mt-2">
@@ -229,11 +199,11 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
                                     </div>
                                 )}
                             </div>
-                            <textarea
+                            <input
                                 value={answer.content}
                                 placeholder={`Đáp án ${1 + index}`}
                                 onChange={(e) => handleAnswerChange(index, e.target.value)}
-                                className='w-10/12 h-9 items-center pt-2 px-2 border-solid text-sm border-gray-300 focus:outline-none'
+                                className='w-10/12 h-9 items-center px-2 border-solid text-sm border-gray-300 focus:outline-none'
                                 style={{ borderWidth: '1px' }}
                             />
                             <div className='flex justify-center items-center w-1/12 ml-2'>

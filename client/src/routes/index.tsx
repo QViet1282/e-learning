@@ -10,7 +10,6 @@ import { RouteObject } from 'react-router-dom'
 import loadable from '@loadable/component'
 import React from 'react'
 import ManagementPage from 'pages/management'
-import AddCoursePage from 'pages/management/course/AddCourse'
 import CourseDetailPage from 'pages/management/course/CourseDetail'
 // import HomePage from 'pages/homePage'
 /**
@@ -109,7 +108,6 @@ const routes: RouteObject[] = [
     children: [
       { index: true, element: <HomePage /> },
       { path: ROUTES.management, element: <ManagementPage /> },
-      { path: ROUTES.addCourse, element: <AddCoursePage /> },
       { path: ROUTES.notfound, element: <NotFound /> },
       { path: ROUTES.detailCourse, element: <CourseDetailPage/> },
       { path: ROUTES.courseDetail, element: <CourseDetail /> },

@@ -9,12 +9,16 @@ import Curriculum from './Curriculum'
 import CourseOverview from './Overview'
 import { Course } from 'api/get/get.interface'
 import { getCourseById } from 'api/get/get.api'
+import PricingAndPublishing from './PricingAndPublishing'
+import StudentList from './StudentList'
+import DoExamList from './DoExamList'
+import TargetStudents from './TargetStudents'
 
 export default function CourseDetailPage (): JSX.Element {
   const location = useLocation()
   const { courseId } = location.state || {}
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedContent, setSelectedContent] = useState<string | null>(null)
+  const [selectedContent, setSelectedContent] = useState<string>('Tổng quan khóa học')
   const [course, setCourse] = useState<Course | null>(null)
 
   useEffect(() => {
@@ -32,82 +36,88 @@ export default function CourseDetailPage (): JSX.Element {
   const renderContent = (content: string | null): JSX.Element | null => {
     switch (content) {
       case 'Học viên mục tiêu':
-        return <Typography>Đây là phần dành cho học viên mục tiêu.</Typography>
-      case 'Cấu trúc khóa học':
-        return <Typography>Đây là cấu trúc của khóa học.</Typography>
-      case 'Thiết lập studio và tạo video thử nghiệm':
-        return <Typography>Hướng dẫn thiết lập studio và quay video thử nghiệm.</Typography>
+        return <TargetStudents courseId={course?.id} description={course?.description} fetchCourse={fetchCourse} prepare={course?.prepare}/>
       case 'Tổng quan khóa học':
         return <CourseOverview
           courseId={course?.id}
           categoryCourseId={course?.categoryCourseId}
           name={course?.name}
           summary={course?.summary}
-          description={course?.description}
           locationPath={course?.locationPath}
-          prepare={course?.prepare}
+          videoLocationPath={course?.videoLocationPath}
           fetchCourse={fetchCourse}
           />
       case 'Chương trình giảng dạy':
-        return <Curriculum courseId={courseId} />
+        return <Curriculum courseId={courseId} courseStatus={course?.status ?? 0}/>
       case 'Định giá & Xuất bản':
-        return <Typography>Thêm phụ đề vào khóa học.</Typography>
-      case 'Khả năng truy cập (tùy chọn)':
-        return <Typography>Thiết lập khả năng truy cập cho khóa học.</Typography>
+        return <PricingAndPublishing
+        courseId={course?.id}
+        status={course?.status}
+        price={course?.price}
+        startDateRegister={course?.startDate}
+        endDateRegister={course?.endDate}
+        fetchCourse={fetchCourse}
+        />
+      case 'Danh sách học viên':
+        return <StudentList courseId={course?.id} />
       case 'Trang tổng quan khóa học':
         return <Typography>Trang tổng quan của khóa học.</Typography>
-      case 'Định giá':
-        return <Typography>Thiết lập giá cho khóa học của bạn.</Typography>
+      case 'Kết quả các bài trắc nghiệm':
+        return <DoExamList courseId={courseId} />
       case 'Khuyến mại':
         return <Typography>Chi tiết về các chương trình khuyến mại.</Typography>
       case 'Tin nhắn khóa học':
         return <Typography>Tin nhắn gửi đến học viên.</Typography>
       default:
-        return null
+        return <CourseOverview
+        courseId={course?.id}
+        categoryCourseId={course?.categoryCourseId}
+        name={course?.name}
+        summary={course?.summary}
+        locationPath={course?.locationPath}
+        fetchCourse={fetchCourse}
+        />
     }
   }
 
   console.log('courseId(DetailPage)', courseId)
   return (
-    <div className='grid md:grid-cols-5 grid-cols-1 gap-4 p-4'>
-      <Box className='col-span-1'>
-        <Accordion defaultExpanded sx={{ backgroundColor: 'rgb(245, 245, 245)' }} >
+    <div className='grid md:grid-cols-5 grid-cols-1 gap-6 p-4 bg-gray-100'>
+      <Box className='col-span-1 '>
+        <Accordion defaultExpanded sx={{ backgroundColor: 'rgb(241, 245, 249)' }} className='shadow-xl'>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography>Nội dung khóa học</Typography>
+            <div className='font-bold text-lg'>Nội dung khóa học</div>
           </AccordionSummary>
           <AccordionDetails>
             <div className='flex flex-col gap-4'>
-              <button
-                className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none"
-                onClick={() => setSelectedContent('Tổng quan khóa học')}>
+              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => setSelectedContent('Tổng quan khóa học')}>
                 Tổng quan khóa học
               </button>
+              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => setSelectedContent('Học viên mục tiêu')}>
+                Học viên mục tiêu
+              </button>
 
-              <button
-                className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none"
-                onClick={() => setSelectedContent('Chương trình giảng dạy')}>
+              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => setSelectedContent('Chương trình giảng dạy')}>
                 Chương trình giảng dạy
               </button>
 
-              <button
-                className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none"
-                onClick={() => setSelectedContent('Định giá & Xuất bản')}>
+              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => setSelectedContent('Định giá & Xuất bản')}>
                 Định giá & Xuất bản
               </button>
 
             </div>
           </AccordionDetails>
         </Accordion>
-        <Accordion defaultExpanded sx={{ backgroundColor: 'rgb(245, 245, 245)' }} >
+        <Accordion defaultExpanded sx={{ backgroundColor: 'rgb(241, 245, 249)' }} className='shadow-xl' >
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography>Quản lý khóa học</Typography>
+            <div className='font-bold text-lg'>Quản lý khóa học</div>
           </AccordionSummary>
           <AccordionDetails>
             <Box display="flex" flexDirection="column" gap={2}>
               <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Danh sách học viên')}>Danh sách học viên</button>
-              <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Định giá')}>Định giá</button>
-              <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Khuyến mại')}>Khuyến mại</button>
-              <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Tin nhắn khóa học')}>Tin nhắn khóa học</button>
+              <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Kết quả các bài trắc nghiệm')}>Kết quả các bài trắc nghiệm</button>
+              {/* <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Khuyến mại')}>Khuyến mại</button> */}
+              {/* <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Tin nhắn khóa học')}>Tin nhắn khóa học</button> */}
             </Box>
           </AccordionDetails>
         </Accordion>

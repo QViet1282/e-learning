@@ -7,9 +7,10 @@ const jsonError = 'Internal server error'
 const router = express.Router()
 const { infoLogger, errorLogger } = require('../logs/logger')
 // const { INTEGER } = require('sequelize')
-const { Op } = require('sequelize')
+const { Op, fn, col } = require('sequelize')
 const CategoryCourse = require('../models/category_course')
 const StudyItem = require('../models/study_item')
+const { duration } = require('moment-timezone')
 
 function logError (req, error) {
   const request = req.body.data ? req.body.data : (req.params ? req.params : req.query)
@@ -40,10 +41,74 @@ function logInfo (req, response) {
  *****************************/
 
 router.get('/getAllCourseInfo', isAuthenticated, async (req, res) => {
+  const page = parseInt(req.query.page) || 1 // Lấy số trang, mặc định là 1
+  const limit = parseInt(req.query.limit) || 10 // Lấy giới hạn số bản ghi trên mỗi trang, mặc định là 10
+  const offset = (page - 1) * limit // Tính toán offset
+
+  // Lấy các tham số lọc từ query
+  const { categoryCourseId, status, priceMin, priceMax, durationMin, durationMax, name } = req.query
+
+  // Tạo một đối tượng điều kiện để sử dụng trong truy vấn
+  const whereConditions = {}
+
+  if (categoryCourseId) {
+    whereConditions.categoryCourseId = categoryCourseId // Lọc theo categoryCourseId
+  }
+
+  if (status) {
+    whereConditions.status = status // Lọc theo status
+  }
+
+  // Lọc theo khoảng giá
+  if (priceMin || priceMax) {
+    whereConditions.price = {}
+    if (priceMin) {
+      whereConditions.price[Op.gte] = priceMin // Giá lớn hơn hoặc bằng priceMin
+    }
+    if (priceMax) {
+      whereConditions.price[Op.lte] = priceMax // Giá nhỏ hơn hoặc bằng priceMax
+    }
+  }
+
+  // Lọc theo khoảng durationInMinute
+  if (durationMin || durationMax) {
+    whereConditions.durationInMinute = {}
+    if (durationMin) {
+      whereConditions.durationInMinute[Op.gte] = durationMin // Thời gian lớn hơn hoặc bằng durationMin
+    }
+    if (durationMax) {
+      whereConditions.durationInMinute[Op.lte] = durationMax // Thời gian nhỏ hơn hoặc bằng durationMax
+    }
+  }
+
+  // Tìm kiếm theo tên (không phân biệt chữ hoa chữ thường)
+  if (name) {
+    whereConditions.name = {
+      [Op.and]: [
+        { [Op.like]: `%${name}%` }, // Tìm kiếm với LIKE
+        { [Op.not]: null } // Đảm bảo trường không null
+      ]
+    }
+  }
+  console.log('Where Conditions:', whereConditions)
+
   try {
-    const courses = await models.Course.findAll()
-    logInfo(req, courses)
-    res.status(200).json(courses)
+    const { count, rows } = await models.Course.findAndCountAll({
+      where: whereConditions, // Thêm điều kiện vào truy vấn
+      limit, // Giới hạn số bản ghi
+      offset, // Bỏ qua số bản ghi theo offset
+      attributes: ['id', 'categoryCourseId', 'name', 'durationInMinute', 'locationPath', 'price', 'status']
+    })
+
+    const totalPages = Math.ceil(count / limit) // Tính toán tổng số trang
+
+    // Trả về dữ liệu cùng với thông tin phân trang
+    res.status(200).json({
+      totalItems: count,
+      totalPages: count !== 0 ? totalPages : 1,
+      currentPage: page,
+      courses: rows // Trả về danh sách khóa học
+    })
   } catch (err) {
     logError(req, err)
     console.error(err)
@@ -80,19 +145,22 @@ router.post('/createNewCourse', isAuthenticated, async (req, res) => {
   try {
     const {
       categoryCourseId,
-      name,
-      assignedBy
+      name
     } = req.body
 
     console.log('Request Body:', req.body)
-    if (!name || !assignedBy) {
+    if (!name) {
       return res.status(400).json({ error: 'Required fields are missing' })
     }
 
     const newCourse = await models.Course.create({
       categoryCourseId,
       name,
-      assignedBy
+      assignedBy: req.user.id,
+      description: '',
+      summary: '',
+      prepare: '',
+      locationPath: 'https://res.cloudinary.com/dessdbtlz/image/upload/v1729450216/elearning/pte9tzf5b40ozaoqbjae.webp'
     })
     logInfo(req, newCourse)
     res.status(201).json(newCourse)
@@ -112,6 +180,7 @@ router.put('/editCourse/:courseId', isAuthenticated, async (req, res) => {
     endDate,
     description,
     locationPath,
+    videoLocationPath,
     prepare,
     price,
     status
@@ -137,6 +206,7 @@ router.put('/editCourse/:courseId', isAuthenticated, async (req, res) => {
       endDate,
       description,
       locationPath,
+      videoLocationPath,
       prepare,
       price,
       status
@@ -149,6 +219,106 @@ router.put('/editCourse/:courseId', isAuthenticated, async (req, res) => {
     res.status(500).json({ error: 'Internal server error' })
   }
 })
+
+router.put('/updateCourseStatus/:courseId', isAuthenticated, async (req, res) => {
+  const { courseId } = req.params
+  const { status, startDate, endDate } = req.body
+
+  const transaction = await sequelize.transaction()
+  try {
+  // Tìm khóa học và các bản ghi liên quan
+    const course = await models.Course.findByPk(courseId, {
+      attributes: ['id', 'status'], // Chỉ lấy các trường cần thiết của Course
+      include: [
+        {
+          model: models.CategoryLession,
+          attributes: ['id'], // Chỉ lấy các trường cần thiết của CategoryLession
+          include: [
+            {
+              model: models.StudyItem,
+              attributes: ['id', 'status'] // Chỉ lấy các trường cần thiết của StudyItem
+            }
+          ]
+        }
+      ],
+      transaction
+    })
+
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' })
+    }
+
+    const totalDuration = await calculateTotalCourseDuration(courseId)
+    console.log(`Tổng thời gian khóa học ${courseId}: ${totalDuration} giây`)
+
+    // Cập nhật trạng thái cho khóa học
+    await models.Course.update({ status, startDate, endDate, durationInMinute: totalDuration }, {
+      where: {
+        id: courseId
+      },
+      transaction
+    })
+    console.log('------------------------------------------------------------', course)
+    // Kiểm tra và cập nhật các StudyItems
+    if (course.CategoryLessions && Array.isArray(course.CategoryLessions)) {
+      const studyItemsToUpdate = []
+
+      course.CategoryLessions.forEach(category => {
+        if (category.StudyItems && Array.isArray(category.StudyItems)) {
+          category.StudyItems.forEach(studyItem => {
+            studyItemsToUpdate.push(studyItem.id)
+          })
+        }
+      })
+      // Cập nhật trạng thái cho tất cả StudyItems
+      if (studyItemsToUpdate.length > 0) {
+        await models.StudyItem.update(
+          { status: 1 },
+          {
+            where: {
+              id: studyItemsToUpdate
+            },
+            transaction
+          }
+        )
+      }
+    } else {
+    // Nếu không có LessonCategories
+      console.log('No LessonCategories found for this course.')
+    }
+
+    await transaction.commit() // Cam kết các thay đổi
+    res.status(200).json({ message: 'Status updated successfully', course })
+  } catch (error) {
+    await transaction.rollback() // Hoàn tác nếu có lỗi
+    logError(req, error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+async function calculateTotalCourseDuration (courseId) {
+  try {
+    const sql = `
+          SELECT SUM(L.durationInSecond) AS totalDuration
+          FROM courses AS C
+          LEFT JOIN category_lession AS CL ON C.id = CL.courseId
+          LEFT JOIN study_items AS SI ON CL.id = SI.lessionCategoryId
+          LEFT JOIN lessions AS L ON SI.id = L.studyItemId
+          WHERE C.id = :courseId
+          GROUP BY C.id
+      `
+
+    const [results] = await sequelize.query(sql, {
+      replacements: { courseId },
+      type: sequelize.QueryTypes.SELECT
+    })
+
+    return results.totalDuration
+  } catch (error) {
+    console.error('Error calculating total course duration:', error)
+    return 0 // Trả về 0 nếu có lỗi
+  }
+}
 
 /*****************************
  * ROUTES FOR CATEGORY LESSONS
@@ -382,7 +552,6 @@ router.put('/updateStudyItemOrder', isAuthenticated, async (req, res) => {
     res.status(500).json({ error: 'An error occurred while updating study item order' })
   }
 })
-/// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // -----------------------------------------------trang my course ----------------------------
 router.get('/myCoursesDone', isAuthenticated, async (req, res) => {

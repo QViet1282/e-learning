@@ -1,21 +1,16 @@
-/* eslint-disable quote-props */
-/* eslint-disable prefer-promise-reject-errors */
-/* eslint-disable no-async-promise-executor */
+/* eslint-disable @typescript-eslint/indent */
 /* eslint-disable @typescript-eslint/no-misused-promises */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { ChangeEvent, useMemo, useState } from 'react'
+import React, { ChangeEvent, useState } from 'react'
 import { IconButton } from '@mui/material'
-import ReactQuill from 'react-quill'
+// import ReactQuill, { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import axios, { AxiosProgressEvent, CancelTokenSource } from 'axios'
-import { Close, Remove } from '@mui/icons-material'
-import QuillResizeImage from 'quill-resize-image'
+import { Close } from '@mui/icons-material'
 import { newStudyItemAndLession } from 'api/post/post.interface'
 import { createStudyItemAndLession } from 'api/post/post.api'
-import ImageUploader from 'quill-image-uploader'
-
 import 'quill-image-uploader/dist/quill.imageUploader.min.css'
+import { Document, Page } from 'react-pdf'
+import { QuillEditor } from './QuillEditor'
 
 interface AddExamFormProps {
   userId: number
@@ -36,9 +31,9 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
   })
   const [file, setFile] = useState<File | null>(null)
   const [uploadedUrl, setUploadedUrl] = useState<string>('')
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [progress, setProgress] = useState<number>(0)
   const [cancelToken, setCancelToken] = useState<CancelTokenSource | null>(null)
+  const [numPages, setNumPages] = useState<number | null>(null)
 
   const handleUpload = async (file: File): Promise<void> => {
     const formData = new FormData()
@@ -50,7 +45,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
 
     try {
       const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/video/upload`,
+        `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/upload`,
         formData,
         {
           cancelToken: source.token,
@@ -60,12 +55,11 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
         }
       )
 
-      // Hợp nhất cả hai lần cập nhật vào một lệnh duy nhất
       setUploadedUrl(response.data.secure_url)
       setNewLesson((prevLesson) => ({
         ...prevLesson,
         locationPath: response.data.secure_url,
-        type: 'MP4'
+        type: file.type.includes('video') ? 'MP4' : 'PDF' // Phân loại theo loại tệp
       }))
     } catch (error) {
       if (axios.isCancel(error)) {
@@ -76,7 +70,6 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
     }
   }
 
-  // Hàm xử lý khi chọn file
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>): void => {
     if (e.target.files != null) {
       const selectedFile = e.target.files[0]
@@ -85,7 +78,6 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
     }
   }
 
-  // Hàm hủy upload
   const handleCancelUpload = (): void => {
     if (cancelToken != null) {
       cancelToken.cancel('Upload canceled by user.')
@@ -93,10 +85,6 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
       setProgress(0)
       setFile(null)
     }
-  }
-
-  const isUploadedUrlValid = (url: string | null): boolean => {
-    return url !== null && url !== ''
   }
 
   const handleAddLesson = async (): Promise<void> => {
@@ -107,7 +95,6 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
     } catch (error) {
       console.error('Error create new category:', error)
     }
-    console.log('New lesson:', newLesson)
     setNewLesson({
       lessionCategoryId,
       name: '',
@@ -120,42 +107,9 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
     setIsAddingLession(false)
   }
 
-  const modules = useMemo(() => ({
-    toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block'],
-      ['link', 'image', 'formula'],
-      [{ header: 1 }, { header: 2 }],
-      [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
-      [{ script: 'sub' }, { script: 'super' }],
-      [{ indent: '-1' }, { indent: '+1' }],
-      [{ direction: 'rtl' }],
-      [{ size: ['small', false, 'large', 'huge'] }],
-      [{ header: [1, 2, 3, 4, 5, 6, false] }],
-      [{ color: [] }, { background: [] }],
-      [{ font: [] }],
-      [{ align: [] }],
-      ['clean']
-    ],
-    imageUploader: {
-      upload: async (file: File) => {
-        const formData = new FormData()
-        formData.append('file', file)
-        formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
-        try {
-          const response = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/upload`, formData)
-          const imageUrl = response.data.secure_url
-          return imageUrl // Trả về URL của ảnh sau khi upload thành công
-        } catch (error) {
-          console.error('Error uploading image:', error)
-          throw new Error('Image upload failed')
-        }
-      }
-    },
-    resize: {
-      locale: {}
-    }
-  }), [])
+  const onDocumentLoadSuccess = ({ numPages }: { numPages: number }): void => {
+    setNumPages(numPages)
+  }
 
   return (
     <div className="flex flex-col flex-1 h-auto p-2 mb-4 md:ml-20 relative border-4 gap-2 bg-white">
@@ -176,6 +130,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
           <Close />
         </IconButton>
       </div>
+
       <div className='flex flex-1 items-center flex-wrap justify-between md:pr-2'>
         <p className='ml-2'>Tên bài học </p>
         <input
@@ -186,20 +141,20 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
           style={{ borderWidth: '1px' }}
         />
       </div>
+
       <div className="flex flex-1 h-auto flex-col justify-between md:pr-2">
         <p className=' mb-2 ml-2 w-20'>Mô tả</p>
-        <ReactQuill
+        <QuillEditor
           theme='snow'
           value={newLesson.description}
           onChange={(value) => setNewLesson({ ...newLesson, description: value })}
-          modules={modules}
-          style={{}}
-          className='w-full pb-0 md:h-auto'
+          // modules={modules}
+          // className='w-full pb-0 md:h-auto'
         />
       </div>
+
       <p className='mx-2'>Nội dung chính</p>
       <div className="p-2 border-2 rounded">
-        {/* Input chọn file video */}
         {(file == null) && (
           <div className='flex flex-wrap gap-2'>
             <div className='w-28 border-2 bg-teal-500 rounded-md p-2 items-center text-center hover:bg-teal-400'>
@@ -218,7 +173,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
                 Thêm PDF
                 <input
                   type="file"
-                  accept="video/*"
+                  accept="application/pdf"
                   className="hidden"
                   onChange={handleFileChange}
                 />
@@ -227,10 +182,22 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
           </div>
         )}
 
-        {/* Hiển thị video sau khi upload */}
-        {isUploadedUrlValid(uploadedUrl) && (
+        {(uploadedUrl.length > 0) && (
           <div className='flex flex-1 flex-wrap gap-2'>
-            <video src={uploadedUrl} controls className='w-full aspect-[16/9] bg-black' />
+            {newLesson.type === 'MP4'
+              ? (<video src={uploadedUrl} controls className='w-full aspect-[16/9] bg-black' />)
+              : (newLesson.type === 'PDF' && (
+                <div className="overflow-y-auto w-full h-96 border-2">
+                  <Document
+                    file={uploadedUrl}
+                    onLoadSuccess={onDocumentLoadSuccess}
+                  >
+                    {(numPages != null) && Array.from(new Array(numPages), (el, index) => (
+                      <Page key={`page_${index + 1}`} pageNumber={index + 1} scale={1.5} />
+                    ))}
+                  </Document>
+                </div>
+              ))}
             <div className='border-2 bg-teal-500 rounded-md text-center p-2 hover:bg-teal-400'>
               <label className="cursor-pointer text-white">
                 Thay đổi video
@@ -244,36 +211,34 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
             </div>
             <div className='border-2 bg-teal-500 rounded-md text-center p-2 hover:bg-teal-400'>
               <label className="cursor-pointer text-white">
-                Chuyển sang PDF
+                Thay đổi PDF
                 <input
                   type="file"
-                  accept="video/*"
+                  accept="application/pdf"
                   className="hidden"
                   onChange={handleFileChange}
                 />
               </label>
             </div>
           </div>
-        )
-        }
+        )}
 
-        {/* Hiển thị tên file và tiến độ upload */}
-        {(file != null && progress < 100) && (
-          <div className="flex flex-wrap items-center justify-between">
-            <p className="text-lg font-semibold">{file.name}</p>
-            <div className="flex items-center gap-2">
-              {progress > 0 && <p>Upload Progress: {progress}%</p>}
-              <Close
-                className="cursor-pointer text-red-500"
-                onClick={handleCancelUpload}
-              />
-            </div>
+        {file != null && progress < 100 && (
+          <div className='text-center'>
+            <p className="text-gray-700">Đang tải lên: {progress}%</p>
+            <button
+              onClick={handleCancelUpload}
+              className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400"
+            >
+              Hủy
+            </button>
           </div>
         )}
-      </div >
-      <div className='p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500' onClick={handleAddLesson}>
-        Lưu bài học
       </div>
+
+        <div className='p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500' onClick={handleAddLesson}>
+          Lưu bài học
+        </div>
     </div>
   )
 }

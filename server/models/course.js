@@ -40,6 +40,9 @@ const Course = sequelize.define(
     locationPath: {
       type: DataTypes.STRING
     },
+    videoLocationPath: {
+      type: DataTypes.STRING
+    },
     prepare: {
       type: DataTypes.TEXT
     },

@@ -81,9 +81,22 @@ export interface Course {
   endDate?: Date
   description?: string
   locationPath?: string
+  videoLocationPath?: string
   prepare?: string
   price?: number
   status?: number
   createdAt: Date
   updatedAt: Date
+}
+
+export interface GetAllCourseParams {
+  page?: number // Số trang
+  limit?: number // Giới hạn số bản ghi
+  categoryCourseId?: number // ID của danh mục khóa học
+  status?: string // Trạng thái
+  priceMin?: number // Giá tối thiểu
+  priceMax?: number // Giá tối đa
+  durationMin?: number // Thời gian tối thiểu
+  durationMax?: number // Thời gian tối đa
+  name?: string // Tên khóa học
 }

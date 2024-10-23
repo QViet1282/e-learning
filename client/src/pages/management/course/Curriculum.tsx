@@ -5,7 +5,6 @@
 /* PAGE: CURRICULUM
    ========================================================================== */
 import React, { useState, useEffect } from 'react'
-import { StyledButton, StyledTypography } from './courseList'
 import { getCategoryLessionByCourse } from 'api/get/get.api'
 import CategoryLessionItem from './components/CategoryLesionItem'
 import { DragDropContext, Droppable, Draggable, DropResult, DroppableProvided, DraggableProvided } from 'react-beautiful-dnd'
@@ -22,6 +21,7 @@ interface DraggableCategory extends Category {
 
 interface CurriculumProps {
   courseId: number
+  courseStatus: number
 }
 
 interface Tokens {
@@ -34,7 +34,7 @@ interface Tokens {
   username: string
 }
 
-const Curriculum: React.FC<CurriculumProps> = ({ courseId }) => {
+const Curriculum: React.FC<CurriculumProps> = ({ courseId, courseStatus }) => {
   const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
@@ -118,7 +118,7 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId }) => {
   return (
     <div className='flex flex-col w-full max-w-6xl mx-auto'>
       <div className='w-full border-b-2'>
-        <div className="text-2xl font-bold">
+        <div className="text-3xl font-bold p-2">
           Chương trình giảng dạy
         </div>
       </div>
@@ -137,7 +137,8 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId }) => {
                       <CategoryLessionItem
                         lessionCategoryId={category.id ?? 0}
                         userId={tokens?.id ?? 0}
-                        courseId={courseId}
+                        // courseId={courseId}
+                        courseStatus={courseStatus}
                         name={category.name}
                         order={category.order}
                         fetchCategories={fetchCategories}

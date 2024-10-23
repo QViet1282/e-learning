@@ -1,19 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useMemo, useState } from 'react'
 import { Checkbox, IconButton } from '@mui/material'
-import ReactQuill, { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import axios, { AxiosResponse } from 'axios'
 import { Add, Close, DeleteOutlined, Remove } from '@mui/icons-material'
-import QuillResizeImage from 'quill-resize-image'
 import { newQuestion, newStudyItemAndLession } from 'api/post/post.interface'
-import ImageUploader from 'quill-image-uploader'
 
 import 'quill-image-uploader/dist/quill.imageUploader.min.css'
-import { createQuestion } from 'api/post/post.api'
 import { Question } from 'api/get/get.interface'
 import { editLession, editQuestionItem } from 'api/put/put.interface'
 import { editQuestion } from 'api/put/put.api'
+import { QuillEditorQuestion } from './QuillEditor'
 
 interface EditExamFormProps {
   userId: number
@@ -48,7 +45,7 @@ const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, us
     return keys.map(key => ({
       content: question[key],
       isCorrect: question.answer.includes(key)
-    })).filter(answer => answer.content.trim() !== '')
+    })).filter(answer => (Boolean(answer.content)) && answer.content.trim() !== '')
   }
 
   // useEffect để đồng bộ dữ liệu từ answer và question
@@ -170,38 +167,6 @@ const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, us
     })
   }
 
-  const Parchment = Quill.import('parchment')
-  const Block = Quill.import('blots/block')
-  Block.tagName = 'H3'
-  Quill.register(Block, true)
-
-  const modules = useMemo(() => ({
-    toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block', 'image'],
-      [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
-      [{ color: [] }, { background: [] }]
-    ],
-    imageUploader: {
-      upload: async (file: File) => {
-        const formData = new FormData()
-        formData.append('file', file)
-        formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
-        try {
-          const response = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/upload`, formData)
-          const imageUrl = response.data.secure_url
-          return imageUrl // Trả về URL của ảnh sau khi upload thành công
-        } catch (error) {
-          console.error('Error uploading image:', error)
-          throw new Error('Image upload failed')
-        }
-      }
-    },
-    resize: {
-      locale: {}
-    }
-  }), [])
-
   return (
         <div className="flex flex-col px-4 py-2 border-2 border-gray-200 bg-white">
             <div className="flex justify-between items-center">
@@ -223,9 +188,12 @@ const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, us
             </select>
 
             <div className="">
-                <ReactQuill value={dataQuestion.content} onChange={(value) => {
+                <QuillEditorQuestion theme='snow' value={dataQuestion.content} onChange={(value) => {
                   setDataQuestion({ ...dataQuestion, content: value })
-                }} modules={modules} className="mt-2 text-xl" placeholder='Nội dung câu hỏi' />
+                }}
+                // modules={modules}
+                // className="mt-2 text-xl"
+                placeholder='Nội dung câu hỏi' />
             </div>
 
             <div className="mt-2">
