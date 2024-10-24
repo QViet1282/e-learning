@@ -1,3 +1,4 @@
+/* eslint-disable multiline-ternary */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/prefer-optional-chain */
 /* eslint-disable @typescript-eslint/no-base-to-string */
@@ -39,9 +40,19 @@ import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import YouTube from 'react-youtube'
 import { useTheme } from 'services/styled-themes'
 import QuizIcon from '@mui/icons-material/Quiz' // đã fix 1
-import { useDispatch } from 'react-redux'
-import { addCourseToCart } from '../../redux/cart/cartSlice'
-import { AppDispatch } from 'redux/store'
+import { useDispatch, useSelector } from 'react-redux'
+import { addCourseToCart, fetchCart, selectCartItems } from '../../redux/cart/cartSlice'
+import { AppDispatch, RootState } from 'redux/store'
+import ReactPlayer from 'react-player'
+
+import PlayArrowIcon from '@mui/icons-material/PlayArrow'
+import PauseIcon from '@mui/icons-material/Pause'
+import VolumeUpIcon from '@mui/icons-material/VolumeUp'
+import VolumeOffIcon from '@mui/icons-material/VolumeOff'
+import FullscreenIcon from '@mui/icons-material/Fullscreen'
+import FullscreenExitIcon from '@mui/icons-material/FullscreenExit'
+import { set } from 'react-hook-form'
+
 interface Course {
   id: number
   name: string
@@ -52,6 +63,7 @@ interface Course {
 }
 
 export interface IDetail {
+  videoLocationPath?: string
   description?: string
   id?: string
   name?: string
@@ -100,9 +112,16 @@ const CourseDetail = () => {
     }
   }
   const dispatch: AppDispatch = useDispatch()
-  const userId = 11
+  const cartItems = useSelector(selectCartItems)
+  const tokens = getFromLocalStorage<any>('tokens')
+  const userId = tokens?.id
+  const [isLoading2, setIsLoading2] = useState(false)
+  const [isLoading3, setIsLoading3] = useState(false)
+  useEffect(() => {
+    dispatch(fetchCart(userId))
+  }, [dispatch, userId, location.key])
 
-  const handleAddToCart = (course: IDetail) => {
+  const handleAddToCart = async (course: IDetail) => {
     const courseToAdd: Course = {
       id: Number(course.id),
       name: course.name!,
@@ -111,7 +130,34 @@ const CourseDetail = () => {
       assignedByName: course.assignedByName!,
       locationPath: course.locationPath!
     }
-    dispatch(addCourseToCart({ userId, course: courseToAdd }))
+    setIsLoading2(true)
+    try {
+      await dispatch(addCourseToCart({ userId, course: courseToAdd })).unwrap()
+    } catch (error) {
+      console.error('Error adding to cart:', error)
+    } finally {
+      setIsLoading2(false)
+    }
+  }
+
+  const handleAddToCart2 = async (course: IDetail) => {
+    const courseToAdd: Course = {
+      id: Number(course.id),
+      name: course.name!,
+      price: course.price!,
+      averageRating: course.averageRating!,
+      assignedByName: course.assignedByName!,
+      locationPath: course.locationPath!
+    }
+    setIsLoading3(true)
+    try {
+      await dispatch(addCourseToCart({ userId, course: courseToAdd })).unwrap()
+      window.location.href = '/cart'
+    } catch (error) {
+      console.error('Error adding to cart:', error)
+    } finally {
+      setIsLoading3(false)
+    }
   }
 
   const { t } = useTranslation()
@@ -120,11 +166,13 @@ const CourseDetail = () => {
     courseLessionRef.current = courseLession
   }, [data, courseLession])
 
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+  }
+
   const priceText = useMemo(() => {
     if (Number(data.price) !== 0) {
-      return (
-        `${data.price} VND`
-      )
+      return formatCurrency(Number(data.price))
     }
     return t('homepage.free')
   }, [data.price])
@@ -199,7 +247,7 @@ const CourseDetail = () => {
   const getData = useCallback(
     async (id?: string) => {
       try {
-        const courseData = await getCourseDetail({ id })
+        const courseData = await getCourseDetail({ id }) // lấy thông tin khóa học
         if (courseData) {
           setData(courseData.data)
         } else {
@@ -228,18 +276,17 @@ const CourseDetail = () => {
       localStorage.setItem('courseData', JSON.stringify(data))
     }
   }, [data])
-  const [firstLessonMP4, setFirstLessonMP4] = useState<Lesson | null>(null)
 
   // Tìm bài học đầu tiên có loại MP4 và cập nhật state firstLessonMP4 nếu tìm thấy.
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedLessonCategories = await getCategoryLessionsByCourse({ id: data.id })
+      const fetchedLessonCategories = await getCategoryLessionsByCourse({ id: data.id }) // lấy danh mục bài học theo khóa học
       setLessionCategories(fetchedLessonCategories.data)
       const promises = fetchedLessonCategories.data.map(async (category: { id: string }) => {
-        const lessions = await getLessionByCategory({ id: category.id })
+        const lessions = await getLessionByCategory({ id: category.id }) // lấy bài học theo danh mục
         return lessions.data
       })
-      const lessonsDataArray = await Promise.all(promises)
+      const lessonsDataArray = await Promise.all(promises) // mảng chứa các mảng bài học theo danh mục
       setLessions(lessonsDataArray)
       const flattenedLessons = lessonsDataArray.flat()
       const sortedLessons = flattenedLessons
@@ -267,11 +314,11 @@ const CourseDetail = () => {
         const firstLessonId = lessonsGroupedByCategory[0][0].id
         setCourseLession(`/learning/${data.id ?? ''}?id=${firstLessonId}`)
       }
-      console.log('flattenedLessons', flattenedLessons)
-      const firstMP4Lesson = flattenedLessons.find(lesson => lesson.type === 'MP4')
-      if (firstMP4Lesson) {
-        setFirstLessonMP4(firstMP4Lesson)
-      }
+      // console.log('flattenedLessons', flattenedLessons)
+      // const firstMP4Lesson = flattenedLessons.find(lesson => lesson.type === 'MP4')
+      // if (firstMP4Lesson) {
+      //   setFirstLessonMP4(firstMP4Lesson)
+      // }
     }
     if (data.id) {
       fetchData()
@@ -355,6 +402,11 @@ const CourseDetail = () => {
   }, [])
   let orderCounter = 0
   const bannerSrc = theme === 'light' ? bannerLight : bannerDark
+
+  const isCourseInCart = (courseId: number) => {
+    console.log('cartItems_3', cartItems)
+    return cartItems.some((cartItem) => cartItem.id === courseId)
+  }
   return (
     <div className='overflow-x-hidden pb-14'>
       <div className='h-14 flex items-center lg:mx-40 mx-8 w-11/12 py-2 text-lg'>
@@ -418,7 +470,7 @@ const CourseDetail = () => {
           <div className='flex w-10/12 mt-10 lg:space-x-8 xl:space-x-16 flex-col lg:flex-row'>
             <div className='items-center w-full lg:w-3/4 justify-center'>
               <div>
-              <div className={`w-full rounded-2xl shadow-2xl sticky top-0 mt-4 ${theme === 'light' ? 'bg-white' : 'bg-custom-bg-courseDetail'}`}>
+                <div className={`w-full rounded-2xl shadow-2xl sticky top-0 mt-4 ${theme === 'light' ? 'bg-white' : 'bg-custom-bg-courseDetail'}`}>
                   <div className='p-5'>
                     <div className='text-blue-700 font-bold text-xl'>{t('course_detail.overview')}</div>
                     <div className='font-bold text-pretty mt-3'>{t('course_detail.course_summary')}</div>
@@ -499,15 +551,29 @@ const CourseDetail = () => {
             <div className='justify-center items-center lg:ml-10 w-full lg:w-2/5 mt-10'>
               <div className='w-full lg:p-5 p-0 flex-col lg:flex-col justify-between space-x-0 flex space-y-8'>
                 <div className={`lg:w-full w-full rounded-2xl p-3 shadow-2xl flex-grow ${theme === 'light' ? 'bg-white' : 'bg-custom-bg-courseDetail'}`}>
-                  <div className='w-full rounded-lg bg-red-200 lg:h-72 sm:h-96 overflow-hidden justify-center flex'>
-                    <div className='w-full  h-full bg-blue-300'>
-                      {firstLessonMP4?.locationPath
+                  <div className='w-full rounded-lg overflow-hidden justify-center flex'>
+                    <div className='w-full h-full'>
+                      {data.videoLocationPath
                         ? (
-                          <YouTube
-                            videoId={firstLessonMP4.locationPath}
-                            opts={{ ...opts, width: '100%', height: '100%' }}
-                            className="top-0 left-0 w-full h-full"
-                          />
+                          <div
+                            className="w-full h-full"
+                          >
+                            {/* ReactPlayer without controls */}
+                            <ReactPlayer
+                              // Disable download button
+                              config={{ file: { attributes: { controlsList: 'nodownload' } } }}
+
+                              // Disable right click
+                              onContextMenu={(e: { preventDefault: () => any }) => e.preventDefault()}
+
+                              controls={true} // Hiển thị control
+                              playing={false} // Để điều khiển việc phát tự động
+                              url={data.videoLocationPath}
+                              width='100%'
+                              height='100%'
+                              className="top-0 left-0 w-full h-full"
+                            />
+                          </div>
                           )
                         : (
                           <div className='flex items-center justify-center w-full h-full'>
@@ -520,19 +586,64 @@ const CourseDetail = () => {
 
                   <div className='w-full justify-center flex mt-3'>
                     <div className='flex w-4/5 justify-center'>
-                      <button className='text-red-400 flex-1 border border-red-400 rounded-3xl p-5 mr-5 text-sm hover:bg-red-400 hover:text-white transition-colors duration-200 font-bold'><AddShoppingCartIcon className='mr-2' />{t('course_detail.add')}</button>
-                      <button className='text-red-400 flex-1 border border-red-400 rounded-3xl p-5 text-sm hover:bg-red-400 hover:text-white transition-colors duration-200 font-bold'><ShareIcon className='mr-2' />{t('course_detail.share')}</button>
+                      {modalType !== ModalType.ALREADY_ENROLLED && data.id && (
+                        // Check if the course is in the cart
+                        !isCourseInCart(Number(data.id)) ? (
+                          <button
+                            onClick={async () => await handleAddToCart(data)}
+                            disabled={isLoading2}
+                            className="text-red-400 flex-1 border border-red-400 rounded-3xl p-2 mr-5 text-sm hover:bg-red-400 hover:text-white transition-colors duration-200 font-bold"
+                          >
+                            {isLoading2 ? 'Adding...' : (
+                              <>
+                                <AddShoppingCartIcon className="mr-2" />
+                                {t('course_detail.add')} {/* Assuming t is for translations */}
+                              </>
+                            )}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => { navigate('/cart', { replace: true }) }}
+                            className="text-red-400 flex-1 border border-red-400 rounded-3xl p-2 mr-5 text-sm hover:bg-red-400 hover:text-white transition-colors duration-200 font-bold">
+                            <AddShoppingCartIcon className="mr-2" />
+                            {t('course_detail.go_to_cart')} {/* Assuming t is for translations */}
+                          </button>
+                        )
+                      )}
+                      <button className='text-red-400 flex-1 border border-red-400 rounded-3xl p-2 text-sm hover:bg-red-400 hover:text-white transition-colors duration-200 font-bold'>
+                        <ShareIcon className='mr-2' />
+                        {t('course_detail.share')}
+                      </button>
                     </div>
                   </div>
                   <div className='flex justify-center mt-4'>
-                  <button onClick={() => handleAddToCart(data)}>Add to Cart</button>
+                    <button
+                      className='bg-green-400 w-4/5 rounded-3xl p-3 font-bold text-lg hover:bg-green-500'
+                      onClick={async () => {
+                        if (modalType === ModalType.ALREADY_ENROLLED) {
+                          handleOpenModal()
+                        } else {
+                          if (isCourseInCart(Number(data.id))) {
+                            window.location.href = '/cart'
+                          } else {
+                            await handleAddToCart2(data)
+                          }
+                        }
+                      }}
+                      disabled={isLoading3}
+                    >
+                      {isLoading3
+                        ? 'Đang đăng ký...'
+                        : modalType === ModalType.ALREADY_ENROLLED
+                          ? t('course_detail.continueLearning')
+                          : t('course_detail.enrollNow')}
+                    </button>
                   </div>
                 </div>
                 <div className={`lg:w-full w-full rounded-2xl p-3 shadow-2xl flex-grow ${theme === 'light' ? 'bg-white' : 'bg-custom-bg-courseDetail'}`}>
                   <div className='w-full'>
                     <div className='p-2 font-bold text-lg'>{t('course_detail.includes')}</div>
                     <div className='w-full border-b'>
-                      <div className='p-2'><SignalCellularAltIcon className='mr-3 text-orange-400' />{t('course_detail.level')}: <strong>Beginner</strong> </div>
                       <div className='p-2'><StyleIcon className='mr-3 text-orange-400' />{t('course_detail.chapter2')}: <strong>{parts.length} {t('course_detail.chapter')}</strong></div>
                       <div className='p-2'><TheatersIcon className='mr-3 text-orange-400' />{t('course_detail.total')}: <strong>{totalCourses} {t('course_detail.lessions')}</strong></div>
                       <div className='p-2'><TimerIcon className='mr-3 text-orange-400' />{t('course_detail.duration')}: <strong>{data.durationInMinute} {t('course_detail.minute')}</strong></div>

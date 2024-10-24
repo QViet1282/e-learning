@@ -11,7 +11,7 @@ router.post('/process', async (req, res) => {
 
   try {
     // Find the user's pending order
-    const order = await models.Order.findOne({ where: { userId, status: 'pending' } })
+    const order = await models.Order.findOne({ where: { userId, status: 0 } })
 
     if (!order) {
       return res.status(404).json({ message: 'No pending order found for the user' })
@@ -59,7 +59,7 @@ router.post('/payos-webhook', async (req, res) => {
     const orderId = orderIdMatch[1]
     console.log('Order ID:', orderId)
     // Find the order by orderId
-    const order = await models.Order.findOne({ where: { id: orderId } })
+    const order = await models.Order.findOne({ where: { id: orderId, status: 0 } }) // chỗ này sửa lại status: 0 // Fix_1001
     console.log('check 1')
     if (!order) {
       console.error('Order not found for orderId:', orderId)
@@ -69,7 +69,7 @@ router.post('/payos-webhook', async (req, res) => {
     if (desc === 'success') {
       // Payment was successful
       // Update the order status
-      order.status = 'completed'
+      order.status = 1
       await order.save()
       console.log('check 3')
       // Create a payment record
@@ -78,7 +78,7 @@ router.post('/payos-webhook', async (req, res) => {
         amount,
         paymentMethod: 'PayOS',
         paymentDate: new Date(),
-        status: 'completed',
+        status: 'COMPLETED',
         transactionId: webhookData.paymentLinkId
       })
       console.log('check 4')
