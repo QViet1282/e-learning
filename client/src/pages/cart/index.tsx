@@ -44,6 +44,7 @@ const CartPage: React.FC = () => {
   const handleRemove = async (courseId: number) => {
     try {
       await dispatch(removeCourseFromCart({ userId, courseId })).unwrap()
+      await dispatch(fetchCart(userId))
       // navigate('/cart', { replace: true })
     } catch (error) {
       // Handle error, show notification
