@@ -24,6 +24,12 @@ const Order = sequelize.define(
       allowNull: false
     },
     status: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false
+    },
+    paymentMethod: {
+      type: DataTypes.STRING
       type: DataTypes.STRING,
       allowNull: false
     },
