@@ -1,6 +1,7 @@
 const express = require('express')
 const { models } = require('../models')
 const { isAuthenticated } = require('../middlewares/authentication')
+const { Op } = require('sequelize')
 const bcrypt = require('bcrypt')
 const {
   SALT_KEY
@@ -141,6 +142,82 @@ router.get('/:id', isAuthenticated, async (req, res) => {
   } catch (error) {
     logError(req, error)
     res.status(500).json({ message: MASSAGE.USER_NOT_FOUND })
+  }
+})
+
+router.get('/getEnrollmentUserByCourseId/:courseId', isAuthenticated, async (req, res) => {
+  try {
+    const courseId = req.params.courseId
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 10
+    const offset = (page - 1) * limit
+    const searchQuery = req.query.search?.trim() || ''
+
+    // Tạo điều kiện tìm kiếm
+    let searchConditions = []
+    if (searchQuery) {
+      const tokens = searchQuery.split(' ') // Tách chuỗi thành các từ
+      // Tạo điều kiện tìm kiếm với từng token
+      searchConditions = tokens.map((token) => ({
+        [Op.or]: [
+          { firstName: { [Op.like]: `%${token}%` } },
+          { lastName: { [Op.like]: `%${token}%` } },
+          { email: { [Op.like]: `%${token}%` } }
+        ]
+      }))
+    }
+
+    const { rows, count } = await models.User.findAndCountAll({
+      where: {
+        [Op.and]: searchConditions.length > 0
+          ? {
+              [Op.or]: searchConditions.flatMap(condition => condition[Op.or])
+            }
+          : {} // Nếu không có điều kiện tìm kiếm, trả về tất cả người dùng
+      },
+      include: [
+        {
+          model: models.Order,
+          attributes: ['id'],
+          include: [
+            {
+              model: models.Enrollment,
+              attributes: ['enrollmentDate'],
+              required: true,
+              where: { courseId }
+            }
+          ]
+        }
+      ],
+      limit,
+      offset,
+      attributes: ['id', 'avatar', 'firstName', 'lastName', 'email'],
+      distinct: true
+    })
+
+    const users = rows.map((user) => {
+      const enrollment = user.Orders?.[0]?.Enrollments?.[0] || {}
+      return {
+        id: user.id,
+        avatar: user.avatar,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        enrollmentDate: enrollment.enrollmentDate || null
+      }
+    })
+
+    const totalPages = Math.ceil((count < users.length && users.length < 10) ? count : users.length / limit) // Sử dụng count thay vì users.length
+
+    res.json({
+      totalItems: (count < users.length && users.length < 10) ? count : users.length,
+      totalPages,
+      currentPage: page,
+      users
+    })
+  } catch (error) {
+    logError(req, error)
+    res.status(500).json({ message: 'Có lỗi xảy ra khi lấy danh sách học viên', error })
   }
 })
 
