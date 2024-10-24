@@ -7,6 +7,7 @@
  * It only works in Client Side Render, because window always existed
  * For Server Side Render, please check window first before any window's methods calls
  */
+import CryptoJS from 'crypto-js'
 export const reload = () => {
   window.location.reload()
 }
@@ -79,4 +80,20 @@ export const removeAllLocalStorage = (): void => {
   if (selectedLanguage !== null) {
     window.localStorage.setItem('selectedLanguage', selectedLanguage)
   }
+}
+export const getRoleFromLocalStorage = (): String | null => {
+  const tokensString = localStorage.getItem('tokens')
+  if (tokensString == null) {
+    console.error('No tokens found in localStorage.')
+    return null
+  }
+  const tokens = JSON.parse(tokensString)
+  const accessToken = tokens.accessToken
+  const key = tokens.key
+  if ((accessToken == null) || (key == null)) {
+    console.error('No accessToken or key found in tokens.')
+    return null
+  }
+  const decryptedKey = CryptoJS.AES.decrypt(key, 'Access_Token_Secret_#$%_ExpressJS_Authentication').toString(CryptoJS.enc.Utf8)
+  return decryptedKey
 }

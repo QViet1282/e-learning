@@ -4,8 +4,8 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "dev": "env-cmd -f .env.development nodemon server.js",
-    "start": "env-cmd -f .env.production nodemon server.js"
+    "dev": "env-cmd -f .env.development nodemon --ignore *.tmp --ignore logs/ server.js",
+    "start": "env-cmd -f .env.production nodemon --ignore *.tmp --ignore logs/ server.js"
   },
   "author": "",
   "license": "ISC",
