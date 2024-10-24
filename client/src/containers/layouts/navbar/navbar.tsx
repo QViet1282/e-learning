@@ -50,6 +50,9 @@ const Navbar: FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
   useEffect(() => {
     dispatch(fetchCart(userId))
   }, [dispatch, userId])
+  // useEffect(() => {
+  //   dispatch(fetchCart(userId))
+  // }, [dispatch, userId, totalItems])
 
   // Regex to match specific paths
   const pathRegEx = new RegExp('^/lesson/edit/[^/]+$')

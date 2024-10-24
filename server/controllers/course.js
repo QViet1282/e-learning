@@ -51,18 +51,18 @@ router.get('/myCoursesDone', isAuthenticated, async (req, res) => {
     const [allCourses, allUsers, orders, categoryCourse, enrollmentCounts, lessonCounts] = await Promise.all([
       models.Course.findAll(),
       models.User.findAll(),
-      models.Order.findAll({ where: { userId: loginedUserId }, attributes: ['id'] }),
+      models.Order.findAll({ where: { userId: loginedUserId, status: 1 }, attributes: ['id'] }), // Fix_1001
       getCourseCategory(),
-      models.Enrollment.count({ group: ['courseId'] }),
+      models.Enrollment.count({ where: { status: 1 }, group: ['courseId'] }), // Đếm số lượng Enrollment với status là 1 // Fix_1001
       fetchLessonCounts()
     ])
 
     // Lấy danh sách orderId từ orders
     const orderIds = orders.map(order => order.id)
 
-    // Truy vấn tất cả các Enrollment bằng orderIds
+    // Truy vấn tất cả các Enrollment bằng orderIds và kiểm tra status // Fix_1001
     const enrollments = await models.Enrollment.findAll({
-      where: { orderId: orderIds },
+      where: { orderId: orderIds, status: 1 },
       order: [['id', 'DESC']]
     })
 
@@ -76,7 +76,8 @@ router.get('/myCoursesDone', isAuthenticated, async (req, res) => {
     const userEnrollments = await models.Enrollment.findAll({
       where: {
         orderId: orderIds,
-        courseId: filteredCourses.map(course => course.id)
+        courseId: filteredCourses.map(course => course.id),
+        status: 1
       }
     })
 
@@ -117,18 +118,18 @@ router.get('/myCoursesActive', isAuthenticated, async (req, res) => {
     const [allCourses, allUsers, orders, categoryCourse, enrollmentCounts, lessonCounts] = await Promise.all([
       models.Course.findAll(),
       models.User.findAll(),
-      models.Order.findAll({ where: { userId: loginedUserId }, attributes: ['id'] }),
+      models.Order.findAll({ where: { userId: loginedUserId, status: 1 }, attributes: ['id'] }), // Fix_1001
       getCourseCategory(),
-      models.Enrollment.count({ group: ['courseId'] }),
+      models.Enrollment.count({ where: { status: 1 }, group: ['courseId'] }), // Đếm số lượng Enrollment với status là 1 // Fix_1001
       fetchLessonCounts()
     ])
 
     // Lấy danh sách orderId từ orders
     const orderIds = orders.map(order => order.id)
 
-    // Truy vấn tất cả các Enrollment bằng orderIds
+    // Truy vấn tất cả các Enrollment bằng orderIds và kiểm tra status // Fix_1001
     const enrollments = await models.Enrollment.findAll({
-      where: { orderId: orderIds },
+      where: { orderId: orderIds, status: 1 }, // Fix_1001
       order: [['id', 'DESC']]
     })
 
@@ -142,7 +143,8 @@ router.get('/myCoursesActive', isAuthenticated, async (req, res) => {
     const userEnrollments = await models.Enrollment.findAll({
       where: {
         orderId: orderIds,
-        courseId: filteredCourses.map(course => course.id)
+        courseId: filteredCourses.map(course => course.id),
+        status: 1
       }
     })
 
@@ -183,18 +185,18 @@ router.get('/myCourses', isAuthenticated, async (req, res) => {
     const [allCourses, allUsers, orders, categoryCourse, enrollmentCounts, lessonCounts] = await Promise.all([
       models.Course.findAll(),
       models.User.findAll(),
-      models.Order.findAll({ where: { userId: loginedUserId }, attributes: ['id'] }),
+      models.Order.findAll({ where: { userId: loginedUserId, status: 1 }, attributes: ['id'] }), // Fix_1001
       getCourseCategory(),
-      models.Enrollment.count({ group: ['courseId'] }),
+      models.Enrollment.count({ where: { status: 1 }, group: ['courseId'] }), // Đếm số lượng Enrollment với status là 1 // Fix_1001
       fetchLessonCounts()
     ])
 
     // Lấy danh sách orderId từ orders
     const orderIds = orders.map(order => order.id)
 
-    // Truy vấn tất cả các Enrollment bằng orderIds
+    // Truy vấn tất cả các Enrollment bằng orderIds và kiểm tra status
     const enrollments = await models.Enrollment.findAll({
-      where: { orderId: orderIds },
+      where: { orderId: orderIds, status: 1 },
       order: [['id', 'DESC']]
     })
 
@@ -208,12 +210,13 @@ router.get('/myCourses', isAuthenticated, async (req, res) => {
     const userEnrollments = await models.Enrollment.findAll({
       where: {
         orderId: orderIds,
-        courseId: filteredCourses.map(course => course.id)
+        courseId: filteredCourses.map(course => course.id), // Fix_1001
+        status: 1 // Fix_1001
       }
     })
 
     const courseProgressCountsObject = await fetchCourseProgressCounts(userEnrollments)
-
+    // chỗ này sẽ quyết định status là true hay false dựa vào việc đếm số bài học đã hoàn thành và số bài học trong khóa học chứ không dựa vào cột status trong bảng Enrollment // Fix_1001
     const dataFromDatabase = transformCourseData(filteredCourses, allUsers, categoryCourse, enrollmentCountsObject, lessonCountsObject, courseProgressCountsObject)
 
     const dataAfterSearch = applyFilters(dataFromDatabase, searchCondition, startDate, endDate, categoryCondition)
@@ -255,7 +258,8 @@ router.get('/getNewCourse', isAuthenticated, async (req, res) => {
     const listUsers = await models.User.findAll()
     const categoryCourse = await getCourseCategory()
     const enrollmentCounts = await models.Enrollment.count({
-      group: ['courseId']
+      group: ['courseId'], // Fix_1001
+      where: { status: 1 } // Check status of enrollment // Fix_1001
     })
 
     const enrollmentCountsObject = enrollmentCounts.reduce((obj, count) => {
@@ -358,6 +362,7 @@ router.get('/', isAuthenticated, async (req, res) => {
     if (categoryCondition && categoryCondition !== 'all') {
       searchConditions.where.categoryCourseId = categoryCondition
     }
+
     // Fetch the total count of courses with filtering conditions
     const totalRecords = await models.Course.count(searchConditions)
 
@@ -377,7 +382,8 @@ router.get('/', isAuthenticated, async (req, res) => {
       where: {
         rating: {
           [Op.ne]: null // Chỉ lấy các bản ghi có rating khác null
-        }
+        },
+        status: 1 // Check status of enrollment // Fix_1001
       },
       group: ['courseId']
     })
@@ -393,7 +399,8 @@ router.get('/', isAuthenticated, async (req, res) => {
     const listUsers = await models.User.findAll()
     const categoryCourse = await getCourseCategory()
     const enrollmentCounts = await models.Enrollment.count({
-      group: ['courseId']
+      group: ['courseId'],
+      where: { status: 1 } // Check status of enrollment // Fix_1001
     })
     const enrollmentCountsObject = enrollmentCounts.reduce((obj, count) => {
       obj[count.courseId] = count.count
@@ -572,16 +579,17 @@ async function getCourseCategory () {
 
 // -----------------------------------------------trang my course ----------------------------
 async function getEnrollmentByUserId (userId) {
-  // Lấy danh sách các order của người dùng
+  // Lấy danh sách các order của người dùng và kiểm tra status
   const orders = await models.Order.findAll({
-    where: { userId },
+    where: { userId, status: 1 }, // Fix_1001
     attributes: ['id']
   })
 
-  // Lấy danh sách enrollment từ các order của người dùng
+  // Lấy danh sách enrollment từ các order của người dùng và kiểm tra status
   return await models.Enrollment.findAll({
     where: {
-      orderId: orders.map(order => order.id)
+      orderId: orders.map(order => order.id), // Fix_1001
+      status: 1 // Fix_1001
     },
     order: [['id', 'DESC']]
   })
@@ -639,7 +647,7 @@ async function fetchCourseProgressCounts (enrollments) {
     return obj
   }, {})
 }
-
+// chỗ này sẽ quyết định status là true hay false dựa vào việc đếm số bài học đã hoàn thành và số bài học trong khóa học chứ không dựa vào cột status trong bảng Enrollment // Fix_1000
 function transformCourseData (courses, users, categories, enrollmentCounts, lessonCounts, progressCounts) {
   return courses.map((course) => {
     const lessonCount = lessonCounts[course.id] || 0
@@ -663,7 +671,7 @@ function transformCourseData (courses, users, categories, enrollmentCounts, less
       lessonCount,
       createdAt: course.createdAt,
       doneCount,
-      status: doneCount === lessonCount,
+      status: doneCount === lessonCount, // Kiểm tra xem số bài học đã hoàn thành có bằng số bài học trong khóa học không // Fix_1000
       lastUpdate
     }
   })

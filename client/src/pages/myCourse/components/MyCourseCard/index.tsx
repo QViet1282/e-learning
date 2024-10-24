@@ -152,7 +152,7 @@ const MyCourseCard = ({
       <div className="flex flex-col h-full">
         {/* Image */}
         <div className='w-full rounded-t-md h-40 overflow-hidden'>
-          <img className="w-full h-full object-cover rounded-t-md transition-transform duration-700 hover:scale-110" src={locationPath ? require(`../../../../assets/images/uploads/courses/${locationPath}`) : 'https://picsum.photos/200/300'} width="286" height="160" alt="CourseImage" />
+          <img className="w-full h-full object-cover rounded-t-md transition-transform duration-700 hover:scale-110" src={locationPath ?? 'https://picsum.photos/200/300'} width="286" height="160" alt="CourseImage" />
           {/* <img className="w-full h-full object-cover rounded-t-md transition-transform duration-700 hover:scale-110" src={locationPath ? `assets/image/${locationPath}` : 'https://picsum.photos/200/300'} width="286" height="160" alt="CourseImage" /> */}
         </div>
         {/* Card Content */}

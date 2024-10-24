@@ -39,7 +39,7 @@ const generateEnrollment = async () => {
         enrollmentDate,
         createdAt: faker.date.past(),
         updatedAt: faker.date.recent(),
-        status: false,
+        status: true,
         completedDate: null,
         progress: 0,
         rating: faker.datatype.number({ min: 1, max: 5 }),

@@ -71,22 +71,22 @@ router.post('/cart/add', async (req, res) => {
     }
 
     // Tìm đơn hàng đang chờ của người dùng
-    let order = await models.Order.findOne({ where: { userId, status: 'pending' } })
+    let order = await models.Order.findOne({ where: { userId, status: 0 } })
 
     // Nếu không có đơn hàng đang chờ, tạo một đơn hàng mới
     if (!order) {
       order = await models.Order.create({
         userId,
         orderDate: new Date(),
-        status: 'pending',
+        status: 0,
         totalAmount: 0,
-        paymentMethod: 'bank' // Phương thức thanh toán mặc định
+        paymentMethod: 'PayOS' // Phương thức thanh toán mặc định
       })
     }
 
     // Kiểm tra xem khóa học đã có trong giỏ hàng chưa
     const existingEnrollment = await models.Enrollment.findOne({
-      where: { courseId, orderId: order.id }
+      where: { courseId, orderId: order.id, status: 0 } // chỗ này sửa lại status: 0 // Fix_1001
     })
 
     if (existingEnrollment) {
@@ -120,7 +120,7 @@ router.get('/cart/:userId', async (req, res) => {
   try {
     // Tìm đơn hàng chưa thanh toán
     const order = await models.Order.findOne({
-      where: { userId, status: 'pending' },
+      where: { userId, status: 0 },
       include: [
         {
           model: models.Enrollment,
@@ -152,7 +152,8 @@ router.get('/cart/:userId', async (req, res) => {
       where: {
         rating: {
           [Op.ne]: null // Chỉ lấy các bản ghi có rating khác null
-        }
+        },
+        status: 1 // chỗ này sửa lại status: 0 // Fix_1001
       },
       group: ['courseId']
     })
@@ -184,14 +185,14 @@ router.delete('/cart/remove', async (req, res) => {
 
   try {
     // Find the pending order for the user
-    const order = await models.Order.findOne({ where: { userId, status: 'pending' } })
+    const order = await models.Order.findOne({ where: { userId, status: 0 } })
     if (!order) {
       return res.status(404).json({ message: 'Giỏ hàng trống hoặc không tồn tại' })
     }
 
     // Find the enrollment to remove
     const enrollment = await models.Enrollment.findOne({
-      where: { courseId, orderId: order.id }
+      where: { courseId, orderId: order.id, status: 0 } // chỗ này sửa lại status: 0 // Fix_1001
     })
 
     if (!enrollment) {
@@ -221,7 +222,7 @@ router.post('/payment/process', async (req, res) => {
 
   try {
     // Tìm đơn hàng chưa thanh toán
-    const order = await models.Order.findOne({ where: { id: orderId, status: 'pending' } })
+    const order = await models.Order.findOne({ where: { id: orderId, status: 0 } })
 
     if (!order) {
       return res.status(404).json({ message: 'Đơn hàng không tồn tại hoặc đã thanh toán' })
@@ -233,12 +234,12 @@ router.post('/payment/process', async (req, res) => {
       amount,
       paymentMethod,
       paymentDate: new Date(),
-      status: 'completed',
+      status: 'COMPLETED', // Giả định thanh toán thành công // Fix_1001
       transactionId: 'TXN' + Date.now() // Giả định transactionId từ cổng thanh toán
     })
 
     // Cập nhật trạng thái đơn hàng thành 'completed'
-    order.status = 'completed'
+    order.status = 1 // Fix_1001
     await order.save()
 
     // Kích hoạt khóa học cho người dùng (cập nhật trạng thái enrollment)

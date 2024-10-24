@@ -37,22 +37,25 @@ router.get('/getEnrollmentByCourseId/:courseId', isAuthenticated, async (req, re
   try {
     console.log('courseId', courseIdData)
 
-    // Tìm Order bằng userId
-    const order = await models.Order.findOne({ where: { userId: loginedUserId } })
+    // Tìm Order bằng userId và kiểm tra status
+    const order = await models.Order.findOne({ where: { userId: loginedUserId, status: 1 } }) // Fix_1001
     if (!order) {
       return res.json(null)
     }
 
-    // Tìm Enrollment bằng orderId và courseId
-    const enrollment = await models.Enrollment.findOne({ where: { orderId: order.id, courseId: courseIdData } })
-    logInfo(req, enrollment)
-    res.json(enrollment)
+    // Tìm Enrollment bằng orderId và courseId và kiểm tra status // Fix_1001
+    const enrollment = await models.Enrollment.findOne({ where: { orderId: order.id, courseId: courseIdData, status: 1 } })
+    if (enrollment) {
+      logInfo(req, enrollment)
+      return res.json(enrollment)
+    } else {
+      return res.json(null)
+    }
   } catch (err) {
     logError(req, err)
     res.status(500).json({ message: jsonError })
   }
 })
-
 // trang course detail
 // đã check - không cần fix
 router.get('/getCategoryLessionsByCourse/:courseId', isAuthenticated, async (req, res) => {
@@ -155,15 +158,16 @@ router.post('/addEnrollment', isAuthenticated, async (req, res) => {
       userId: loginedUserId,
       orderDate: new Date(),
       totalAmount: 0,
-      status: 'success',
-      paymentMethod: 'free'
+      status: 0, // Fix_1001
+      paymentMethod: 'PayOS' // Fix_1001
     })
 
     // Sử dụng orderId từ Order mới để tạo Enrollment
     const newEnrollment = await models.Enrollment.create({
       orderId: newOrder.id,
       courseId,
-      enrollmentDate: new Date()
+      enrollmentDate: new Date(), // Fix_1001
+      status: 0 // Khóa học chưa kích hoạt
     })
 
     logInfo(req, newEnrollment)
@@ -178,14 +182,14 @@ router.get('/getEnrollmentByUserId', isAuthenticated, async (req, res) => {
   try {
     const loginedUserId = req.user.id
 
-    // Tìm tất cả các Order dựa trên userId
-    const orders = await models.Order.findAll({ where: { userId: loginedUserId } })
+    // Tìm tất cả các Order dựa trên userId và kiểm tra status // Fix_1001
+    const orders = await models.Order.findAll({ where: { userId: loginedUserId, status: 1 } })
 
     // Lấy tất cả orderId từ các Order tìm được
     const orderIds = orders.map(order => order.id)
 
-    // Tìm tất cả các Enrollment dựa trên orderId
-    const enrollments = await models.Enrollment.findAll({ where: { orderId: orderIds } })
+    // Tìm tất cả các Enrollment dựa trên orderId và kiểm tra status // Fix_1001
+    const enrollments = await models.Enrollment.findAll({ where: { orderId: orderIds, status: 1 } })
 
     logInfo(req, enrollments)
     res.json(enrollments)
@@ -346,21 +350,21 @@ router.post('/markAsComplete', isAuthenticated, async (req, res) => {
     const { courseId } = req.body.data
     const userId = req.user.id
 
-    // Tìm Order dựa trên userId và courseId
-    const order = await models.Order.findOne({ where: { userId, courseId } })
+    // Tìm Order dựa trên userId và courseId và kiểm tra status // Fix_1001
+    const order = await models.Order.findOne({ where: { userId, status: 1 } })
     if (!order) {
       return res.json(null)
     }
 
-    // Tìm Enrollment dựa trên orderId
-    const enrollment = await models.Enrollment.findOne({ where: { orderId: order.id } })
+    // Tìm Enrollment dựa trên orderId và kiểm tra status // Fix_1001
+    const enrollment = await models.Enrollment.findOne({ where: { orderId: order.id, courseId, status: 1 } })
     if (!enrollment) {
       return res.status(404).json({ error: 'Enrollment not found' })
     }
 
     // Cập nhật Enrollment
     enrollment.completedDate = new Date()
-    enrollment.status = true
+    // enrollment.status = true // có thể bỏ đi // Fix_1000
     await enrollment.save()
 
     logInfo(req, { message: 'Course marked as complete' })
