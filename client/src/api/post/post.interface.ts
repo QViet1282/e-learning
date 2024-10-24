@@ -1,3 +1,4 @@
+
 export type CourseItem = Record<string, any>
 
 export interface DataListCourse {

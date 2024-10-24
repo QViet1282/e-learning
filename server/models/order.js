@@ -30,6 +30,12 @@ const Order = sequelize.define(
     },
     paymentMethod: {
       type: DataTypes.STRING
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    paymentMethod: {
+      type: DataTypes.STRING,
+      allowNull: false
     },
     createdAt: {
       type: DataTypes.DATE,

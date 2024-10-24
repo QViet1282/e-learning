@@ -17,6 +17,8 @@ const generateOrder = async () => {
     const userId = await generateUserId()
     const orderDate = faker.date.past()
     const totalAmount = faker.finance.amount(50, 1000, 2)
+//     const status = faker.helpers.arrayElement(['Pending', 'Completed', 'Canceled'])
+//     const paymentMethod = faker.helpers.arrayElement(['Credit Card', 'PayPal', 'Bank Transfer'])
     orders.push({
       userId,
       orderDate,
