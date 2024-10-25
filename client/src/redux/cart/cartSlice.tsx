@@ -65,6 +65,7 @@ export const removeCourseFromCart = createAsyncThunk(
     try {
       await delay(2000)
       await removeCourseFromCartApi({ userId: userId.toString(), courseId })
+      fetchCart(userId)
       return courseId
     } catch (error) {
       const axiosError = error as AxiosError

@@ -44,8 +44,7 @@ const CartPage: React.FC = () => {
   const handleRemove = async (courseId: number) => {
     try {
       await dispatch(removeCourseFromCart({ userId, courseId })).unwrap()
-      await dispatch(fetchCart(userId))
-      // navigate('/cart', { replace: true })
+      navigate('/cart', { replace: true })
     } catch (error) {
       // Handle error, show notification
     }
@@ -97,7 +96,7 @@ const CartPage: React.FC = () => {
       <h1 className="text-3xl font-bold mb-4">Giỏ hàng</h1>
       {isLoading ? (
         <div className="flex justify-center items-center h-[40vh]">
-          <ClipLoader color="#5EEAD4" loading={isLoading} size={50} />
+          <ClipLoader color="red" loading={isLoading} size={50} />
         </div>
       ) : (
         <>

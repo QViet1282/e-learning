@@ -9,7 +9,7 @@
    ========================================================================== */
 import React, { FC, useEffect } from 'react'
 import UserMenu from '../../../components/DropdownProfile'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { getFromLocalStorage } from 'utils/functions'
 import CryptoJS from 'crypto-js'
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined'
@@ -29,7 +29,7 @@ interface HeaderProps {
 const Navbar: FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const location = useLocation()
   const { pathname } = location
-
+  const navigate = useNavigate()
   const tokens = getFromLocalStorage<any>('tokens')
   const userRole = tokens?.key
   const userId = tokens?.id
@@ -113,7 +113,10 @@ const Navbar: FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
               Contact us
             </a>
             {/* Cart */}
-            <a href="/cart" className={'items-center block text-gray-500 hover:text-neutral-400 truncate transition duration-150 rounded px-2 relative'}>
+            <button
+              onClick={() => navigate('/cart', { replace: true })}
+              className="items-center block text-gray-500 hover:text-neutral-400 truncate transition duration-150 rounded px-2 relative"
+            >
               Cart
               <ShoppingCartOutlinedIcon sx={{ color: 'teal' }} />
               {totalItems > 0 && (
@@ -121,7 +124,7 @@ const Navbar: FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
                   {totalItems}
                 </span>
               )}
-            </a>
+            </button>
           </div>
 
           {/* Header: Right side */}

@@ -624,7 +624,7 @@ const CourseDetail = () => {
                           handleOpenModal()
                         } else {
                           if (isCourseInCart(Number(data.id))) {
-                            window.location.href = '/cart'
+                            navigate('/cart', { replace: true })
                           } else {
                             await handleAddToCart2(data)
                           }
