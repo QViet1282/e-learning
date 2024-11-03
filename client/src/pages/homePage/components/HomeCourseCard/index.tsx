@@ -48,6 +48,10 @@ const HomeCourseCard = ({
 }: Props): ReactElement => {
   const [isEnrolled, setIsEnrolled] = useState(false)
   const navigate = useNavigate()
+
+  // Kiểm tra nếu người dùng đã đăng nhập dựa trên token trong localStorage
+  const isAuthenticated = !!getFromLocalStorage<any>('tokens')?.accessToken
+
   const courseDetailView = useMemo(() => {
     return `/courses/${id}`
   }, [id])
@@ -145,8 +149,10 @@ const HomeCourseCard = ({
         }
       }
     }
-    checkEnrollment()
-  }, [id])
+    if (isAuthenticated) {
+      checkEnrollment()
+    }
+  }, [id, isAuthenticated])
   // useEffect(() => {
   //   const checkEnrollment = async () => {
   //     if (id) {

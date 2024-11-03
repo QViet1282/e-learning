@@ -1,3 +1,4 @@
+/* eslint-disable multiline-ternary */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 /* eslint-disable no-prototype-builtins */
@@ -27,9 +28,11 @@ import HomeCourseCard from 'pages/homePage/components/HomeCourseCard'
 import SlideBar from 'pages/homePage/components/Slide'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
-import { PacmanLoader } from 'react-spinners'
+import { PacmanLoader, ClipLoader } from 'react-spinners'
 import { ShowButtonTopContext, DivRefContext } from '../../containers/layouts/default'
 import { useTheme } from 'services/styled-themes'
+import imgHome from '../../assets/images/homePage/imgHome.png'
+import Footer from 'pages/homePage/components/Footer'
 
 interface ParamsList extends ListCourseParams {
 }
@@ -100,6 +103,7 @@ const HomePage = () => {
   const targetDivRef = useRef<HTMLDivElement>(null)
   const { showButtonTop, setShowButtonTop } = useContext(ShowButtonTopContext)
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [isLoadingCourse, setIsLoadingCourse] = useState<boolean>(false)
   const [currentTab, setCurrentTab] = useState(0)
   const defaultStartDate = new Date('1970-01-01')
   const [startDate, setStartDate] = useState<Date | null>(null)
@@ -245,12 +249,7 @@ const HomePage = () => {
         setPageNew(params?.page ?? 1)
       }
     } catch (e) {
-      const tokens = getFromLocalStorage<any>('tokens')
-      if (tokens === null) {
-        navigate('/login', {
-          replace: true
-        })
-      }
+      console.error('Không thể lấy dữ liệu khoá học mới:', e)
     }
   }
   useEffect(() => {
@@ -258,6 +257,7 @@ const HomePage = () => {
   }, [])
   // KHONG DUNG LOCAL STORAGE
   const getDataCourse = async (params?: ParamsList) => {
+    setIsLoadingCourse(true)
     try {
       const listCourseResponse = await getListCourses({ params })
       if (!listCourseResponse.data) {
@@ -267,12 +267,9 @@ const HomePage = () => {
         setPage(params?.page ?? 1)
       }
     } catch (e) {
-      const tokens = getFromLocalStorage<any>('tokens')
-      if (tokens === null) {
-        navigate('/login', {
-          replace: true
-        })
-      }
+      console.error('Không thể lấy dữ liệu khoá học:', e)
+    } finally {
+      setIsLoadingCourse(false)
     }
   }
   useEffect(() => {
@@ -413,7 +410,11 @@ const HomePage = () => {
       divRef.current.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
-
+  const scrollToTargetDiv = () => {
+    if (targetDivRef && targetDivRef.current) {
+      targetDivRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
   return (
     <div>
       <div>
@@ -493,9 +494,40 @@ const HomePage = () => {
             </div>
           </div>
           {displayGrid && (
-            <div className='w-full flex justify-center' id='learnerViewing' ref={targetDivRef}>
+          <div className='w-full h-full flex flex-col sm:flex-row justify-center relative bg-sky-200'>
+            <div className='w-full flex flex-col sm:flex-row md:flex-row lg:flex-row xl:flex-row p-10'>
+               <div className='flex-1 flex flex-col justify-center'>
+                <div className='text-3xl sm:text-3xl md:text-3xl lg:text-4xl xl:text-5xl font-bold flex justify-center'>
+                  <div className='w-full sm:w-11/12 md:w-10/12 lg:w-9/12 xl:w-8/12 text-center'>
+                    {t('homepage.welcome')}
+                  </div>
+                </div>
+                <div className='flex justify-center mt-5'>
+                  <div className='w-full sm:w-4/5 md:w-3/5 lg:w-1/2 xl:w-3/5 text-center font-sans text-xl'>
+                    &quot;{t('homepage.description')}&quot;
+                  </div>
+                </div>
+                <div className='flex justify-center mt-5'>
+                  <div className='flex justify-center w-full sm:w-4/5 md:w-3/5 lg:w-1/2 xl:w-2/5'>
+                    <button
+                      className='bg-green-500 hover:bg-green-700 font-bold text-white shadow-xl rounded-3xl py-2 px-3 transition duration-200'
+                      onClick={scrollToTargetDiv}
+                    >
+                      {t('homepage.getStarted')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className='flex-1 flex justify-center items-center mt-5 sm:mt-0 md:mt-0 lg:mt-0 xl:mt-0'>
+                <img src={imgHome} className='w-[500px] h-[500px]' />
+              </div>
+            </div>
+          </div>
+          )}
+          {displayGrid && (
+            <div className='w-full flex justify-center' id='learnerViewing'>
               <div className='w-4/5'>
-                <p className='ml-5 font-bold text-2xl text-shadow-lg mt-14'>Danh Mục Hoc Tập</p>
+                <p className='ml-5 font-bold text-2xl text-shadow-lg mt-14'>{t('homepage.filter_title_course')}</p>
                 {/* {isPressed && <div className="fixed inset-0 bg-black opacity-50" onClick={handlePress}></div>} */}
                 <SlideBar></SlideBar>
               </div>
@@ -525,10 +557,14 @@ const HomePage = () => {
                 </TabList>
                 <hr className={`my-4 border-t -mx-5 ${theme === 'dark' ? 'border-line-dark' : 'border-gray-300'}`} />
                 <TabPanel className="flex flex-col justify-between">
-                  <div className='grid grid-cols-12 gap-6 mt-4'>
-                    {dataState?.data?.length
-                      ? (
-                          dataState?.data.map((item, index) => (
+                  <div className='grid grid-cols-12 gap-6 mt-4' ref={targetDivRef}>
+                  {isLoadingCourse ? (
+                  <div className="flex justify-center items-center w-full h-full col-span-12">
+                        <ClipLoader color="#5EEAD4" loading={isLoadingCourse} size={50} />
+                  </div>
+                  ) : dataState?.data?.length
+                    ? (
+                        dataState?.data.map((item, index) => (
                           <HomeCourseCard
                             name={item.name}
                             description={item.description}
@@ -547,11 +583,11 @@ const HomePage = () => {
                             lessonCount={item.lessonCount}
                             averageRating={item.averageRating}
                           />
-                          ))
-                        )
-                      : (
+                        ))
+                      )
+                    : (
                         <div className='py-10 flex items-center justify-center w-full h-full text-center italic col-span-12'>{t('homepage.empty_data_course')}</div>
-                        )}
+                      )}
                   </div>
                   <div className='flex justify-center mt-10 md:mt-5 lg:mt-3'>
                     <CustomPagination
@@ -567,6 +603,9 @@ const HomePage = () => {
             </div>
           }
         </div>
+        {displayGrid && (
+          <Footer />
+        )}
         <button
           className={`rounded-full fixed bottom-3 right-8 z-50 text-lg border-none outline-none bg-teal-300 hover:bg-teal-500 text-white cursor-pointer p-4 transition-colors duration-500 ${showButtonTop ? '' : 'hidden'}`}
           onClick={moveToTop}

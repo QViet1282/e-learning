@@ -14,7 +14,7 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import Question, { QUESTION_TYPE } from './components/question/Question'
 import { getDetailExams, markExam, saveTempAnswer } from 'api/post/post.api'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
-import { t } from 'i18next'
+import { useTranslation } from 'react-i18next'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ModalComponent from 'components/Modal'
 import CountDownTimer from './components/timer/CountDownTimer'
@@ -92,7 +92,7 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
   const [formPayload, setFormPayload] = useState({})
   const [payload, setPayload] = useState({})
   const [reload, setReload] = useState(false)
-
+  const { t } = useTranslation()
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0) // New state variable
 
   const handleOpenModal = () => {
@@ -171,7 +171,7 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
       )
     }
     return t('homepage.filter.pending')
-  }, [data.attempted, data.numberOfAttempt])
+  }, [data.attempted, data.numberOfAttempt, t])
 
   const haveMoreAttempt = useMemo(() => {
     if (!data.numberOfAttempt) {
@@ -190,7 +190,7 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
     else if (modalType === ModalType.FAIL) {
       return t('detail.not_enough_field')
     } else return t('detail.modal_test_description')
-  }, [modalType])
+  }, [modalType, t])
 
   const validEndTime: Date | null = useMemo(() => {
     if (data?.enterTime != null && data?.durationInMinute != null && data?.exitTime == null) {

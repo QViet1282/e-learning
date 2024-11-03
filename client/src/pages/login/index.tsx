@@ -71,7 +71,12 @@ const Login = () => {
       const response = await login({ ...data, keepMeLoggedIn })
       const tokens = JSON.stringify(response.data)
       setToLocalStorage('tokens', tokens)
-      navigate(ROUTES.homePage)
+
+      // Lấy `redirectPath` từ sessionStorage hoặc sử dụng `/`
+      const redirectTo = sessionStorage.getItem('redirectPath') ?? '/'
+      sessionStorage.removeItem('redirectPath')
+      console.log('Redirecting to:', redirectTo)
+      navigate(redirectTo, { replace: true })
     } catch (error: { code: number, message: string } | any) {
       if (error.code === 401) {
         const message = error.message
@@ -116,7 +121,12 @@ const Login = () => {
     if (googleAuthSuccess && accessToken && id && firstName && lastName && email && key && avatar) {
       const tokenObject = { accessToken, key, id, firstName, lastName, email, avatar }
       localStorage.setItem('tokens', JSON.stringify(tokenObject))
-      navigate(ROUTES.homePage)
+
+      // Lấy `redirectPath` từ sessionStorage hoặc sử dụng `/`
+      const redirectTo = sessionStorage.getItem('redirectPath') ?? '/'
+      sessionStorage.removeItem('redirectPath')
+      console.log('Redirecting to:', redirectTo)
+      navigate(redirectTo, { replace: true })
     }
   }, [])
 

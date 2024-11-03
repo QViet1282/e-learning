@@ -140,7 +140,7 @@ router.get('/cart/:userId', async (req, res) => {
     })
 
     if (!order) {
-      return res.status(404).json({ message: 'Giỏ hàng trống' })
+      return res.status(200).json({ message: 'Giỏ hàng trống' })
     }
 
     // Lấy rating trung bình của mỗi khóa học từ bảng Enrollment

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/promise-function-async */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -32,15 +33,20 @@ const initialState: CartState = {
   isRemoving: []
 }
 
-// Helper function to simulate delay
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
-
 // Thunk to fetch the cart data from the backend
-export const fetchCart = createAsyncThunk('cart/fetchCart', async (userId: number) => {
-  await delay(2000)
-  const response = await getCart(userId.toString())
-  return response.data
-})
+export const fetchCart = createAsyncThunk(
+  'cart/fetchCart',
+  async ({ userId, forceReload = false }: { userId: number, forceReload?: boolean }, { dispatch }) => {
+    if (forceReload) {
+      // Xóa giỏ hàng trong Redux trước khi load dữ liệu mới
+      dispatch(cartSlice.actions.clearCart())
+    }
+    // Tiếp tục lấy dữ liệu giỏ hàng mới từ API
+    const response = await getCart(userId.toString())
+    console.log('fetchCart response:', response.data)
+    return response.data
+  }
+)
 
 // Thunk to add a course to the cart
 export const addCourseToCart = createAsyncThunk(
@@ -48,7 +54,6 @@ export const addCourseToCart = createAsyncThunk(
   async ({ userId, course }: { userId: number, course: Course }, { rejectWithValue }) => {
     try {
       console.log('Dispatching addCourseToCart with:', { userId, courseId: course.id })
-      await delay(2000)
       const response = await addToCartApi({ userId, courseId: course.id })
       return course // Return the course to update the state
     } catch (error) {
@@ -63,7 +68,6 @@ export const removeCourseFromCart = createAsyncThunk(
   'cart/removeCourseFromCart',
   async ({ userId, courseId }: { userId: number, courseId: number }, { rejectWithValue }) => {
     try {
-      await delay(2000)
       await removeCourseFromCartApi({ userId: userId.toString(), courseId })
       return courseId
     } catch (error) {
@@ -104,7 +108,8 @@ export const cartSlice = createSlice({
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.isLoading = false
-        state.cartItems = action.payload.Enrollments.map((enrollment: any) => enrollment.Course)
+        const enrollments = action.payload?.Enrollments || []
+        state.cartItems = enrollments.map((enrollment: any) => enrollment.Course)
         state.totalItems = state.cartItems.length
         state.totalPrice = state.cartItems.reduce((total, course) => total + Number(course.price), 0)
       })

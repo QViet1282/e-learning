@@ -96,7 +96,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
 
   const handleLogout = useCallback(async () => {
     removeLocalStorage('tokens')
-    navigate(ROUTES.login)
+    navigate(ROUTES.homePage)
   }, [navigate])
 
   return (
@@ -363,7 +363,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                  <li className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('logout') && 'bg-teal-300 text-blue-500'}`}>
                    <NavLink
                      end
-                     to="/login"
+                     to="/"
                      onClick={handleLogout}
                      className={`block ${pathname.includes('logout') ? 'text-white' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes('logout') && 'hover:text-slate-200'}`}
                    >

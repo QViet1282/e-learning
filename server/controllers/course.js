@@ -5,36 +5,11 @@ const { sequelize } = require('../models')
 const { isAuthenticated } = require('../middlewares/authentication')
 const jsonError = 'Internal server error'
 const router = express.Router()
-const { infoLogger, errorLogger } = require('../logs/logger')
 // const { INTEGER } = require('sequelize')
 const { Op, fn, col } = require('sequelize')
 const CategoryCourse = require('../models/category_course')
 const StudyItem = require('../models/study_item')
 const { duration } = require('moment-timezone')
-
-function logError (req, error) {
-  const request = req.body.data ? req.body.data : (req.params ? req.params : req.query)
-  errorLogger.error({
-    message: `Error ${req.path}`,
-    method: req.method,
-    endpoint: req.path,
-    request,
-    error: error.message,
-    user: req.user.id
-  })
-}
-
-function logInfo (req, response) {
-  const request = req.body.data ? req.body.data : (req.params ? req.params : req.query)
-  infoLogger.info({
-    message: `Accessed ${req.path}`,
-    method: req.method,
-    endpoint: req.path,
-    request,
-    response,
-    user: req.user.id
-  })
-}
 
 /*****************************
  * ROUTES FOR COURSE
@@ -110,7 +85,6 @@ router.get('/getAllCourseInfo', isAuthenticated, async (req, res) => {
       courses: rows // Trả về danh sách khóa học
     })
   } catch (err) {
-    logError(req, err)
     console.error(err)
     res.status(500).json({ message: jsonError })
   }
@@ -132,10 +106,8 @@ router.get('/getCourseById/:courseId', isAuthenticated, async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy khóa học' })
     }
 
-    logInfo(req, course)
     res.status(200).json(course)
   } catch (err) {
-    logError(req, err)
     console.error(err)
     res.status(500).json({ message: 'Lỗi hệ thống, vui lòng thử lại sau.' })
   }
@@ -162,10 +134,8 @@ router.post('/createNewCourse', isAuthenticated, async (req, res) => {
       prepare: '',
       locationPath: 'https://res.cloudinary.com/dessdbtlz/image/upload/v1729450216/elearning/pte9tzf5b40ozaoqbjae.webp'
     })
-    logInfo(req, newCourse)
     res.status(201).json(newCourse)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ error: jsonError })
   }
 })
@@ -212,10 +182,8 @@ router.put('/editCourse/:courseId', isAuthenticated, async (req, res) => {
       status
     })
 
-    logInfo(req, course)
     res.status(200).json(course)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -291,7 +259,6 @@ router.put('/updateCourseStatus/:courseId', isAuthenticated, async (req, res) =>
     res.status(200).json({ message: 'Status updated successfully', course })
   } catch (error) {
     await transaction.rollback() // Hoàn tác nếu có lỗi
-    logError(req, error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -331,10 +298,8 @@ router.get('/getCategoryLessionByCourse/:courseId', isAuthenticated, async (req,
       order: [['order', 'ASC']]
     })
 
-    logInfo(req, categories)
     res.status(200).json(categories)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ error: jsonError })
   }
 })
@@ -355,11 +320,8 @@ router.post('/createCategoryLession', isAuthenticated, async (req, res) => {
       status: typeof status !== 'undefined' ? status : 0
     })
 
-    logInfo(req, newCategoryLession)
-
     return res.status(201).json(newCategoryLession)
   } catch (error) {
-    logError(req, error)
     return res.status(500).json({ error: jsonError })
   }
 })
@@ -380,10 +342,8 @@ router.post('/updateCategoryLession', isAuthenticated, async (req, res) => {
       return res.status(404).json({ error: 'CategoryLession not found' })
     }
 
-    logInfo(req, categoryLession)
     res.status(200).json(categoryLession)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ error: jsonError })
   }
 })
@@ -447,7 +407,6 @@ router.put('/updateCategoryLessionOrder', isAuthenticated, async (req, res) => {
     res.status(200).json({ message: 'Study item order updated successfully' })
   } catch (error) {
     await transaction.rollback()
-    logError(req, error)
     res.status(500).json({ error: 'An error occurred while updating study item order' })
   }
 })
@@ -480,10 +439,8 @@ router.get('/getStudyItemByCategoryLessionId/:lessionCategoryId', isAuthenticate
       return res.status(404).json({ error: 'StudyItem not found' })
     }
 
-    logInfo(req, studyItemDetails)
     res.status(200).json(studyItemDetails)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ error: 'An error occurred while fetching study item details' })
   }
 })
@@ -548,7 +505,6 @@ router.put('/updateStudyItemOrder', isAuthenticated, async (req, res) => {
     res.status(200).json({ message: 'Study item order updated successfully' })
   } catch (error) {
     await transaction.rollback()
-    logError(req, error)
     res.status(500).json({ error: 'An error occurred while updating study item order' })
   }
 })
@@ -607,7 +563,6 @@ router.get('/myCoursesDone', isAuthenticated, async (req, res) => {
     const dataAfterSearch = applyFilters(dataFromDatabase, searchCondition, startDate, endDate, categoryCondition)
     const dataOfCurrentWindow = paginateData(dataAfterSearch, size, page)
 
-    logInfo(req, dataOfCurrentWindow)
     res.json({
       page: Number(page),
       size: Number(size),
@@ -615,7 +570,6 @@ router.get('/myCoursesDone', isAuthenticated, async (req, res) => {
       data: dataOfCurrentWindow
     })
   } catch (error) {
-    logError(req, error)
     console.log(error)
     res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách khóa học.' })
   }
@@ -674,7 +628,6 @@ router.get('/myCoursesActive', isAuthenticated, async (req, res) => {
     const dataAfterSearch = applyFilters(dataFromDatabase, searchCondition, startDate, endDate, categoryCondition)
     const dataOfCurrentWindow = paginateData(dataAfterSearch, size, page)
 
-    logInfo(req, dataOfCurrentWindow)
     res.json({
       page: Number(page),
       size: Number(size),
@@ -682,7 +635,6 @@ router.get('/myCoursesActive', isAuthenticated, async (req, res) => {
       data: dataOfCurrentWindow
     })
   } catch (error) {
-    logError(req, error)
     console.log(error)
     res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách khóa học.' })
   }
@@ -741,7 +693,6 @@ router.get('/myCourses', isAuthenticated, async (req, res) => {
     const dataAfterSearch = applyFilters(dataFromDatabase, searchCondition, startDate, endDate, categoryCondition)
     const dataOfCurrentWindow = paginateData(dataAfterSearch, size, page)
 
-    logInfo(req, dataOfCurrentWindow)
     res.json({
       page: Number(page),
       size: Number(size),
@@ -749,7 +700,6 @@ router.get('/myCourses', isAuthenticated, async (req, res) => {
       data: dataOfCurrentWindow
     })
   } catch (error) {
-    logError(req, error)
     console.log(error)
     res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách khóa học.' })
   }
@@ -758,7 +708,7 @@ router.get('/myCourses', isAuthenticated, async (req, res) => {
 
 // trang home page
 // đã fix
-router.get('/getNewCourse', isAuthenticated, async (req, res) => {
+router.get('/getNewCourse', async (req, res) => {
   try {
     const {
       page = '1',
@@ -827,16 +777,6 @@ router.get('/getNewCourse', isAuthenticated, async (req, res) => {
       createdAt: course.createdAt
     }))
 
-    // Logging and response
-    infoLogger.info({
-      message: `Accessed ${req.path}`,
-      method: req.method,
-      endpoint: req.path,
-      request: req.query,
-      response: dataFromDatabase,
-      user: req.user.id
-    })
-
     const totalRecords = await models.Course.count() // total number of courses in the database
 
     res.json({
@@ -847,13 +787,12 @@ router.get('/getNewCourse', isAuthenticated, async (req, res) => {
     })
   } catch (error) {
     console.log(error)
-    logError(req, error)
     res.status(500).json({ message: jsonError })
   }
 })
 
 // đã fix - v2 fix
-router.get('/', isAuthenticated, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const {
       page = '1',
@@ -981,14 +920,6 @@ router.get('/', isAuthenticated, async (req, res) => {
     const dataAfterSearch = applyCourseCategoryNameSearch(categoryCondition, dataAfterNameAndDateSearch)
     console.log(dataAfterSearch.length, 'dataAfterSearch')
     console.log(totalRecords, 'totalRecords')
-    infoLogger.info({
-      message: `Accessed ${req.path}`,
-      method: req.method,
-      endpoint: req.path,
-      request: req.query,
-      response: dataAfterSearch,
-      user: req.user.id
-    })
     res.json({
       page: Number(page),
       size: Number(size),
@@ -997,7 +928,6 @@ router.get('/', isAuthenticated, async (req, res) => {
     })
   } catch (error) {
     console.log(error)
-    logError(req, error)
     res.status(500).json({ message: jsonError })
   }
 })
@@ -1011,27 +941,18 @@ function applyDateRangeSearch (startDate, endDate, inputData) {
 }
 
 // đã check - không cần fix
-router.get('/course-category', isAuthenticated, async (req, res) => {
+router.get('/course-category', async (req, res) => {
   try {
     const courseCategory = await getCourseCategory()
-    infoLogger.info({
-      message: `Accessed ${req.path}`,
-      method: req.method,
-      endpoint: req.path,
-      request: req.query,
-      response: courseCategory,
-      user: req.user.id
-    })
     res.json(courseCategory)
   } catch (error) {
-    logError(req, error)
     console.log(error)
     res.status(500).json({ message: jsonError })
   }
 })
 
 // trang course detail
-router.get('/:id', isAuthenticated, async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params
     const course = await models.Course.findByPk(id)
@@ -1043,17 +964,8 @@ router.get('/:id', isAuthenticated, async (req, res) => {
     if (!course) {
       return res.status(404).json({ message: 'Course not found' })
     }
-    infoLogger.info({
-      message: `Accessed ${req.path}`,
-      method: req.method,
-      endpoint: req.path,
-      request: req.params,
-      response: course,
-      user: req.user.id
-    })
     res.json(response)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ message: 'Failed to fetch course', error: error.message })
   }
 })
@@ -1279,10 +1191,8 @@ router.get('/get/:courseId', isAuthenticated, async (req, res) => {
       order: [['order', 'ASC']]
     })
 
-    logInfo(req, categories)
     res.status(200).json(categories)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ error: jsonError })
   }
 })

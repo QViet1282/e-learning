@@ -44,6 +44,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { addCourseToCart, fetchCart, selectCartItems } from '../../redux/cart/cartSlice'
 import { AppDispatch, RootState } from 'redux/store'
 import ReactPlayer from 'react-player'
+import ChoiceModal from '../../components/ChoiceModal/index'
 
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
@@ -52,6 +53,7 @@ import VolumeOffIcon from '@mui/icons-material/VolumeOff'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit'
 import { set } from 'react-hook-form'
+import CommentSection from './components/CommentSection'
 
 interface Course {
   id: number
@@ -92,6 +94,8 @@ export interface Lesson {
 const CourseDetail = () => {
   const { theme } = useTheme()
   const location = useLocation()
+  // Kiểm tra nếu người dùng đã đăng nhập dựa trên token trong localStorage
+  const isAuthenticated = !!getFromLocalStorage<any>('tokens')?.accessToken
   const assignedBy = location.state?.assignedBy
   const params = useParams()
   const [data, setData] = useState<IDetail>({} as IDetail)
@@ -115,13 +119,19 @@ const CourseDetail = () => {
   const cartItems = useSelector(selectCartItems)
   const tokens = getFromLocalStorage<any>('tokens')
   const userId = tokens?.id
+  const [modalOpen, setModalOpen] = useState(false)
   const [isLoading2, setIsLoading2] = useState(false)
   const [isLoading3, setIsLoading3] = useState(false)
   useEffect(() => {
-    dispatch(fetchCart(userId))
+    if (userId) {
+      dispatch(fetchCart({ userId, forceReload: true }))
+    }
   }, [dispatch, userId, location.key])
-
   const handleAddToCart = async (course: IDetail) => {
+    if (!userId) {
+      setModalOpen(true)
+      return
+    }
     const courseToAdd: Course = {
       id: Number(course.id),
       name: course.name!,
@@ -141,6 +151,10 @@ const CourseDetail = () => {
   }
 
   const handleAddToCart2 = async (course: IDetail) => {
+    if (!userId) {
+      setModalOpen(true)
+      return
+    }
     const courseToAdd: Course = {
       id: Number(course.id),
       name: course.name!,
@@ -188,6 +202,10 @@ const CourseDetail = () => {
   }, [modalType])
 
   const handleEnrollClick = async () => {
+    if (!userId) {
+      setModalOpen(true)
+      return
+    }
     if (courseLessionRef.current) {
       const payload = { courseId: dataRef.current.id }
 
@@ -230,10 +248,10 @@ const CourseDetail = () => {
         console.error('An error occurred while checking enrollment:', error)
       }
     }
-    if (data.id) {
+    if (isAuthenticated && data.id) {
       checkEnrollment()
     }
-  }, [data.id])
+  }, [isAuthenticated, data.id])
 
   const confirmMessage: string = useMemo(() => {
     if (!modalType) return ''
@@ -375,7 +393,7 @@ const CourseDetail = () => {
   const handleHomeClick = () => {
     const tokens = getFromLocalStorage<any>('tokens')
     if (tokens === null) {
-      navigate('/login', {
+      navigate('/', {
         replace: true
       })
     }
@@ -404,13 +422,25 @@ const CourseDetail = () => {
   const bannerSrc = theme === 'light' ? bannerLight : bannerDark
 
   const isCourseInCart = (courseId: number) => {
-    console.log('cartItems_3', cartItems)
     return cartItems.some((cartItem) => cartItem.id === courseId)
+  }
+
+  // const isCourseInCart = (courseId: number) => {
+  //   if (cartItems.length > 0) {
+  //     return cartItems.some((cartItem) => cartItem.id === courseId)
+  //   }
+  // }
+  const handleLoginRedirect = () => {
+    // Nếu `from` không tồn tại, lưu `location.pathname`
+    if (!location.state?.from) {
+      sessionStorage.setItem('redirectPath', location.pathname)
+    }
+    navigate('/login', { state: { from: location } })
   }
   return (
     <div className='overflow-x-hidden pb-14'>
       <div className='h-14 flex items-center lg:mx-40 mx-8 w-11/12 py-2 text-lg'>
-        <div className='font-bold cursor-pointer hover:text-red-400 transition-colors duration-300' onClick={handleHomeClick}>Home</div>
+        <div className='font-bold cursor-pointer hover:text-red-400 transition-colors duration-300' onClick={handleHomeClick}>{t('course_detail.home')}</div>
         <ArrowForwardIosIcon fontSize='small' />
         <div className='font-bold ml-3'>{data.name}</div>
       </div>
@@ -546,6 +576,13 @@ const CourseDetail = () => {
                   </div>
                 </div>
               </div>
+              <div>
+                <div className={`w-full rounded-2xl shadow-2xl sticky top-0 mt-4 ${theme === 'light' ? 'bg-white' : 'bg-custom-bg-courseDetail'}`}>
+                  <div className='p-5'>
+                  <CommentSection courseId={data.id ?? ''} />
+                  </div>
+                </div>
+              </div>
 
             </div>
             <div className='justify-center items-center lg:ml-10 w-full lg:w-2/5 mt-10'>
@@ -577,7 +614,7 @@ const CourseDetail = () => {
                           )
                         : (
                           <div className='flex items-center justify-center w-full h-full'>
-                            <div className='font-bold item'>This course doesnt have any video.</div>
+                            <div className='font-bold item'>{t('course_detail.no_video')}</div>
                           </div>
                           )}
                     </div>
@@ -594,7 +631,7 @@ const CourseDetail = () => {
                             disabled={isLoading2}
                             className="text-red-400 flex-1 border border-red-400 rounded-3xl p-2 mr-5 text-sm hover:bg-red-400 hover:text-white transition-colors duration-200 font-bold"
                           >
-                            {isLoading2 ? 'Adding...' : (
+                            {isLoading2 ? t('course_detail.adding') : (
                               <>
                                 <AddShoppingCartIcon className="mr-2" />
                                 {t('course_detail.add')} {/* Assuming t is for translations */}
@@ -603,7 +640,7 @@ const CourseDetail = () => {
                           </button>
                         ) : (
                           <button
-                            onClick={() => { navigate('/cart', { replace: true }) }}
+                            onClick={() => { navigate('/cart') } }
                             className="text-red-400 flex-1 border border-red-400 rounded-3xl p-2 mr-5 text-sm hover:bg-red-400 hover:text-white transition-colors duration-200 font-bold">
                             <AddShoppingCartIcon className="mr-2" />
                             {t('course_detail.go_to_cart')} {/* Assuming t is for translations */}
@@ -624,7 +661,7 @@ const CourseDetail = () => {
                           handleOpenModal()
                         } else {
                           if (isCourseInCart(Number(data.id))) {
-                            window.location.href = '/cart'
+                            navigate('/cart')
                           } else {
                             await handleAddToCart2(data)
                           }
@@ -633,7 +670,7 @@ const CourseDetail = () => {
                       disabled={isLoading3}
                     >
                       {isLoading3
-                        ? 'Đang đăng ký...'
+                        ? t('course_detail.enrolling')
                         : modalType === ModalType.ALREADY_ENROLLED
                           ? t('course_detail.continueLearning')
                           : t('course_detail.enrollNow')}
@@ -656,10 +693,24 @@ const CourseDetail = () => {
                 </div>
               </div>
             </div>
-
           </div>
         </div>
       </div>
+      <ChoiceModal
+        title="Bạn chưa đăng nhập"
+        modalOpen={modalOpen}
+        setModalOpen={setModalOpen}
+      >
+        <p className="text-center">Vui lòng đăng nhập để tiếp tục.</p>
+        <div className="flex justify-center mt-4">
+          <button
+            className="bg-blue-500 text-white rounded px-4 py-2"
+            onClick={handleLoginRedirect}
+          >
+            Đăng nhập
+          </button>
+        </div>
+      </ChoiceModal>
       <ModalEnrollComponent
         isOpen={isOpenModal}
         title={confirmMessage}
