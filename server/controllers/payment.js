@@ -236,62 +236,62 @@ router.get('/purchase-history/:userId', async (req, res) => {
 // })
 
 // Handle PayOS payment webhook v2 - fix không dùng description để lấy orderId
-// router.post('/payos-webhook', async (req, res) => {
-//   try {
-//     console.log('Payment webhook received------------------------')
-//     console.log('Webhook body:', req.body)
+router.post('/payos-webhook', async (req, res) => {
+  try {
+    console.log('Payment webhook received------------------------')
+    console.log('Webhook body:', req.body)
 
-//     const webhookData = payOS.verifyPaymentWebhookData(req.body)
-//     console.log('Webhook data:', webhookData)
+    const webhookData = payOS.verifyPaymentWebhookData(req.body)
+    console.log('Webhook data:', webhookData)
 
-//     const desc = webhookData.desc
-//     const paymentLinkId = webhookData.paymentLinkId // Sử dụng paymentLinkId thay vì transactionId
+    const desc = webhookData.desc
+    const paymentLinkId = webhookData.paymentLinkId // Sử dụng paymentLinkId thay vì transactionId
 
-//     // Tìm bản ghi Payment trong cơ sở dữ liệu dựa trên paymentLinkId
-//     const payment = await models.Payment.findOne({ where: { transactionId: paymentLinkId } })
-//     if (!payment) {
-//       console.error('Payment not found for paymentLinkId:', paymentLinkId)
-//       return res.status(404).json({ message: 'Payment not found' })
-//     }
+    // Tìm bản ghi Payment trong cơ sở dữ liệu dựa trên paymentLinkId
+    const payment = await models.Payment.findOne({ where: { transactionId: paymentLinkId } })
+    if (!payment) {
+      console.error('Payment not found for paymentLinkId:', paymentLinkId)
+      return res.status(404).json({ message: 'Payment not found' })
+    }
 
-//     // Lấy orderId từ Payment
-//     const orderId = payment.orderId
+    // Lấy orderId từ Payment
+    const orderId = payment.orderId
 
-//     // Tìm đơn hàng liên kết với orderId
-//     const order = await models.Order.findOne({ where: { id: orderId, status: 0 } })
-//     if (!order) {
-//       console.error('Order not found or already processed for orderId:', orderId)
-//       return res.status(404).json({ message: 'Order not found or already processed' })
-//     }
+    // Tìm đơn hàng liên kết với orderId
+    const order = await models.Order.findOne({ where: { id: orderId, status: 0 } })
+    if (!order) {
+      console.error('Order not found or already processed for orderId:', orderId)
+      return res.status(404).json({ message: 'Order not found or already processed' })
+    }
 
-//     // Xử lý thanh toán thành công
-//     if (desc === 'success') {
-//       // Cập nhật trạng thái Payment và Order trong database
-//       payment.status = 'COMPLETED'
-//       payment.paymentDate = new Date()
-//       await payment.save()
+    // Xử lý thanh toán thành công
+    if (desc === 'success') {
+      // Cập nhật trạng thái Payment và Order trong database
+      payment.status = 'COMPLETED'
+      payment.paymentDate = new Date()
+      await payment.save()
 
-//       // Cập nhật trạng thái Order
-//       order.status = 1 // Đã thanh toán
-//       await order.save()
+      // Cập nhật trạng thái Order
+      order.status = 1 // Đã thanh toán
+      await order.save()
 
-//       // Kích hoạt các khóa học liên quan
-//       await models.Enrollment.update(
-//         { status: 1 },
-//         { where: { orderId: order.id } }
-//       )
+      // Kích hoạt các khóa học liên quan
+      await models.Enrollment.update(
+        { status: 1 },
+        { where: { orderId: order.id } }
+      )
 
-//       res.json({ message: 'Payment processed successfully' })
-//     } else {
-//       // Payment failed or other status
-//       console.error('Payment failed for orderId:', orderId)
-//       res.status(400).json({ message: 'Payment failed or invalid status' })
-//     }
-//   } catch (error) {
-//     console.error('Error processing payment webhook:', error)
-//     res.status(500).json({ message: 'Error processing payment webhook', error: error.message })
-//   }
-// })
+      res.json({ message: 'Payment processed successfully' })
+    } else {
+      // Payment failed or other status
+      console.error('Payment failed for orderId:', orderId)
+      res.status(400).json({ message: 'Payment failed or invalid status' })
+    }
+  } catch (error) {
+    console.error('Error processing payment webhook:', error)
+    res.status(500).json({ message: 'Error processing payment webhook', error: error.message })
+  }
+})
 
 // B1:đầu tiên sẽ chạy API này trước đóng API trên lại sau khi báo thành công thì sẽ chạy API ở trên
 // B2: chạy ứng dụng
@@ -301,30 +301,30 @@ router.get('/purchase-history/:userId', async (req, res) => {
 // B6: copy link ngrok http://xxxxxx/api/v1/payment/payos-webhook
 // B7: vào tài khoản PayOS -> cài đặt Webhook -> paste link vào -> lưu -> kiểm tra kết nối
 // B8: sau đó mở API trên lêN => hoàn tất
-router.post('/payos-webhook', async function (req, res) {
-  console.log('Received a request at /payos')
-  console.log('Request body:', req.body)
-  const webhookData = payOS.verifyPaymentWebhookData(req.body)
+// router.post('/payos-webhook', async function (req, res) {
+//   console.log('Received a request at /payos')
+//   console.log('Request body:', req.body)
+//   const webhookData = payOS.verifyPaymentWebhookData(req.body)
 
-  if (
-    ['Ma giao dich thu nghiem', 'VQRIO123'].includes(webhookData.description)
-  ) {
-    return res.json({
-      error: 0,
-      message: 'Ok',
-      data: webhookData
-    })
-  }
+//   if (
+//     ['Ma giao dich thu nghiem', 'VQRIO123'].includes(webhookData.description)
+//   ) {
+//     return res.json({
+//       error: 0,
+//       message: 'Ok',
+//       data: webhookData
+//     })
+//   }
 
-  // Source code uses webhook data - nghĩa là dùng dữ liệu từ webhook để xử lý gì đó (ví dụ: cập nhật trạng thái đơn hàng)
-  // ở đây mình chỉ log ra thôi
-  console.log(webhookData)
+//   // Source code uses webhook data - nghĩa là dùng dữ liệu từ webhook để xử lý gì đó (ví dụ: cập nhật trạng thái đơn hàng)
+//   // ở đây mình chỉ log ra thôi
+//   console.log(webhookData)
 
-  return res.json({
-    error: 0,
-    message: 'Ok',
-    data: webhookData
-  })
-})
+//   return res.json({
+//     error: 0,
+//     message: 'Ok',
+//     data: webhookData
+//   })
+// })
 
 module.exports = router
