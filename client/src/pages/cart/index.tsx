@@ -10,10 +10,10 @@
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-redeclare */
-
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
-
+import { useNavigate, useLocation } from 'react-router-dom'
+import { ClipLoader } from 'react-spinners'
 import {
   selectCartItems,
   selectTotalPrice,
@@ -21,14 +21,16 @@ import {
   removeCourseFromCart,
   processPayment
 } from '../../redux/cart/cartSlice'
+import { checkCancellationInfor } from '../../api/post/post.api'
 import { AppDispatch, RootState } from '../../redux/store'
 import { getFromLocalStorage } from 'utils/functions'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
-import { useNavigate } from 'react-router-dom'
-import { ClipLoader } from 'react-spinners'
+import { useTranslation } from 'react-i18next'
 
 const CartPage: React.FC = () => {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { t } = useTranslation()
   const dispatch: AppDispatch = useDispatch()
   const cartItems = useSelector(selectCartItems)
   const totalPrice = useSelector(selectTotalPrice)
@@ -36,15 +38,46 @@ const CartPage: React.FC = () => {
   const userId = tokens?.id
   const isRemoving = useSelector((state: RootState) => state.cart.isRemoving)
   const isLoading = useSelector((state: RootState) => state.cart.isLoading)
+
+  // Check cancel status on load
   useEffect(() => {
-    // Fetch the cart when the component mounts
-    dispatch(fetchCart(userId))
-  }, [dispatch, userId])
+    const queryParams = new URLSearchParams(location.search)
+    const code = queryParams.get('code')
+    const cancel = queryParams.get('cancel')
+    const status = queryParams.get('status')
+    const orderCode = queryParams.get('orderCode')
+
+    if (code === '00' && cancel === 'true' && status === 'CANCELLED' && orderCode) {
+      // Call API to confirm cancellation
+      checkCancellation(orderCode)
+
+      // Xóa query params khỏi URL sau khi đã xử lý
+      navigate(location.pathname, { replace: true }) // Điều hướng tới cùng một URL nhưng không có query params
+    }
+
+    // Fetch cart on load
+    if (userId) {
+      dispatch(fetchCart({ userId, forceReload: true }))
+    }
+  }, [dispatch, userId, location.key, location.search, navigate])
+
+  const checkCancellation = async (orderCode: string) => {
+    try {
+      const response = await checkCancellationInfor(orderCode)
+      // console.log('Cancellation response:', response)
+      // if (result.error === 0 && result.data.status === 'CANCELLED') {
+      //   // Handle cancellation message
+      //   alert('Thanh toán đã bị hủy. Đơn hàng vẫn còn trong giỏ hàng của bạn.')
+      // }
+    } catch (error) {
+      console.error('Error checking cancellation:', error)
+    }
+  }
 
   const handleRemove = async (courseId: number) => {
     try {
       await dispatch(removeCourseFromCart({ userId, courseId })).unwrap()
-      navigate('/cart', { replace: true })
+      await dispatch(fetchCart({ userId, forceReload: true }))
     } catch (error) {
       // Handle error, show notification
     }
@@ -59,7 +92,9 @@ const CartPage: React.FC = () => {
       // Handle error, show notification, etc.
     }
   }
-
+  const formatCurrency = (value: number) => {
+    return `${Math.round(value).toLocaleString('vi-VN')} VND`
+  }
   // Star rendering logic
   // const renderStars = (averageRating: number) => {
   //   const fullStars = Math.floor(averageRating) // Số sao đầy
@@ -93,7 +128,7 @@ const CartPage: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-4">Giỏ hàng</h1>
+      <h1 className="text-3xl font-bold mb-4">{t('cart.title')}</h1>
       {isLoading ? (
         <div className="flex justify-center items-center h-[40vh]">
           <ClipLoader color="red" loading={isLoading} size={50} />
@@ -101,7 +136,7 @@ const CartPage: React.FC = () => {
       ) : (
         <>
           <h2 className="text-xl font-semibold mb-2">
-            {cartItems.length} khóa học trong giỏ hàng
+            {cartItems.length} {t('cart.courses_in_cart')}
           </h2>
           {cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-[40vh] border border-gray-300 p-4 rounded-md">
@@ -109,13 +144,13 @@ const CartPage: React.FC = () => {
                 <AddShoppingCartIcon style={{ fontSize: 48, color: 'white' }} className='animate-bounce' />
               </div>
               <p className="text-lg font-semibold mb-4">
-                Giỏ hàng của bạn đang trống. Hãy tiếp tục mua sắm để tìm một khóa học!
+                {t('cart.empty_cart_message')}
               </p>
               <button
                 onClick={() => window.location.href = '/'}
                 className="px-6 py-2 bg-teal-400 text-white rounded-md hover:bg-teal-500"
               >
-                Tiếp tục mua sắm
+                {t('cart.continue_shopping')}
               </button>
             </div>
           ) : (
@@ -133,31 +168,31 @@ const CartPage: React.FC = () => {
                       <div>
                         <span className="block text-lg font-semibold">{item.name}</span>
                         <span className="block text-gray-500">
-                          Bởi {item.assignedByName}
+                          {t('cart.by')} {item.assignedByName}
                         </span>
                       </div>
                     </div>
                     <div className="flex flex-col items-end">
                       <span className="text-lg font-semibold text-red-600">
-                        {item.price.toLocaleString()} VND
+                        {formatCurrency(item.price)}
                       </span>
                       <button
                         onClick={async () => await handleRemove(item.id)}
                         disabled={isRemoving.includes(item.id)} // Hiển thị trạng thái xóa cho từng khóa học
                       >
-                        {isRemoving.includes(item.id) ? 'Removing...' : 'Xóa'}
+                        {isRemoving.includes(item.id) ? t('cart.removing') : t('cart.remove')}
                       </button>
                     </div>
                   </li>
                 ))}
               </ul>
               <div className="mt-8 flex justify-between items-center">
-                <h3 className="text-2xl font-semibold">Tổng: {totalPrice.toLocaleString()} VND</h3>
+                <h3 className="text-2xl font-semibold">{t('cart.total')}: {totalPrice.toLocaleString()} VND</h3>
                 <button
                   onClick={handleCheckout}
                   className="px-6 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700"
                 >
-                  Thanh toán
+                  {t('cart.checkout')}
                 </button>
               </div>
             </>

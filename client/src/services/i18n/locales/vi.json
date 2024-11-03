@@ -7,7 +7,12 @@
       "about_us": "Về chúng tôi",
       "contact_us": "Liên hệ",
       "sign_out": "Đăng xuất",
-      "cart": "Giỏ hàng"
+      "cart": "Giỏ hàng",
+      "vietnamese": "Tiếng Việt",
+      "english": "Tiếng Anh",
+      "login": "Đăng nhập",
+      "signup": "Đăng ký"
+
     },
     "dropdown": {
       "darkTheme": "Chế độ tối",
@@ -18,7 +23,8 @@
       "mycourse": "Hồ sơ học",
       "blog": "Blog",
       "logout": "Đăng xuất",
-      "gottoadmin": "Trang quản trị"
+      "gottoadmin": "Trang quản trị",
+      "purchase-history": "Lịch sử mua hàng"
     },
     "login": {
       "welcome": "Chào mừng",
@@ -107,22 +113,15 @@
         "otp_is_invalid": "Mã OTP không hợp lệ"
       }
     },
-    "footer":{
-      "introduction":"Công ty chuyên đảm nhận Offshore Nhật Bản và cung cấp phần mềm nông nghiệp cho thị trường Việt Nam.",
-      "our_product": "Sản phẩm của chúng tôi",
-      "nksxff": "Nhật ký sản xuất FaceFarm",
-      "kthtxWC": "Kế toán Hợp tác xã WACA",
-      "quick_links": "Liên kết hữu ích",
-      "overview": "Tổng quan",
-      "human_resource": "Nhân sự",
-      "recruitment": "Tuyển dụng",
-      "contact": "Liên hệ",
-      "compliance": "Nguyên tắc tuân thủ",
-      "sdgS": "SDGs",
-      "contact_with_us": "Liên hệ với chúng tôi",
-      "address": "Tầng 9, Cao Ốc Tuổi Trẻ, 60A Hoàng Văn Thụ, P. 9, Quận Phú Nhuận, TP. Hồ Chí Minh",
-      "facebook": "Facebook",
-      "youtube": "Youtube"
+    "footer": {
+      "about_us": "Về Chúng Tôi",
+      "about_us_text": "Chúng tôi là một công ty cam kết cung cấp các dịch vụ tốt nhất.",
+      "quick_links": "Liên Kết Nhanh",
+      "services": "Dịch Vụ",
+      "contact": "Liên Hệ",
+      "privacy_policy": "Chính Sách Bảo Mật",
+      "follow_us": "Theo Dõi Chúng Tôi",
+      "rights_reserved": "Đã đăng ký bản quyền."
     },
     "sidebar":{
       "pages": "Trang", 
@@ -155,7 +154,7 @@
       "freeCourse":"Khóa học miễn phí",
       "findByCourseName":"Tìm theo tên khóa học",
       "all_courses": "Tất cả khóa học",
-      "filter_title_course": "Danh sách khóa học",
+      "filter_title_course": "Danh Mục Khóa Học",
       "empty_data": "Không có bài thi nào",
       "empty_data_course": "Không có khóa học nào",
       "filter_placeholder_search": "Tên bài thi",
@@ -177,10 +176,9 @@
       "another_time": "Lúc khác",
       "from_label": "Từ ngày",
       "to_label": "Đến ngày",
-      "getStarted": "Bắt đầu",
-      "learnMore": "Tìm hiểu thêm",
-      "welcome":"Khóa học tốt nhất cho bạn",
-      "description":"Đối với bất kỳ ai mới bắt đầu làm nhà phân tích dữ liệu, đây là phần giới thiệu tuyệt vời và rất truyền cảm hứng. Nội dung có nhịp độ phù hợp và dễ tiếp cận đối với những người mới bắt đầu. Tôi thích sự đa dạng của các nhiệm vụ có trong chương trình.",
+      "getStarted": "Bắt đầu học ngay hôm nay",
+      "welcome":"Chọn lộ trình học tập tối ưu dành cho bạn",
+      "description":"Với lộ trình học được thiết kế kỹ lưỡng, đây là lựa chọn hoàn hảo để bạn tiếp cận những kiến thức mới mẻ và hữu ích. Nội dung khóa học đa dạng, từ cơ bản đến nâng cao, phù hợp cho mọi đối tượng học viên. Khám phá và chinh phục những thử thách để nâng tầm bản thân mỗi ngày!",
       "learnerAreViewing":"Người học đang theo dõi",
       "popularCategories":"Danh mục phổ biến",
       "trendingNow": "Xu hướng hiện nay",
@@ -198,7 +196,7 @@
       "explore":"Đã được thêm gần đây",
       "showMore": "Xem thêm",
       "viewAll": "Xem tất cả",
-      "outComes": "Kết quả đầu ra của Coursera",
+      "outComes": "Kết quả đầu ra của VIETCODE",
       "footer1": "77% người học cho biết họ có những lợi ích nghề nghiệp như kỹ năng mới, tăng lương và cơ hội việc làm mới.",
       "footer2": "Bảng báo cáo đầu ra 2023",
       "join": "Tham gia ngay",
@@ -249,7 +247,12 @@
       "certificate_of_completion":"Chứng chỉ hoàn thành",
       "chapter2":"Chương",
       "includes":"Bao gồm",
-      "requirements":"Yêu cầu"
+      "requirements":"Yêu cầu",
+      "home": "Trang Chủ",
+      "no_video": "Khóa học này không có video.",
+      "adding": "Đang thêm...",
+      "enrolling": "Đang ghi danh...",
+      "go_to_cart": "Đi đến Giỏ Hàng"
     },
     "learning": {
       "updated_at":"Cập nhật vào",
@@ -319,6 +322,70 @@
       "correctAnswerGuid": "Đáp án đúng:",
       "previous": "Câu trước",
       "next": "Câu sau"
+    },
+    "commentSection": {
+      "title": "Đánh giá về khóa học",
+      "out_of_5": "trên 5",
+      "reviews": "đánh giá",
+      "all": "Tất cả",
+      "no_reviews": "Không có đánh giá nào",
+      "edit_placeholder": "Chỉnh sửa đánh giá...",
+      "updating": "Đang cập nhật...",
+      "update": "Cập nhật",
+      "cancel": "Hủy",
+      "date": "Ngày",
+      "edit": "Sửa",
+      "deleting": "Đang xóa...",
+      "delete": "Xóa",
+      "loading_more": "Đang tải thêm...",
+      "load_more": "Xem thêm",
+      "add_new_review": "Thêm đánh giá mới",
+      "enter_review": "Nhập đánh giá của bạn",
+      "adding": "Đang thêm...",
+      "add_review": "Thêm đánh giá"
+    },
+    "mycourse": {
+      "myCourse": "Khóa học của tôi",
+      "enrolledCourses": "Đã tham gia",
+      "activeCourses": "Đang học",
+      "completedCourses": "Đã hoàn thành",
+      "continueLearning": "Tiếp tục học",
+      "learnAgain": "Học lại",
+      "haventLearnYet": "Bạn chưa đăng kí khóa học nào",
+      "progress": "Tiến trình",
+      "addCourse": "Thêm khóa học",
+      "studied_at": "Đã học vào",
+      "today": "hôm nay",
+      "1_day_ago": "1 ngày truớc",
+      "days_ago": "ngày trước",
+      "one_month_ago": "1 tháng trước",
+      "months_ago": "tháng trước",
+      "half_month_ago": "nửa tháng trước",
+      "one_year_ago": "1 năm trước",
+      "years_ago": "năm trước",
+      "haventStudyYet": "Bạn chưa học khóa này"
+    },
+    "cart": {
+      "title": "Giỏ hàng",
+      "courses_in_cart": "khóa học trong giỏ hàng",
+      "empty_cart_message": "Giỏ hàng của bạn đang trống. Hãy tiếp tục mua sắm để tìm một khóa học!",
+      "continue_shopping": "Tiếp tục mua sắm",
+      "by": "Bởi",
+      "removing": "Đang xóa...",
+      "remove": "Xóa",
+      "total": "Tổng",
+      "checkout": "Thanh toán"
+    },
+    "purchaseHistory": {
+      "title": "Lịch sử mua hàng",
+      "no_orders": "Bạn chưa có lịch sử mua hàng nào.",
+      "order": "Đơn hàng",
+      "payment_info": "Thông tin thanh toán",
+      "payment_time": "Thời gian thanh toán",
+      "payment_method": "Phương thức",
+      "amount": "Số tiền",
+      "purchased_courses": "Khóa học đã mua",
+      "price": "Giá"
     }
   }
 }

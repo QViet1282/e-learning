@@ -3,62 +3,45 @@ const { models } = require('../models')
 const { isAuthenticated } = require('../middlewares/authentication')
 const jsonError = 'Internal server error'
 const router = express.Router()
-const { infoLogger, errorLogger } = require('../logs/logger')
-
-function logError (req, error) {
-  const request = req.body.data ? req.body.data : (req.params ? req.params : req.query)
-  errorLogger.error({
-    message: `Error ${req.path}`,
-    method: req.method,
-    endpoint: req.path,
-    request,
-    error: error.message,
-    user: req.user.id
-  })
-}
-
-function logInfo (req, response) {
-  const request = req.body.data ? req.body.data : (req.params ? req.params : req.query)
-  infoLogger.info({
-    message: `Accessed ${req.path}`,
-    method: req.method,
-    endpoint: req.path,
-    request,
-    response,
-    user: req.user.id
-  })
-}
 
 // trang home page
-// đã check - không cần fix - v2 fix
+// đã check - không cần fix - v2 fix - v3 fix sửa bỏ findOne vì nó sẽ trả về đơn hàng đầu tiên khớp với userId và status
 router.get('/getEnrollmentByCourseId/:courseId', isAuthenticated, async (req, res) => {
   const loginedUserId = req.user.id
   const courseIdData = req.params.courseId
-  try {
-    console.log('courseId', courseIdData)
 
-    // Tìm Order bằng userId và kiểm tra status
-    const order = await models.Order.findOne({ where: { userId: loginedUserId, status: 1 } }) // Fix_1001
+  try {
+    // Tìm Order có liên kết với courseId dựa trên userId và kiểm tra status
+    const order = await models.Order.findOne({
+      where: { userId: loginedUserId, status: 1 },
+      include: {
+        model: models.Enrollment,
+        where: { courseId: courseIdData }
+      }
+    })
+
     if (!order) {
       return res.json(null)
     }
 
     // Tìm Enrollment bằng orderId và courseId và kiểm tra status // Fix_1001
-    const enrollment = await models.Enrollment.findOne({ where: { orderId: order.id, courseId: courseIdData, status: 1 } })
+    const enrollment = await models.Enrollment.findOne({
+      where: { orderId: order.id, courseId: courseIdData, status: 1 }
+    })
+
     if (enrollment) {
-      logInfo(req, enrollment)
       return res.json(enrollment)
     } else {
       return res.json(null)
     }
   } catch (err) {
-    logError(req, err)
     res.status(500).json({ message: jsonError })
   }
 })
+
 // trang course detail
 // đã check - không cần fix
-router.get('/getCategoryLessionsByCourse/:courseId', isAuthenticated, async (req, res) => {
+router.get('/getCategoryLessionsByCourse/:courseId', async (req, res) => {
   const { courseId } = req.params
 
   try {
@@ -67,19 +50,16 @@ router.get('/getCategoryLessionsByCourse/:courseId', isAuthenticated, async (req
         courseId
       }
     })
-    logInfo(req, categoryLessions)
     res.json(categoryLessions)
   } catch (err) {
-    logError(req, err)
     res.status(500).json({ message: jsonError })
   }
 })
 
 // hàm này dùng để lấy ra tất cả các lession và exam của 1 category -- ở bên trang course detail
 // đã fix
-router.get('/getLessionByCategory/:lessionCategoryId', isAuthenticated, async (req, res) => {
+router.get('/getLessionByCategory/:lessionCategoryId', async (req, res) => {
   const { lessionCategoryId } = req.params
-  console.log('Route hit:', req.params)
 
   try {
     const items = await models.StudyItem.findAll({
@@ -139,10 +119,8 @@ router.get('/getLessionByCategory/:lessionCategoryId', isAuthenticated, async (r
       }
     })
 
-    logInfo(req, formattedItems)
     res.json(formattedItems)
   } catch (err) {
-    logError(req, err)
     res.status(500).json({ message: 'Error occurred while fetching items' })
   }
 })
@@ -170,10 +148,8 @@ router.post('/addEnrollment', isAuthenticated, async (req, res) => {
       status: 0 // Khóa học chưa kích hoạt
     })
 
-    logInfo(req, newEnrollment)
     res.json(newEnrollment)
   } catch (err) {
-    logError(req, err)
     res.status(500).json({ message: jsonError })
   }
 })
@@ -191,10 +167,8 @@ router.get('/getEnrollmentByUserId', isAuthenticated, async (req, res) => {
     // Tìm tất cả các Enrollment dựa trên orderId và kiểm tra status // Fix_1001
     const enrollments = await models.Enrollment.findAll({ where: { orderId: orderIds, status: 1 } })
 
-    logInfo(req, enrollments)
     res.json(enrollments)
   } catch (err) {
-    logError(req, err)
     res.status(500).json({ message: jsonError })
   }
 })
@@ -335,29 +309,42 @@ router.get('/getProgressByEnrollmentId/:enrollmentId', isAuthenticated, async (r
       updatedAt: progress.updatedAt
     }))
 
-    logInfo(req, formattedProgress)
     res.status(200).json({ data: formattedProgress })
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ message: 'Error occurred while fetching progress' })
   }
 })
 
 // trang elearning - cũ bên enrollment.js
-// đã check - không cần fix - v2 fix
+// đã check - không cần fix - v2 fix - v3 fix sửa bỏ findOne vì nó sẽ trả về đơn hàng đầu tiên khớp với userId và status
 router.post('/markAsComplete', isAuthenticated, async (req, res) => {
   try {
     const { courseId } = req.body.data
     const userId = req.user.id
 
-    // Tìm Order dựa trên userId và courseId và kiểm tra status // Fix_1001
-    const order = await models.Order.findOne({ where: { userId, status: 1 } })
+    // Kiểm tra nếu courseId được cung cấp
+    if (!courseId) {
+      return res.status(400).json({ error: 'Course ID is required' })
+    }
+
+    // Tìm Order dựa trên userId, status, và courseId
+    const order = await models.Order.findOne({
+      where: { userId, status: 1 },
+      include: {
+        model: models.Enrollment,
+        where: { courseId }
+      }
+    })
+
     if (!order) {
-      return res.json(null)
+      return res.status(404).json({ error: 'Order not found' })
     }
 
     // Tìm Enrollment dựa trên orderId và kiểm tra status // Fix_1001
-    const enrollment = await models.Enrollment.findOne({ where: { orderId: order.id, courseId, status: 1 } })
+    const enrollment = await models.Enrollment.findOne({
+      where: { orderId: order.id, courseId, status: 1 }
+    })
+
     if (!enrollment) {
       return res.status(404).json({ error: 'Enrollment not found' })
     }
@@ -367,10 +354,8 @@ router.post('/markAsComplete', isAuthenticated, async (req, res) => {
     // enrollment.status = true // có thể bỏ đi // Fix_1000
     await enrollment.save()
 
-    logInfo(req, { message: 'Course marked as complete' })
     return res.status(200).json({ message: 'Course marked as complete' })
   } catch (error) {
-    logError(req, error)
     return res.status(500).json({ error: jsonError })
   }
 })
@@ -468,7 +453,6 @@ router.post('/addProgress', isAuthenticated, async (req, res) => {
       }
     })
     if (existingProgress) {
-      console.log('Học lại')
       return res.status(400).json({ data: existingProgress })
     }
 
@@ -483,11 +467,8 @@ router.post('/addProgress', isAuthenticated, async (req, res) => {
       return res.status(400).json({ message: 'Thêm tiến độ thất bại' })
     }
 
-    logInfo(req, newProgress)
-    console.log('check 9')
     res.status(200).json({ data: newProgress })
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ message: 'Có lỗi xảy ra khi thêm tiến độ' })
   }
 })

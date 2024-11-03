@@ -19,7 +19,8 @@ const ROUTES = {
   cart: '/cart',
   dashboard: '/dashboard', // TODO: remove later
   cancel: '/payment-cancel',
-  success: '/payment-success'
+  success: '/payment-success',
+  purchaseHistory: '/purchase-history'
 }
 
 export default ROUTES

@@ -20,6 +20,7 @@ import LayersIcon from '@mui/icons-material/Layers'
 import NewspaperIcon from '@mui/icons-material/Newspaper'
 import ROUTES from 'routes/constant'
 import { useTranslation } from 'services/i18n'
+import Select from 'react-select'
 // import { useTheme } from 'services/styled-themes'
 import getUnicodeFlagIcon from 'country-flag-icons/unicode'
 import CryptoJS from 'crypto-js'
@@ -28,7 +29,10 @@ import { useDispatch } from 'react-redux'
 import ChoiceModal from './ChoiceModal'
 import { toast } from 'react-toastify'
 import { removeAllNotificationsSlice } from '../redux/notification/notifySlice'
-
+import { clearCart } from '../redux/cart/cartSlice'
+import imgFlagUK from '../assets/images/login/Flag_of_the_United_Kingdom.png'
+import imgFlagVN from '../assets/images/login/Flag_of_Vietnam.png'
+import PriceChangeIcon from '@mui/icons-material/PriceChange'
 interface DropdownProfileProps {
   align: string
 }
@@ -84,9 +88,14 @@ function DropdownProfile ({ align }: DropdownProfileProps) {
       const response = await logout()
       if (response) {
         removeAllLocalStorage()
-        navigate(ROUTES.login)
         dispatch(removeAllNotificationsSlice())
+        dispatch(clearCart())
         toast.success(t('homepage.logout_success'))
+        if (window.location.pathname === ROUTES.homePage) {
+          window.location.reload()
+        } else {
+          navigate(ROUTES.homePage, { replace: true })
+        }
       }
     } catch (error) {
       console.error(error)
@@ -95,19 +104,24 @@ function DropdownProfile ({ align }: DropdownProfileProps) {
   const handleOpenLogOutModal = useCallback(() => {
     setChoiceModalOpen(true)
   }, [])
-  const languageOptions = useMemo(() => {
-    return [
-      { label: 'EN', value: 'en', flag: getUnicodeFlagIcon('GB') },
-      { label: 'FR', value: 'fr', flag: getUnicodeFlagIcon('FR') },
-      { label: 'JP', value: 'jp', flag: getUnicodeFlagIcon('JP') },
-      { label: 'VN', value: 'vi', flag: getUnicodeFlagIcon('VN') }
-    ]
-  }, [])
+  const languageOptions = useMemo(
+    () => [
+      { label: t('navbar.english'), value: 'en', flagUrl: imgFlagUK },
+      { label: t('navbar.vietnamese'), value: 'vi', flagUrl: imgFlagVN }
+    ],
+    [t]
+  )
+  const formatOptionLabel = ({ label, flagUrl }: any) => (
+    <div className="flex items-center">
+      <img src={flagUrl} alt="" className="w-6 h-4 mr-2" />
+      {label}
+    </div>
+  )
 
   const handleChange = useCallback(
-    async (e) => {
+    async (selectedOption) => {
+      const newLanguage = selectedOption.value
       try {
-        const newLanguage = e.target.value
         await i18n.changeLanguage(newLanguage)
         setSelectedLanguage(newLanguage)
         localStorage.setItem('selectedLanguage', newLanguage)
@@ -147,11 +161,11 @@ function DropdownProfile ({ align }: DropdownProfileProps) {
            onClick={() => setDropdownOpen(!dropdownOpen)}
            aria-expanded={dropdownOpen}
          >
-           <img className="w-8 h-8 rounded-full" src={userAvatar} width="32" height="32" alt="User" />
+           <img className="w-8 h-8 rounded-full" src={userAvatar} referrerPolicy='no-referrer' width="32" height="32" alt="User" />
          </button>
 
          <Transition
-           className={`origin-top-right absolute top-full min-w-44 bg-white border border-slate-200 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${align === 'right' ? 'right-0' : 'left-0'}`}
+           className={`origin-top-right absolute top-full min-w-52 bg-white border border-slate-200 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${align === 'right' ? 'right-0' : 'left-0'}`}
            show={dropdownOpen}
            enter="transition ease-out duration-200 transform"
            enterStart="opacity-0 -translate-y-2"
@@ -174,18 +188,15 @@ function DropdownProfile ({ align }: DropdownProfileProps) {
                  <p className='text-gray-500 text-xs overflow-hidden overflow-ellipsis whitespace-nowrap'>{userEmail}</p>
                </div>
              </div>
-             <div className='px-2 py-1'>
-               <select
-                 className="w-full px-4 py-2 rounded-lg font-bold text-gray-700 border border-gray-300 focus:border-indigo-500 focus:outline-none shadow"
+             <div className='px-3 py-1'>
+             <Select
+                 value={languageOptions.find(option => option.value === selectedLanguage)}
                  onChange={handleChange}
-                 value={selectedLanguage}
-               >
-                 {languageOptions.map((option) => (
-                   <option key={option.value} value={option.value} className="font-bold py-2">
-                     {option.flag}&nbsp;&nbsp;&nbsp;{option.label}&nbsp;&nbsp;{option.value === selectedLanguage && '✔'}
-                   </option>
-                 ))}
-               </select>
+                 options={languageOptions}
+                 formatOptionLabel={formatOptionLabel}
+                 className="w-auto rounded-md font-semibold text-gray-700 border border-gray-300 focus:border-teal-400 focus:outline-none shadow-sm"
+                 isSearchable={false} // Tắt tính năng tìm kiếm
+               />
              </div>
              <ul>
                <li>
@@ -240,6 +251,16 @@ function DropdownProfile ({ align }: DropdownProfileProps) {
                  >
                    <SettingsIcon className="mr-2" />
                    {t('dropdown.setting')}
+                 </Link>
+               </li>
+               <li>
+                 <Link
+                   className="font-medium text-sm text-gray-500 hover:text-teal-600 flex items-center py-1 px-6"
+                   to="/purchase-history"
+                   onClick={() => setDropdownOpen(!dropdownOpen)}
+                 >
+                   <PriceChangeIcon className="mr-2" />
+                   {t('dropdown.purchase-history')}
                  </Link>
                </li>
                {/* {renderThemeSwitcher} */}

@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 
-import { t } from 'i18next'
+import { useTranslation } from 'react-i18next'
 import React, { useMemo, useState } from 'react'
 import SearchIcon from '@mui/icons-material/Search'
 import SportsScoreIcon from '@mui/icons-material/SportsScore'
@@ -41,7 +41,7 @@ const ExamCard = ({
   const handleOpenModal = () => {
     setIsOpenModal(true)
   }
-
+  const { t } = useTranslation()
   const handleOkModal = () => {
     setIsOpenModal(false)
     if (onTestExam) {
@@ -56,7 +56,7 @@ const ExamCard = ({
       )
     }
     return t('homepage.filter.pending')
-  }, [status, attempted, numberOfAttempt])
+  }, [status, attempted, numberOfAttempt, t])
 
   const scoreText = useMemo(() => {
     if (!score) {
@@ -75,7 +75,7 @@ const ExamCard = ({
     } else {
       return `${t('homepage.limitTimeGuid')}: ${durationInMinute} ${t('homepage.minuteText')}`
     }
-  }, [durationInMinute])
+  }, [durationInMinute, t])
 
   const confirmMessage: any = useMemo(() => {
     return (
@@ -86,7 +86,7 @@ const ExamCard = ({
         <p>{duration}</p>
       </>
     )
-  }, [])
+  }, [t])
   return (
     <div className="relative w-full h-52 bg-white p-4 rounded-lg border border-gray-300 cursor-pointer transition ease-in-out duration-200 hover:shadow-md">
       <div className={`text-right text-lg ${status === 'tested' ? 'text-blue-500' : 'text-red-500'}`}>

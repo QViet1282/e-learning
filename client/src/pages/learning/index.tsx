@@ -27,7 +27,7 @@
 
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
-import { addNotification } from '../../redux/notification/notifySlice'
+// import { addNotification } from '../../redux/notification/notifySlice'
 import { Document, Page } from 'react-pdf'
 import 'react-pdf/dist/esm/Page/TextLayer.css'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
@@ -363,20 +363,21 @@ const Learning = () => {
   
           if (isLastLesson || isLastUncompletedLesson) {
             const responseMark = await markCourseAsDone({ courseId: courseData?.id })
-            const responseNoti = await createNotification({ title: 'Course completed', message: `Congratulations! ${courseData?.name} completed!`, url: '/myCourses' })
+            // const responseNoti = await createNotification({ title: 'Course completed', message: `Congratulations! ${courseData?.name} completed!`, url: '/myCourses' })
             console.log('responseMark', responseMark)
-            console.log('responseNoti', responseNoti)
-            if (responseMark && responseNoti) {
-              const data = {
-                id: responseNoti.data.recipients.recipientId,
-                notificationId: 1,
-                status: false,
-                updatedAt: new Date(),
-                createdAt: new Date(),
-                userId,
-                notificationDetails: { id: 1, title: 'Course completed', message: `Congratulations! ${courseData?.name} completed!`, url: '/myCourses', createdAt: new Date(), updatedAt: new Date() }
-              }
-              dispatch(addNotification(data))
+            // console.log('responseNoti', responseNoti)
+            // if (responseMark && responseNoti) {
+            if (responseMark) {
+              // const data = {
+              //   id: responseNoti.data.recipients.recipientId,
+              //   notificationId: 1,
+              //   status: false,
+              //   updatedAt: new Date(),
+              //   createdAt: new Date(),
+              //   userId,
+              //   notificationDetails: { id: 1, title: 'Course completed', message: `Congratulations! ${courseData?.name} completed!`, url: '/myCourses', createdAt: new Date(), updatedAt: new Date() }
+              // }
+              // dispatch(addNotification(data))
               toast.success('Congratulations! Course completed!')
             }
           }
@@ -829,7 +830,7 @@ const Learning = () => {
         enrollmentId: enrollData?.id,
       }
       addProgress(payload)
-        .then((response) => {
+        .then(async (response) => {
           if (response) {
             console.log('Progress added:', response)
             setCourseProgress([...courseProgress, payload])
@@ -853,14 +854,24 @@ const Learning = () => {
             const isLastUncompletedLesson = uncompletedLessons.length === 1 && uncompletedLessons[0].id === lession.id
     
             if (isLastLesson || isLastUncompletedLesson) {
-              markCourseAsDone({ courseId: courseData?.id }).then(() => {
-                createNotification({
-                  title: 'Course completed',
-                  message: `Congratulations! ${courseData?.name} completed!`,
-                  url: '/myCourses',
-                })
-                console.log('Course completed!')
-              })
+              const responseMark = await markCourseAsDone({ courseId: courseData?.id })
+              // const responseNoti = await createNotification({ title: 'Course completed', message: `Congratulations! ${courseData?.name} completed!`, url: '/myCourses' })
+              console.log('responseMark', responseMark)
+              // console.log('responseNoti', responseNoti)
+              // if (responseMark && responseNoti) {
+              if (responseMark) {
+              //   const data = {
+              //     id: responseNoti.data.recipients.recipientId,
+              //     notificationId: 1,
+              //     status: false,
+              //     updatedAt: new Date(),
+              //     createdAt: new Date(),
+              //     userId,
+              //     notificationDetails: { id: 1, title: 'Course completed', message: `Congratulations! ${courseData?.name} completed!`, url: '/myCourses', createdAt: new Date(), updatedAt: new Date() }
+              //   }
+                // dispatch(addNotification(data))
+                toast.success('Congratulations! Course completed!')
+              }
             }
           } else {
             console.error('Error adding progress')

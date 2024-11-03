@@ -3,11 +3,15 @@
     "welcome-to-react": "Welcome to React and react-i18next",
     "navbar": {
       "homepage": "Home",
-      "posts": "Bài viết",
+      "posts": "Posts",
       "about_us": "About",
       "contact_us": "Contact us",
       "sign_out": "Log out",
-      "cart": "Cart"
+      "cart": "Cart",
+      "vietnamese": "Vietnamese",
+      "english": "English",
+      "login": "Login",
+      "signup": "Sign up"
     },
     "dropdown": {
       "darkTheme": "Dark Mode",
@@ -18,7 +22,8 @@
       "mycourse": "My courses",
       "blog": "Blog",
       "logout": "Log out",
-      "gottoadmin": "Go to Admin"
+      "gottoadmin": "Go to Admin",
+      "purchase-history": "Purchase history"
     },
     "login": {
       "welcome": "Welcome",
@@ -107,22 +112,15 @@
         "otp_is_invalid": "OTP is invalid"
       }
     },
-    "footer":{
-      "introduction":"The company specializes in handling Offshore Japan and providing agricultural software for the Vietnamese market.",
-      "our_product": "Our products",
-      "nksxff": "FaceFarm production log",
-      "kthtxWC": "WACA Cooperative Accounting",
-      "quick_links": "Useful links",
-      "overview": "Overview",
-      "human_resource": "Human resource",
-      "recruitment": "Recruitment",
+    "footer": {
+      "about_us": "About Us",
+      "about_us_text": "We are a company dedicated to providing the best services.",
+      "quick_links": "Quick Links",
+      "services": "Services",
       "contact": "Contact",
-      "compliance": "Compliance",
-      "sdgS": "SDGs",
-      "contact_with_us": "Contact with us",
-      "address": "9th Floor, Tuoi Tre Building, 60A Hoang Van Thu, Ward 9, Phu Nhuan District, City. Ho Chi Minh",
-      "facebook": "Facebook",
-      "youtube": "Youtube"
+      "privacy_policy": "Privacy Policy",
+      "follow_us": "Follow Us",
+      "rights_reserved": "All rights reserved."
     },
     "sidebar":{
       "pages": "Pages",
@@ -155,7 +153,7 @@
       "freeCourse":"Free Course",
       "findByCourseName":"Find by course name",
       "all_courses": "All courses",
-      "filter_title_course": "List Courses",
+      "filter_title_course": "Course Category",
       "empty_data": "Empty data",
       "empty_data_course": "Empty data",
       "filter_placeholder_search": "Test's name",
@@ -163,10 +161,10 @@
       "test": "Test",
       "scoreLabel": "Scores",
       "minuteText": "minute",
-      "limitTimeGuid": "Thời gian làm bài",
+      "limitTimeGuid": "Test Duration",
       "limitTimeCourse": "Course Duration",
-      "noTimeLimited": "không giới hạn",
-      "modal_test_title": "Làm bài thi",
+      "noTimeLimited": "No Time Limit",
+      "modal_test_title": "Take the Test",
       "modal_test_description": "Make sure to take the test?",
       "start": "Start",
       "study": "Study",
@@ -177,10 +175,9 @@
       "another_time": "Another time",
       "from_label": "From",
       "to_label": "To",
-      "getStarted": "Get Started",
-      "learnMore": "Learn More",
-      "welcome":"The Best Online Course You'll Find",
-      "description":"For anyone starting out as a data analyst, this is a great introduction and is very inspiring. The content was well paced and was accessible to people just starting out. I liked the variety of the assignments present in the program.",
+      "getStarted": "Start learning today",
+      "welcome": "Choose the optimal learning path for you",
+      "description": "With a carefully designed learning path, this is the perfect choice for you to access new and useful knowledge. The course content is diverse, from basic to advanced, suitable for all learners. Explore and conquer challenges to elevate yourself every day!",
       "learnerAreViewing":"Learners are viewing",
       "popularCategories":"Popular Categories",
       "trendingNow": "Trending Now",
@@ -198,7 +195,7 @@
       "explore":"Recently added",
       "showMore": "Show More",
       "viewAll": "View All",
-      "outComes": "Learner outcomes on Coursera",
+      "outComes": "Learner outcomes on VIETCODE",
       "footer1": "77% of learners report career benefits, such as new skills, increased pay, and new job opportunities.",
       "footer2": "2023 Coursera Learner Outcomes Report",
       "join": "Join for Free",
@@ -249,7 +246,11 @@
       "certificate_of_completion":"Certificate of Completion",
       "chapter2":"Chapter",
       "includes":"Includes",
-      "requirements":"Requirements"
+      "home": "Home",
+      "no_video": "This course doesn't have any video.",
+      "adding": "Adding...",
+      "enrolling": "Enrolling...",
+      "go_to_cart": "Go to Cart"
     },
     "learning": {
       "updated_at":"Updated at",
@@ -319,6 +320,70 @@
       "correctAnswerGuid": "Correct answer:",
       "previous": "Previous",
       "next": "Next"
+    },
+    "commentSection": {
+      "title": "Course review",
+      "out_of_5": "out of 5",
+      "reviews": "reviews",
+      "all": "All",
+      "no_reviews": "No reviews yet",
+      "edit_placeholder": "Edit review...",
+      "updating": "Updating...",
+      "update": "Update",
+      "cancel": "Cancel",
+      "date": "Date",
+      "edit": "Edit",
+      "deleting": "Deleting...",
+      "delete": "Delete",
+      "loading_more": "Loading more...",
+      "load_more": "Load more",
+      "add_new_review": "Add a new review",
+      "enter_review": "Enter your review",
+      "adding": "Adding...",
+      "add_review": "Add Review"
+    },
+    "mycourse": {
+      "myCourse": "My Courses",
+      "enrolledCourses": "Enrolled Courses",
+      "activeCourses": "Active Courses",
+      "completedCourses": "Completed Courses",
+      "continueLearning": "Continue learning",
+      "learnAgain": "Learn again",
+      "haventLearnYet": "You haven't learned any course yet",
+      "progress": "Progress",
+      "addCourse": "Add Course",
+      "studied_at": "Studied",
+      "today": "today",
+      "1_day_ago": "1 day ago",
+      "days_ago": "days ago",
+      "one_month_ago": "1 month ago",
+      "months_ago": "months ago",
+      "half_month_ago": "haft month ago",
+      "one_year_ago": "1 year ago",
+      "years_ago": "years ago",
+      "haventStudyYet": "You haven't studied this course yet"
+    },
+    "cart": {
+      "title": "Shopping Cart",
+      "courses_in_cart": "courses in cart",
+      "empty_cart_message": "Your cart is empty. Keep shopping to find a course!",
+      "continue_shopping": "Continue Shopping",
+      "by": "By",
+      "removing": "Removing...",
+      "remove": "Remove",
+      "total": "Total",
+      "checkout": "Checkout"
+    },
+    "purchaseHistory": {
+      "title": "Purchase History",
+      "no_orders": "You have no purchase history.",
+      "order": "Order",
+      "payment_info": "Payment Information",
+      "payment_time": "Payment Time",
+      "payment_method": "Method",
+      "amount": "Amount",
+      "purchased_courses": "Purchased Courses",
+      "price": "Price"
     }
   }
 }
