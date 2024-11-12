@@ -1,3 +1,4 @@
+
 export type CourseItem = Record<string, any>
 
 export interface DataListCourse {
@@ -40,7 +41,7 @@ export interface newStudyItemAndLession {
 export interface newStudyItemAndExam {
   lessionCategoryId: number | undefined
   name: string
-  description: string
+  description: any
   itemType: 'exam'
   createrId: number | undefined
   numberOfAttempt: number | undefined

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
+/* eslint-disable @typescript-eslint/no-redeclare */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -18,6 +20,14 @@ import { editCourseItem } from 'api/put/put.interface'
 import { editCourse } from 'api/put/put.api'
 import VideoOverview from './components/VideoOverview'
 
+import BlotFormatter from 'quill-blot-formatter'
+import { ImageActions } from '@xeger/quill-image-actions'
+import { ImageFormats } from '@xeger/quill-image-formats'
+
+Quill.register('modules/blotFormatter', BlotFormatter)
+
+Quill.register('modules/imageActions', ImageActions)
+Quill.register('modules/imageFormats', ImageFormats)
 interface OverviewProps {
   courseId?: number
   categoryCourseId?: number
@@ -27,6 +37,42 @@ interface OverviewProps {
   videoLocationPath?: string
   fetchCourse: () => Promise<void>
 }
+
+const ImageFormat = Quill.import('formats/image')
+class CustomImageBlot extends ImageFormat {
+  static create (value: any) {
+    const node = super.create(value)
+    return node
+  }
+
+  static formats (node: any) {
+    console.log('Image attributes:', {
+      src: node.getAttribute('src'),
+      height: node.getAttribute('height'),
+      width: node.getAttribute('width'),
+      // margin: node.getAttribute('margin'),
+      // float: node.getAttribute('float'),
+      'data-align': node.getAttribute('data-align'),
+      style: node.getAttribute('style')
+    })
+    return {
+      src: node.getAttribute('src'),
+      height: node.getAttribute('height'),
+      width: node.getAttribute('width'),
+      // margin: node.getAttribute('margin'),
+      // float: node.getAttribute('float'),
+      'data-align': node.getAttribute('data-align'),
+      style: node.getAttribute('style')
+    }
+  }
+}
+Quill.register(CustomImageBlot, true)
+
+// Mặc định h3 cho quill
+const Parchment = Quill.import('parchment')
+const Block = Quill.import('blots/block')
+Block.tagName = 'H3'
+Quill.register(Block, true)
 
 const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, name, summary, locationPath, videoLocationPath, fetchCourse }) => {
   const [isEditing, setIsEditing] = useState<boolean>(false)
@@ -39,6 +85,64 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
     locationPath,
     videoLocationPath
   })
+
+  const formats = [
+    'align',
+    'bold',
+    'code-block',
+    'color',
+    'float',
+    'height',
+    'image',
+    'italic',
+    'link',
+    'list',
+    'placeholder',
+    'calltoaction',
+    'size',
+    'underline',
+    'width'
+  ]
+  const modules = useMemo(
+    () => ({
+      imageActions: {},
+      imageFormats: {},
+      history: {
+        delay: 500,
+        maxStack: 100,
+        userOnly: true
+      },
+      toolbar: [
+        [{ font: [] }],
+        [{ size: ['small', false, 'large', 'huge'] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
+        ['link', 'image']
+      ],
+      imageUploader: {
+        upload: async (file: File) => {
+          try {
+            const resizedImage = await resizeAndCompressImage(file, 1200, 1200)
+            const formData = new FormData()
+            formData.append('file', resizedImage)
+            formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
+
+            const response = await axios.post(
+              `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/upload`,
+              formData
+            )
+
+            return response.data.secure_url
+          } catch (error) {
+            console.error('Lỗi upload ảnh:', error)
+            throw new Error('Upload ảnh thất bại.')
+          }
+        }
+      },
+      blotFormatter: {}
+    }),
+    []
+  )
 
   useEffect(() => {
     if (courseId != null) {
@@ -150,7 +254,6 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
     const formData = new FormData()
     formData.append('file', image)
     formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
-
     const response = await axios.post(
       `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/image/upload`,
       formData
@@ -185,49 +288,13 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
       console.error('Lỗi khi cập nhật khóa học:', error)
     }
   }
-  // Mặc định h3 cho quill
-  const Parchment = Quill.import('parchment')
-  const Block = Quill.import('blots/block')
-  Block.tagName = 'H3'
-  Quill.register(Block, true)
 
-  const modules = useMemo(
-    () => ({
-      toolbar: [
-        [{ font: [] }],
-        [{ size: ['small', false, 'large', 'huge'] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
-        ['link', 'image']
-      ],
-      imageUploader: {
-        upload: async (file: File) => {
-          try {
-            const resizedImage = await resizeAndCompressImage(file, 1200, 1200)
-            const formData = new FormData()
-            formData.append('file', resizedImage)
-            formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
+  // useEffect(() => {
+  //   console.log('Updated Course:', updatedCourse)
+  // }, [updatedCourse])
 
-            const response = await axios.post(
-              `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/upload`,
-              formData
-            )
-
-            return response.data.secure_url
-          } catch (error) {
-            console.error('Lỗi upload ảnh:', error)
-            throw new Error('Upload ảnh thất bại.')
-          }
-        }
-      },
-      resize: { locale: {} }
-    }),
-    []
-  )
-
-  useEffect(() => {
-    console.log('Updated Course:', updatedCourse)
-  }, [updatedCourse])
+  console.log('data', summary)
+  console.log('data2', updatedCourse.summary)
 
   return (
     <div className="flex flex-col w-full max-w-6xl mx-auto">
@@ -243,17 +310,17 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
               <label className="text-xl font-medium mb-2 flex items-center">
                 Hình ảnh khóa học
                 {/* {isEditing && ( */}
-                  <div className='ml-2'>
-                    <label className="cursor-pointer">
-                      <CloudUpload fontSize="large" />
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        hidden
-                      />
-                    </label>
-                  </div>
+                <div className='ml-2'>
+                  <label className="cursor-pointer">
+                    <CloudUpload fontSize="large" />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      hidden
+                    />
+                  </label>
+                </div>
                 {/* )} */}
               </label>
               <div className='flex'>
@@ -373,9 +440,15 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
                 }
               }}
               readOnly={!isEditing}
+              formats={formats}
               className="w-full pb-0 bg-white"
               modules={modules} // Chỉ định modules khi đang ở chế độ chỉnh sửa
             />
+            <div className="ql-editor" data-gramm="false">
+              <div
+              dangerouslySetInnerHTML={{ __html: updatedCourse?.summary ?? '' }}
+            />
+            </div>
           </div>
         </>
       </div >

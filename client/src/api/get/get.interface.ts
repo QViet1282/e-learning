@@ -90,13 +90,30 @@ export interface Course {
 }
 
 export interface GetAllCourseParams {
-  page?: number // Số trang
-  limit?: number // Giới hạn số bản ghi
-  categoryCourseId?: number // ID của danh mục khóa học
-  status?: string // Trạng thái
-  priceMin?: number // Giá tối thiểu
-  priceMax?: number // Giá tối đa
-  durationMin?: number // Thời gian tối thiểu
-  durationMax?: number // Thời gian tối đa
-  name?: string // Tên khóa học
+  page?: number
+  limit?: number
+  categoryCourseId?: number
+  status?: string
+  priceMin?: number
+  priceMax?: number
+  durationMin?: number
+  durationMax?: number
+  name?: string
+}
+
+// types.ts
+export interface Role {
+  id: number
+  name: string
+  description: string
+}
+
+export interface User {
+  [x: string]: any
+  id: number
+  firstName?: string
+  lastName?: string
+  email?: string
+  avatar?: string
+  Role?: Role
 }

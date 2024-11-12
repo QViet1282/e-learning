@@ -14,12 +14,15 @@ import React, { useState } from 'react'
 import { BiHomeAlt, BiInfoCircle, BiMoviePlay } from 'react-icons/bi'
 import NavItem from './NavItem'
 import CourseManagementPage from './course/CourseManagement'
+import NotificationManager from './notification'
+import UserManagementPage from './user'
+import StatisticsPage from './statistics'
 
 const defaultIconSize = '1.875rem'
 
 const items = [
   { label: 'Course Management', icon: <BiHomeAlt size={defaultIconSize} />, path: '/course' },
-  { label: 'Exam Management', icon: <BiMoviePlay size={defaultIconSize} />, path: '/exam' },
+  { label: 'Notification Management', icon: <BiMoviePlay size={defaultIconSize} />, path: '/exam' },
   { label: 'Statistical Management', icon: <BiInfoCircle size={defaultIconSize} />, path: '/statistical' },
   { label: 'User Management', icon: <BiInfoCircle size={defaultIconSize} />, path: '/user' }
 ]
@@ -40,11 +43,11 @@ const ManagementPage = () => {
       case '/course':
         return <><CourseManagementPage/></>
       case '/exam':
-        return <div>Content</div>
+        return <><NotificationManager/></>
       case '/statistical':
-        return <div>Content</div>
+        return <><StatisticsPage /></>
       case '/user':
-        return <div>Content</div>
+        return <><UserManagementPage/></>
       default:
         return <div>Content</div>
     }

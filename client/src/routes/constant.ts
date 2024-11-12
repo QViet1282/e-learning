@@ -8,6 +8,7 @@ const ROUTES = {
   login: '/login',
   course: '/course',
   management: '/management',
+  lectuterDashboard: '/dashboard/lectuter',
   detailCourse: '/management/detail-course',
   temp: '/management/temp',
   signup: '/signup',
