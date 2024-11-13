@@ -125,26 +125,6 @@ async function checkAndUpdateUserRole (req, res, next) {
   }
 }
 
-// edit user
-router.put('/:id', isAuthenticated, checkAndUpdateUserRole)
-
-// find user by id
-router.get('/:id', isAuthenticated, async (req, res) => {
-  try {
-    const { id } = req.params
-    const user = await models.User.findByPk(id)
-    if (!user) {
-      logError(req, MASSAGE.USER_NOT_FOUND)
-      return res.status(404).json({ message: MASSAGE.USER_NOT_FOUND })
-    }
-    logInfo(req, user)
-    res.json(user)
-  } catch (error) {
-    logError(req, error)
-    res.status(500).json({ message: MASSAGE.USER_NOT_FOUND })
-  }
-})
-
 router.get('/getEnrollmentUserByCourseId/:courseId', isAuthenticated, async (req, res) => {
   try {
     const courseId = req.params.courseId
@@ -218,6 +198,99 @@ router.get('/getEnrollmentUserByCourseId/:courseId', isAuthenticated, async (req
   } catch (error) {
     logError(req, error)
     res.status(500).json({ message: 'Có lỗi xảy ra khi lấy danh sách học viên', error })
+  }
+})
+
+router.get('/getUsers', isAuthenticated, async (req, res) => {
+  try {
+    const { page = 1, limit = 10, search = '', role } = req.query
+
+    const pageNumber = parseInt(page, 10)
+    const limitNumber = parseInt(limit, 10)
+    const offset = (pageNumber - 1) * limitNumber
+
+    const searchConditions = search
+      ? {
+          [Op.or]: [
+            { firstName: { [Op.like]: `%${search}%` } },
+            { lastName: { [Op.like]: `%${search}%` } },
+            { email: { [Op.like]: `%${search}%` } }
+          ]
+        }
+      : undefined
+
+    const roleCondition = role ? { id: role } : {}
+
+    const totalUsers = await models.User.count({
+      where: searchConditions, // Chỉ áp dụng điều kiện tìm kiếm
+      include: [
+        {
+          model: models.Role,
+          where: roleCondition || undefined,
+          required: roleCondition !== undefined
+        }
+      ]
+    })
+
+    const totalPages = Math.ceil(totalUsers / limitNumber)
+
+    // Lấy danh sách người dùng
+    const users = await models.User.findAll({
+      where: searchConditions, // Sử dụng điều kiện tìm kiếm
+      attributes: ['id', 'firstName', 'lastName', 'email', 'avatar', 'gender', 'age'],
+      include: [
+        {
+          model: models.Role,
+          attributes: ['id', 'name', 'description'],
+          where: roleCondition,
+          required: roleCondition !== undefined
+        }
+      ],
+      offset,
+      limit: limitNumber,
+      order: [['firstName', 'ASC']]
+    })
+
+    res.json({
+      data: users,
+      meta: {
+        currentPage: pageNumber,
+        totalPages,
+        totalUsers
+      }
+    })
+  } catch (error) {
+    console.error('Lỗi khi lấy danh sách users:', error)
+    res.status(500).json({ message: 'Lỗi khi lấy danh sách users' })
+  }
+})
+
+// edit user
+router.put('/:id', isAuthenticated, checkAndUpdateUserRole)
+
+// find user by id
+router.get('/:id', isAuthenticated, async (req, res) => {
+  try {
+    const { id } = req.params
+    const user = await models.User.findByPk(id, {
+      include: [
+        {
+          model: models.Role,
+          attributes: ['id', 'name', 'description']
+        }
+      ]
+    })
+
+    if (!user) {
+      logError(req, MASSAGE.USER_NOT_FOUND)
+      return res.status(404).json({ message: MASSAGE.USER_NOT_FOUND })
+    }
+
+    logInfo(req, user)
+    res.json(user)
+  } catch (error) {
+    logError(req, error)
+    res.status(500).json({ message: MASSAGE.USER_NOT_FOUND })
   }
 })
 

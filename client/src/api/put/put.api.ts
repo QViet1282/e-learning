@@ -59,3 +59,10 @@ export const updateCourseStatus = async (courseId: number | undefined, payload: 
   }
   return await requestWithJwt.put<any>(`/courses/updateCourseStatus/${courseId}`, payload, { withCredentials: true })
 }
+
+export const deleteNotification = async (id: number | undefined): Promise<AxiosResponse<any>> => {
+  if (id === undefined) {
+    throw new Error('notificationId cannot be undefined')
+  }
+  return await requestWithJwt.put<any>(`/notifications/edit/${id}`, { isDeleted: true }, { withCredentials: true })
+}

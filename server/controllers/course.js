@@ -16,9 +16,9 @@ const { duration } = require('moment-timezone')
  *****************************/
 
 router.get('/getAllCourseInfo', isAuthenticated, async (req, res) => {
-  const page = parseInt(req.query.page) || 1 // Lấy số trang, mặc định là 1
-  const limit = parseInt(req.query.limit) || 10 // Lấy giới hạn số bản ghi trên mỗi trang, mặc định là 10
-  const offset = (page - 1) * limit // Tính toán offset
+  const page = parseInt(req.query.page) || 1
+  const limit = parseInt(req.query.limit) || 10
+  const offset = (page - 1) * limit
 
   // Lấy các tham số lọc từ query
   const { categoryCourseId, status, priceMin, priceMax, durationMin, durationMax, name } = req.query
@@ -87,6 +87,24 @@ router.get('/getAllCourseInfo', isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error(err)
     res.status(500).json({ message: jsonError })
+  }
+})
+
+router.get('/getAllCourseByTeacher', isAuthenticated, async (req, res) => {
+  const { teacherId } = req.query
+  const teacherIdToUse = teacherId || req.user.id
+
+  try {
+    const courses = await models.Course.findAll({
+      where: { assignedBy: teacherIdToUse },
+      attributes: ['id', 'categoryCourseId', 'name', 'durationInMinute', 'locationPath', 'price', 'status']
+    })
+
+    res.status(200).json(courses)
+  } catch (err) {
+    logError(req, err)
+    console.error(err)
+    res.status(500).json({ message: 'Lỗi khi lấy dữ liệu giáo viên và khóa học' })
   }
 })
 
