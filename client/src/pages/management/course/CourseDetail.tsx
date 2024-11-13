@@ -65,7 +65,7 @@ export default function CourseDetailPage (): JSX.Element {
       case 'Kết quả các bài trắc nghiệm':
         return <DoExamList courseId={courseId} />
       case 'Thông báo':
-        return <Notification />
+        return <Notification courseId={courseId}/>
       case 'Thống kê':
         return <Statistics courseId={courseId}/>
       default:

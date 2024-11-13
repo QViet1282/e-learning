@@ -506,7 +506,7 @@ const StatisticsPage: React.FC = () => {
                 </div>
 
                 <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h3 className="text-2xl font-semibold text-center mb-4">Top khóa học có doanh thu cao</h3>
+                    <h3 className="text-2xl font-semibold text-center mb-4">Top giảng viên có doanh thu cao</h3>
                     <div className="space-y-4">
                         {topEarningTeachers.map((teacher, index) => (
                             <div key={index} className={`p-4 border rounded-lg shadow flex items-center ${index < 3 ? 'bg-yellow-100' : 'bg-gray-100'}`}>

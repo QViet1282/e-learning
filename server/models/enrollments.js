@@ -11,9 +11,9 @@ const Enrollment = sequelize.define(
       unique: true,
       primaryKey: true
     },
-    courseId: {
-      type: DataTypes.BIGINT,
-      allowNull: false
+    publicDate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
     },
     orderId: {
       type: DataTypes.BIGINT,

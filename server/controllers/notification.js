@@ -158,13 +158,19 @@ router.put('/markAllAsUnread', isAuthenticated, async (req, res) => {
 })
 
 router.post('/createAndReplicateNotification', isAuthenticated, async (req, res) => {
-  const { title, message, url } = req.body.data
+  const { title, message, url, notifyAt, courseId } = req.body.data
 
   try {
     const users = await models.User.findAll({ attributes: ['id'] })
     const userIds = users.map((user) => user.id)
 
-    const notification = await models.Notification.create({ title, message, url: url !== '' ? url : null })
+    const notification = await models.Notification.create({
+      title,
+      message,
+      url: url !== '' ? url : null,
+      notifyAt: notifyAt ? new Date(notifyAt) : Date.now(),
+      courseId: courseId ?? null
+    })
 
     const recipients = userIds.map((userId) => ({
       notificationId: notification.id,
@@ -185,6 +191,7 @@ router.post('/createAndReplicateNotification', isAuthenticated, async (req, res)
     res.status(500).json({ message: 'Internal server error' })
   }
 })
+
 
 router.get('/getAllNotification', isAuthenticated, async (req, res) => {
   const { page = 1, limit = 10, search = '' } = req.query

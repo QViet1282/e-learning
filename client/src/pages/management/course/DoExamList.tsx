@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { getExamsByCourseId } from 'api/get/get.api' // Thay đổi đường dẫn API cho phù hợp
 import { IconButton } from '@mui/material'
 import { Refresh } from '@mui/icons-material'
+import Pagination from './components/Pagination'
 
 interface DoExamProps {
   courseId?: number
@@ -58,6 +59,10 @@ const DoExamList: React.FC<DoExamProps> = ({ courseId }) => {
     setSearchQuery('')
     setPage(1) // Đặt lại trang về 1 khi tải lại
     void fetchExams(1, '') // Tải lại danh sách bài kiểm tra
+  }
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage)
   }
 
   return (
@@ -118,15 +123,11 @@ const DoExamList: React.FC<DoExamProps> = ({ courseId }) => {
           </div>
         )}
 
-        <div className="flex justify-between mt-4">
-          <button onClick={() => setPage((prev) => Math.max(prev - 1, 1))} disabled={page === 1}>
-            Previous
-          </button>
-          <span>Page {page} of {totalPages}</span>
-          <button onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))} disabled={page === totalPages}>
-            Next
-          </button>
-        </div>
+<Pagination
+        currentPage={page}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
       </div>
     </div>
   )

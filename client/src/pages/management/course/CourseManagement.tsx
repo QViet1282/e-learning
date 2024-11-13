@@ -200,14 +200,14 @@ const CourseManagementPage = (): JSX.Element => {
             className="md:w-72 h-12 w-full bg-white border border-gray-300 rounded-md items-center px-2"
           />
           <button
-            className="bg-teal-600 w-1/3 md:w-28 h-12 font-sans text-white font-bold rounded hover:bg-teal-500 items-center justify-center flex"
+            className="bg-teal-600 w-2/5 md:w-28 h-12 font-sans text-white font-bold rounded hover:bg-teal-500 items-center justify-center flex"
             onClick={handleSearch}
           >
             Tìm kiếm
           </button>
 
           <button
-            className="bg-teal-600 w-1/3 md:w-28 h-12 font-sans text-white font-bold rounded hover:bg-teal-500 items-center justify-center flex"
+            className="bg-teal-600 w-2/5 md:w-28 h-12 font-sans text-white font-bold rounded hover:bg-teal-500 items-center justify-center flex"
             onClick={() => setOpen(true)}
           >
             Add Course
