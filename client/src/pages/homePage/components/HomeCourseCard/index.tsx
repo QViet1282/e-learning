@@ -48,6 +48,10 @@ const HomeCourseCard = ({
 }: Props): ReactElement => {
   const [isEnrolled, setIsEnrolled] = useState(false)
   const navigate = useNavigate()
+
+  // Kiểm tra nếu người dùng đã đăng nhập dựa trên token trong localStorage
+  const isAuthenticated = !!getFromLocalStorage<any>('tokens')?.accessToken
+
   const courseDetailView = useMemo(() => {
     return `/courses/${id}`
   }, [id])
@@ -55,8 +59,15 @@ const HomeCourseCard = ({
   const handleCourseClick = () => {
     navigate(courseDetailView, { state: { assignedBy: assignedBy } })
   }
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+  }
+
   const priceText = useMemo(() => {
-    return Number(price) !== 0 ? `${price}` : t('homepage.free')
+    if (Number(price) !== 0) {
+      return formatCurrency(Number(price))
+    }
+    return t('homepage.free')
   }, [price])
 
   // Tạo các sao dựa trên giá trị `rating`
@@ -138,8 +149,10 @@ const HomeCourseCard = ({
         }
       }
     }
-    checkEnrollment()
-  }, [id])
+    if (isAuthenticated) {
+      checkEnrollment()
+    }
+  }, [id, isAuthenticated])
   // useEffect(() => {
   //   const checkEnrollment = async () => {
   //     if (id) {
@@ -182,7 +195,7 @@ const HomeCourseCard = ({
         <div className='w-full rounded-t-md h-40 overflow-hidden'>
           {/* <img className="w-full h-full object-cover rounded-t-md transition-transform duration-700 hover:scale-110" src={locationPath ? `assets/image/${locationPath}` : 'https://picsum.photos/200/300'} width="286" height="160" alt="CourseImage" /> */}
 
-          <img className="w-full h-full object-cover rounded-t-md transition-transform duration-700 hover:scale-110" src={locationPath ? require(`../../../../assets/images/uploads/courses/${locationPath}`) : 'https://picsum.photos/200/300'} width="286" height="160" alt="CourseImage" />
+          <img className="w-full h-full object-cover rounded-t-md transition-transform duration-700 hover:scale-110" src={locationPath ?? 'https://picsum.photos/200/300'} width="286" height="160" alt="CourseImage" />
         </div>
         {/* Card Content */}
         <div className="grow flex flex-col p-5">
@@ -199,7 +212,7 @@ const HomeCourseCard = ({
                 <div className="inline-flex text-sm font-medium text-amber-600 mt-1">{averageRating.toFixed(1)}</div>
               </div>
               <div>
-                <div className="inline-flex text-sm font-bold bg-emerald-100 text-emerald-600 rounded-full text-center px-2 py-0.5">  {Number(price) === 0 ? t('homepage.free') : `${price} VND`}</div>
+                <div className="inline-flex text-sm font-bold bg-emerald-100 text-emerald-600 rounded-full text-center px-2 py-0.5"> {Number(priceText) === 0 ? t('homepage.free') : `${priceText}`}</div>
               </div>
             </div>
             {/* Features list */}

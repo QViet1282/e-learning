@@ -22,7 +22,7 @@ const cartController = require('./controllers/cart')
 const paymentController = require('./controllers/payment')
 const roleController = require('./controllers/role')
 const statisticsController = require('./controllers/statistics')
-
+const enrollmentController = require('./controllers/enrollment')
 const seedDatabase = require('./seeds/index')
 const { API_PREFIX } = require('./utils')
 
@@ -67,6 +67,7 @@ app.use(`${API_PREFIX}/cart`, cartController)
 app.use(`${API_PREFIX}/payment`, paymentController)
 app.use(`${API_PREFIX}/roles`, roleController)
 app.use(`${API_PREFIX}/statistics`, statisticsController)
+app.use(`${API_PREFIX}/enrollments`, enrollmentController)
 
 async function startServer () {
   try {

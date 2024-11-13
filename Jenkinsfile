@@ -26,6 +26,7 @@ pipeline {
                         sh 'pm2 delete all || true' 
                         sh 'pm2 start yarn --name "myapp" -- start' 
                         sh 'pm2 save' 
+                        sh 'pm2 monit'
                     }
             }
         } 

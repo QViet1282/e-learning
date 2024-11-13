@@ -5,36 +5,11 @@ const { sequelize } = require('../models')
 const { isAuthenticated } = require('../middlewares/authentication')
 const jsonError = 'Internal server error'
 const router = express.Router()
-const { infoLogger, errorLogger } = require('../logs/logger')
 // const { INTEGER } = require('sequelize')
 const { Op, fn, col } = require('sequelize')
 const CategoryCourse = require('../models/category_course')
 const StudyItem = require('../models/study_item')
 const { duration } = require('moment-timezone')
-
-function logError (req, error) {
-  const request = req.body.data ? req.body.data : (req.params ? req.params : req.query)
-  errorLogger.error({
-    message: `Error ${req.path}`,
-    method: req.method,
-    endpoint: req.path,
-    request,
-    error: error.message,
-    user: req.user.id
-  })
-}
-
-function logInfo (req, response) {
-  const request = req.body.data ? req.body.data : (req.params ? req.params : req.query)
-  infoLogger.info({
-    message: `Accessed ${req.path}`,
-    method: req.method,
-    endpoint: req.path,
-    request,
-    response,
-    user: req.user.id
-  })
-}
 
 /*****************************
  * ROUTES FOR COURSE
@@ -110,7 +85,6 @@ router.get('/getAllCourseInfo', isAuthenticated, async (req, res) => {
       courses: rows // Trả về danh sách khóa học
     })
   } catch (err) {
-    logError(req, err)
     console.error(err)
     res.status(500).json({ message: jsonError })
   }
@@ -150,10 +124,8 @@ router.get('/getCourseById/:courseId', isAuthenticated, async (req, res) => {
       return res.status(404).json({ message: 'Không tìm thấy khóa học' })
     }
 
-    logInfo(req, course)
     res.status(200).json(course)
   } catch (err) {
-    logError(req, err)
     console.error(err)
     res.status(500).json({ message: 'Lỗi hệ thống, vui lòng thử lại sau.' })
   }
@@ -180,10 +152,8 @@ router.post('/createNewCourse', isAuthenticated, async (req, res) => {
       prepare: '',
       locationPath: 'https://res.cloudinary.com/dessdbtlz/image/upload/v1729450216/elearning/pte9tzf5b40ozaoqbjae.webp'
     })
-    logInfo(req, newCourse)
     res.status(201).json(newCourse)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ error: jsonError })
   }
 })
@@ -230,10 +200,8 @@ router.put('/editCourse/:courseId', isAuthenticated, async (req, res) => {
       status
     })
 
-    logInfo(req, course)
     res.status(200).json(course)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -309,7 +277,6 @@ router.put('/updateCourseStatus/:courseId', isAuthenticated, async (req, res) =>
     res.status(200).json({ message: 'Status updated successfully', course })
   } catch (error) {
     await transaction.rollback() // Hoàn tác nếu có lỗi
-    logError(req, error)
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -349,10 +316,8 @@ router.get('/getCategoryLessionByCourse/:courseId', isAuthenticated, async (req,
       order: [['order', 'ASC']]
     })
 
-    logInfo(req, categories)
     res.status(200).json(categories)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ error: jsonError })
   }
 })
@@ -373,11 +338,8 @@ router.post('/createCategoryLession', isAuthenticated, async (req, res) => {
       status: typeof status !== 'undefined' ? status : 0
     })
 
-    logInfo(req, newCategoryLession)
-
     return res.status(201).json(newCategoryLession)
   } catch (error) {
-    logError(req, error)
     return res.status(500).json({ error: jsonError })
   }
 })
@@ -398,10 +360,8 @@ router.post('/updateCategoryLession', isAuthenticated, async (req, res) => {
       return res.status(404).json({ error: 'CategoryLession not found' })
     }
 
-    logInfo(req, categoryLession)
     res.status(200).json(categoryLession)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ error: jsonError })
   }
 })
@@ -465,7 +425,6 @@ router.put('/updateCategoryLessionOrder', isAuthenticated, async (req, res) => {
     res.status(200).json({ message: 'Study item order updated successfully' })
   } catch (error) {
     await transaction.rollback()
-    logError(req, error)
     res.status(500).json({ error: 'An error occurred while updating study item order' })
   }
 })
@@ -498,10 +457,8 @@ router.get('/getStudyItemByCategoryLessionId/:lessionCategoryId', isAuthenticate
       return res.status(404).json({ error: 'StudyItem not found' })
     }
 
-    logInfo(req, studyItemDetails)
     res.status(200).json(studyItemDetails)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ error: 'An error occurred while fetching study item details' })
   }
 })
@@ -566,7 +523,6 @@ router.put('/updateStudyItemOrder', isAuthenticated, async (req, res) => {
     res.status(200).json({ message: 'Study item order updated successfully' })
   } catch (error) {
     await transaction.rollback()
-    logError(req, error)
     res.status(500).json({ error: 'An error occurred while updating study item order' })
   }
 })
@@ -588,18 +544,18 @@ router.get('/myCoursesDone', isAuthenticated, async (req, res) => {
     const [allCourses, allUsers, orders, categoryCourse, enrollmentCounts, lessonCounts] = await Promise.all([
       models.Course.findAll(),
       models.User.findAll(),
-      models.Order.findAll({ where: { userId: loginedUserId }, attributes: ['id'] }),
+      models.Order.findAll({ where: { userId: loginedUserId, status: 1 }, attributes: ['id'] }), // Fix_1001
       getCourseCategory(),
-      models.Enrollment.count({ group: ['courseId'] }),
+      models.Enrollment.count({ where: { status: 1 }, group: ['courseId'] }), // Đếm số lượng Enrollment với status là 1 // Fix_1001
       fetchLessonCounts()
     ])
 
     // Lấy danh sách orderId từ orders
     const orderIds = orders.map(order => order.id)
 
-    // Truy vấn tất cả các Enrollment bằng orderIds
+    // Truy vấn tất cả các Enrollment bằng orderIds và kiểm tra status // Fix_1001
     const enrollments = await models.Enrollment.findAll({
-      where: { orderId: orderIds },
+      where: { orderId: orderIds, status: 1 },
       order: [['id', 'DESC']]
     })
 
@@ -613,7 +569,8 @@ router.get('/myCoursesDone', isAuthenticated, async (req, res) => {
     const userEnrollments = await models.Enrollment.findAll({
       where: {
         orderId: orderIds,
-        courseId: filteredCourses.map(course => course.id)
+        courseId: filteredCourses.map(course => course.id),
+        status: 1
       }
     })
 
@@ -624,7 +581,6 @@ router.get('/myCoursesDone', isAuthenticated, async (req, res) => {
     const dataAfterSearch = applyFilters(dataFromDatabase, searchCondition, startDate, endDate, categoryCondition)
     const dataOfCurrentWindow = paginateData(dataAfterSearch, size, page)
 
-    logInfo(req, dataOfCurrentWindow)
     res.json({
       page: Number(page),
       size: Number(size),
@@ -632,7 +588,6 @@ router.get('/myCoursesDone', isAuthenticated, async (req, res) => {
       data: dataOfCurrentWindow
     })
   } catch (error) {
-    logError(req, error)
     console.log(error)
     res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách khóa học.' })
   }
@@ -654,18 +609,18 @@ router.get('/myCoursesActive', isAuthenticated, async (req, res) => {
     const [allCourses, allUsers, orders, categoryCourse, enrollmentCounts, lessonCounts] = await Promise.all([
       models.Course.findAll(),
       models.User.findAll(),
-      models.Order.findAll({ where: { userId: loginedUserId }, attributes: ['id'] }),
+      models.Order.findAll({ where: { userId: loginedUserId, status: 1 }, attributes: ['id'] }), // Fix_1001
       getCourseCategory(),
-      models.Enrollment.count({ group: ['courseId'] }),
+      models.Enrollment.count({ where: { status: 1 }, group: ['courseId'] }), // Đếm số lượng Enrollment với status là 1 // Fix_1001
       fetchLessonCounts()
     ])
 
     // Lấy danh sách orderId từ orders
     const orderIds = orders.map(order => order.id)
 
-    // Truy vấn tất cả các Enrollment bằng orderIds
+    // Truy vấn tất cả các Enrollment bằng orderIds và kiểm tra status // Fix_1001
     const enrollments = await models.Enrollment.findAll({
-      where: { orderId: orderIds },
+      where: { orderId: orderIds, status: 1 }, // Fix_1001
       order: [['id', 'DESC']]
     })
 
@@ -679,7 +634,8 @@ router.get('/myCoursesActive', isAuthenticated, async (req, res) => {
     const userEnrollments = await models.Enrollment.findAll({
       where: {
         orderId: orderIds,
-        courseId: filteredCourses.map(course => course.id)
+        courseId: filteredCourses.map(course => course.id),
+        status: 1
       }
     })
 
@@ -690,7 +646,6 @@ router.get('/myCoursesActive', isAuthenticated, async (req, res) => {
     const dataAfterSearch = applyFilters(dataFromDatabase, searchCondition, startDate, endDate, categoryCondition)
     const dataOfCurrentWindow = paginateData(dataAfterSearch, size, page)
 
-    logInfo(req, dataOfCurrentWindow)
     res.json({
       page: Number(page),
       size: Number(size),
@@ -698,7 +653,6 @@ router.get('/myCoursesActive', isAuthenticated, async (req, res) => {
       data: dataOfCurrentWindow
     })
   } catch (error) {
-    logError(req, error)
     console.log(error)
     res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách khóa học.' })
   }
@@ -720,18 +674,18 @@ router.get('/myCourses', isAuthenticated, async (req, res) => {
     const [allCourses, allUsers, orders, categoryCourse, enrollmentCounts, lessonCounts] = await Promise.all([
       models.Course.findAll(),
       models.User.findAll(),
-      models.Order.findAll({ where: { userId: loginedUserId }, attributes: ['id'] }),
+      models.Order.findAll({ where: { userId: loginedUserId, status: 1 }, attributes: ['id'] }), // Fix_1001
       getCourseCategory(),
-      models.Enrollment.count({ group: ['courseId'] }),
+      models.Enrollment.count({ where: { status: 1 }, group: ['courseId'] }), // Đếm số lượng Enrollment với status là 1 // Fix_1001
       fetchLessonCounts()
     ])
 
     // Lấy danh sách orderId từ orders
     const orderIds = orders.map(order => order.id)
 
-    // Truy vấn tất cả các Enrollment bằng orderIds
+    // Truy vấn tất cả các Enrollment bằng orderIds và kiểm tra status
     const enrollments = await models.Enrollment.findAll({
-      where: { orderId: orderIds },
+      where: { orderId: orderIds, status: 1 },
       order: [['id', 'DESC']]
     })
 
@@ -745,18 +699,18 @@ router.get('/myCourses', isAuthenticated, async (req, res) => {
     const userEnrollments = await models.Enrollment.findAll({
       where: {
         orderId: orderIds,
-        courseId: filteredCourses.map(course => course.id)
+        courseId: filteredCourses.map(course => course.id), // Fix_1001
+        status: 1 // Fix_1001
       }
     })
 
     const courseProgressCountsObject = await fetchCourseProgressCounts(userEnrollments)
-
+    // chỗ này sẽ quyết định status là true hay false dựa vào việc đếm số bài học đã hoàn thành và số bài học trong khóa học chứ không dựa vào cột status trong bảng Enrollment // Fix_1001
     const dataFromDatabase = transformCourseData(filteredCourses, allUsers, categoryCourse, enrollmentCountsObject, lessonCountsObject, courseProgressCountsObject)
 
     const dataAfterSearch = applyFilters(dataFromDatabase, searchCondition, startDate, endDate, categoryCondition)
     const dataOfCurrentWindow = paginateData(dataAfterSearch, size, page)
 
-    logInfo(req, dataOfCurrentWindow)
     res.json({
       page: Number(page),
       size: Number(size),
@@ -764,7 +718,6 @@ router.get('/myCourses', isAuthenticated, async (req, res) => {
       data: dataOfCurrentWindow
     })
   } catch (error) {
-    logError(req, error)
     console.log(error)
     res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách khóa học.' })
   }
@@ -773,7 +726,7 @@ router.get('/myCourses', isAuthenticated, async (req, res) => {
 
 // trang home page
 // đã fix
-router.get('/getNewCourse', isAuthenticated, async (req, res) => {
+router.get('/getNewCourse', async (req, res) => {
   try {
     const {
       page = '1',
@@ -792,7 +745,8 @@ router.get('/getNewCourse', isAuthenticated, async (req, res) => {
     const listUsers = await models.User.findAll()
     const categoryCourse = await getCourseCategory()
     const enrollmentCounts = await models.Enrollment.count({
-      group: ['courseId']
+      group: ['courseId'], // Fix_1001
+      where: { status: 1 } // Check status of enrollment // Fix_1001
     })
 
     const enrollmentCountsObject = enrollmentCounts.reduce((obj, count) => {
@@ -841,16 +795,6 @@ router.get('/getNewCourse', isAuthenticated, async (req, res) => {
       createdAt: course.createdAt
     }))
 
-    // Logging and response
-    infoLogger.info({
-      message: `Accessed ${req.path}`,
-      method: req.method,
-      endpoint: req.path,
-      request: req.query,
-      response: dataFromDatabase,
-      user: req.user.id
-    })
-
     const totalRecords = await models.Course.count() // total number of courses in the database
 
     res.json({
@@ -861,13 +805,12 @@ router.get('/getNewCourse', isAuthenticated, async (req, res) => {
     })
   } catch (error) {
     console.log(error)
-    logError(req, error)
     res.status(500).json({ message: jsonError })
   }
 })
 
 // đã fix - v2 fix
-router.get('/', isAuthenticated, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const {
       page = '1',
@@ -895,6 +838,7 @@ router.get('/', isAuthenticated, async (req, res) => {
     if (categoryCondition && categoryCondition !== 'all') {
       searchConditions.where.categoryCourseId = categoryCondition
     }
+
     // Fetch the total count of courses with filtering conditions
     const totalRecords = await models.Course.count(searchConditions)
 
@@ -914,7 +858,8 @@ router.get('/', isAuthenticated, async (req, res) => {
       where: {
         rating: {
           [Op.ne]: null // Chỉ lấy các bản ghi có rating khác null
-        }
+        },
+        status: 1 // Check status of enrollment // Fix_1001
       },
       group: ['courseId']
     })
@@ -930,7 +875,8 @@ router.get('/', isAuthenticated, async (req, res) => {
     const listUsers = await models.User.findAll()
     const categoryCourse = await getCourseCategory()
     const enrollmentCounts = await models.Enrollment.count({
-      group: ['courseId']
+      group: ['courseId'],
+      where: { status: 1 } // Check status of enrollment // Fix_1001
     })
     const enrollmentCountsObject = enrollmentCounts.reduce((obj, count) => {
       obj[count.courseId] = count.count
@@ -992,14 +938,6 @@ router.get('/', isAuthenticated, async (req, res) => {
     const dataAfterSearch = applyCourseCategoryNameSearch(categoryCondition, dataAfterNameAndDateSearch)
     console.log(dataAfterSearch.length, 'dataAfterSearch')
     console.log(totalRecords, 'totalRecords')
-    infoLogger.info({
-      message: `Accessed ${req.path}`,
-      method: req.method,
-      endpoint: req.path,
-      request: req.query,
-      response: dataAfterSearch,
-      user: req.user.id
-    })
     res.json({
       page: Number(page),
       size: Number(size),
@@ -1008,7 +946,6 @@ router.get('/', isAuthenticated, async (req, res) => {
     })
   } catch (error) {
     console.log(error)
-    logError(req, error)
     res.status(500).json({ message: jsonError })
   }
 })
@@ -1022,27 +959,18 @@ function applyDateRangeSearch (startDate, endDate, inputData) {
 }
 
 // đã check - không cần fix
-router.get('/course-category', isAuthenticated, async (req, res) => {
+router.get('/course-category', async (req, res) => {
   try {
     const courseCategory = await getCourseCategory()
-    infoLogger.info({
-      message: `Accessed ${req.path}`,
-      method: req.method,
-      endpoint: req.path,
-      request: req.query,
-      response: courseCategory,
-      user: req.user.id
-    })
     res.json(courseCategory)
   } catch (error) {
-    logError(req, error)
     console.log(error)
     res.status(500).json({ message: jsonError })
   }
 })
 
 // trang course detail
-router.get('/:id', isAuthenticated, async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params
     const course = await models.Course.findByPk(id)
@@ -1054,17 +982,8 @@ router.get('/:id', isAuthenticated, async (req, res) => {
     if (!course) {
       return res.status(404).json({ message: 'Course not found' })
     }
-    infoLogger.info({
-      message: `Accessed ${req.path}`,
-      method: req.method,
-      endpoint: req.path,
-      request: req.params,
-      response: course,
-      user: req.user.id
-    })
     res.json(response)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ message: 'Failed to fetch course', error: error.message })
   }
 })
@@ -1109,16 +1028,17 @@ async function getCourseCategory () {
 
 // -----------------------------------------------trang my course ----------------------------
 async function getEnrollmentByUserId (userId) {
-  // Lấy danh sách các order của người dùng
+  // Lấy danh sách các order của người dùng và kiểm tra status
   const orders = await models.Order.findAll({
-    where: { userId },
+    where: { userId, status: 1 }, // Fix_1001
     attributes: ['id']
   })
 
-  // Lấy danh sách enrollment từ các order của người dùng
+  // Lấy danh sách enrollment từ các order của người dùng và kiểm tra status
   return await models.Enrollment.findAll({
     where: {
-      orderId: orders.map(order => order.id)
+      orderId: orders.map(order => order.id), // Fix_1001
+      status: 1 // Fix_1001
     },
     order: [['id', 'DESC']]
   })
@@ -1176,7 +1096,7 @@ async function fetchCourseProgressCounts (enrollments) {
     return obj
   }, {})
 }
-
+// chỗ này sẽ quyết định status là true hay false dựa vào việc đếm số bài học đã hoàn thành và số bài học trong khóa học chứ không dựa vào cột status trong bảng Enrollment // Fix_1000
 function transformCourseData (courses, users, categories, enrollmentCounts, lessonCounts, progressCounts) {
   return courses.map((course) => {
     const lessonCount = lessonCounts[course.id] || 0
@@ -1200,7 +1120,7 @@ function transformCourseData (courses, users, categories, enrollmentCounts, less
       lessonCount,
       createdAt: course.createdAt,
       doneCount,
-      status: doneCount === lessonCount,
+      status: doneCount === lessonCount, // Kiểm tra xem số bài học đã hoàn thành có bằng số bài học trong khóa học không // Fix_1000
       lastUpdate
     }
   })
@@ -1289,10 +1209,8 @@ router.get('/get/:courseId', isAuthenticated, async (req, res) => {
       order: [['order', 'ASC']]
     })
 
-    logInfo(req, categories)
     res.status(200).json(categories)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ error: jsonError })
   }
 })

@@ -70,6 +70,9 @@ const MyCourse = loadable(async () => await import('pages/myCourse'), {
   fallback: <Loading />
 })
 
+const PurchaseHistory = loadable(async () => await import('pages/purchaseHistory'), {
+  fallback: <Loading />
+})
 /**
     * Use <AuthRoute /> to protect authenticate pages
     */
@@ -119,6 +122,7 @@ const routes: RouteObject[] = [
       { path: ROUTES.dashboard, element: <Dashboard /> },
       { path: ROUTES.cancel, element: <Cancel /> },
       { path: ROUTES.success, element: <Success /> },
+      { path: ROUTES.purchaseHistory, element: <PurchaseHistory /> },
       { path: ROUTES.cart, element: <Cart /> },
       { path: ROUTES.myCourse, element: <MyCourse /> },
       { path: ROUTES.notfound, element: <NotFound /> }
