@@ -5,18 +5,19 @@
 /* PRIVATE ROUTE: AUTHENTICATION
    ========================================================================== */
 
-import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import ROUTES from 'routes/constant'
 import { getFromLocalStorage } from 'utils/functions'
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo } from 'react'
 import CryptoJS from 'crypto-js'
 
 interface IAuthRouteProps {
   children: JSX.Element
   allowedRoles?: string[]
+  excludedRoles?: string[]
 }
 
-const AuthRoute = ({ children, allowedRoles }: IAuthRouteProps) => {
+const AuthRoute = ({ children, allowedRoles, excludedRoles }: IAuthRouteProps) => {
   const location = useLocation()
   const tokens = getFromLocalStorage<any>('tokens')
   const userRole = tokens?.key
@@ -39,7 +40,8 @@ const AuthRoute = ({ children, allowedRoles }: IAuthRouteProps) => {
     ROUTES.login,
     ROUTES.signup,
     ROUTES.forgotpassword,
-    ROUTES.courseDetail
+    ROUTES.courseDetail,
+    ROUTES.teachingPage
   ]
 
   // Kiểm tra nếu là một route công khai hoặc là chi tiết khóa học `/courses/:id`
@@ -58,6 +60,11 @@ const AuthRoute = ({ children, allowedRoles }: IAuthRouteProps) => {
   // Kiểm tra vai trò người dùng nếu có yêu cầu vai trò cụ thể
   if (allowedRoles && data && !allowedRoles.includes(data)) {
     return <Navigate to={ROUTES.notfound} />
+  }
+
+  // Kiểm tra vai trò người dùng nếu có yêu cầu loại trừ vai trò cụ thể - chỗ này dùng để loại trừ vai trò giảng viên và admin khi vào trang teaching , onboarding sẽ bị đẩy về trang management
+  if (excludedRoles && data && excludedRoles.includes(data)) {
+    return <Navigate to={ROUTES.management} />
   }
 
   return <>{children}</>

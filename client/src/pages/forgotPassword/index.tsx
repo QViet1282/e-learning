@@ -15,6 +15,7 @@ import Countdown from 'react-countdown'
 import imgLogin from '../../assets/images/login/login.png'
 import imgFlagUK from '../../assets/images/login/Flag_of_the_United_Kingdom.png'
 import imgFlagVN from '../../assets/images/login/Flag_of_Vietnam.png'
+import logoImg from '../../assets/images/navbar/logo.png'
 import Select from 'react-select'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -253,15 +254,7 @@ const ResetPasswordPage: React.FC = () => {
 
   const formatOptionLabel = ({ label, flagUrl }: any) => (
     <div className="flex items-center">
-      <img src={flagUrl} alt="" className="w-6 h-4 mr-2" />
-      {label}
-    </div>
-  )
-
-  const formatOptionLabel2 = ({ label, flagUrl }: any) => (
-    <div className="flex items-center">
-      <img src={flagUrl} alt="" className="w-6 h-4 mr-2" />
-      {label}
+      <img src={flagUrl} alt="" className="w-6 h-4" />
     </div>
   )
 
@@ -314,14 +307,42 @@ const ResetPasswordPage: React.FC = () => {
           </div>
           {/* Language Selector */}
           <div className="absolute top-4 right-4 z-10 hidden md:block">
-            <Select
-              value={languageOptions.find(option => option.value === selectedLanguage)}
-              onChange={handleChange}
-              options={languageOptions}
-              formatOptionLabel={formatOptionLabel}
-              className="w-30 rounded-md font-semibold text-gray-700 border border-gray-300 focus:border-teal-400 focus:outline-none shadow-sm"
-              isSearchable={false} // Tắt tính năng tìm kiếm
-            />
+              <Select
+                value={languageOptions.find(option => option.value === selectedLanguage)}
+                onChange={handleChange}
+                options={languageOptions}
+                formatOptionLabel={formatOptionLabel}
+                className="!w-12"
+                classNamePrefix="select"
+                isSearchable={false}
+                styles={{
+                  control: (base) => ({
+                    ...base,
+                    minHeight: '24px',
+                    height: '24px',
+                    padding: 0,
+                    border: 'none',
+                    boxShadow: 'none',
+                    '&:hover': {
+                      border: 'none'
+                    }
+                  }),
+                  valueContainer: (base) => ({
+                    ...base,
+                    height: '24px',
+                    padding: 0,
+                    margin: 0
+                  }),
+                  dropdownIndicator: (base) => ({
+                    ...base,
+                    padding: 0
+                  }),
+                  option: (base) => ({
+                    ...base,
+                    padding: '2px 4px'
+                  })
+                }}
+              />
           </div>
           {/* Form */}
           <div className="relative w-full max-w-xl bg-white bg-opacity-90 p-4 rounded-lg md:bg-white">
@@ -335,10 +356,46 @@ const ResetPasswordPage: React.FC = () => {
                     value={languageOptions.find(option => option.value === selectedLanguage)}
                     onChange={handleChange}
                     options={languageOptions}
-                    formatOptionLabel={formatOptionLabel2}
-                    className="rounded-md font-semibold text-gray-700 border border-gray-300 focus:border-teal-400 focus:outline-none shadow-sm"
-                    isSearchable={false} // Tắt tính năng tìm kiếm
+                    formatOptionLabel={formatOptionLabel}
+                    className="!w-12"
+                    classNamePrefix="select"
+                    isSearchable={false}
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        minHeight: '24px',
+                        height: '24px',
+                        padding: 0,
+                        border: 'none',
+                        boxShadow: 'none',
+                        '&:hover': {
+                          border: 'none'
+                        }
+                      }),
+                      valueContainer: (base) => ({
+                        ...base,
+                        height: '24px',
+                        padding: 0,
+                        margin: 0
+                      }),
+                      dropdownIndicator: (base) => ({
+                        ...base,
+                        padding: 0
+                      }),
+                      option: (base) => ({
+                        ...base,
+                        padding: '2px 4px'
+                      })
+                    }}
                   />
+                </div>
+                <div className="flex items-center justify-center mb-10">
+                    <a href="/" className="flex items-center space-x-4">
+                      <img src={logoImg} alt="logo" className="h-16 w-16" />
+                      <span className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">
+                        VIETCODE
+                      </span>
+                    </a>
                 </div>
                 <div className='flex justify-center mb-4'>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-14 border border-zinc-400 rounded-lg bg-white">
@@ -404,10 +461,46 @@ const ResetPasswordPage: React.FC = () => {
                     value={languageOptions.find(option => option.value === selectedLanguage)}
                     onChange={handleChange}
                     options={languageOptions}
-                    formatOptionLabel={formatOptionLabel2}
-                    className="rounded-md font-semibold text-gray-700 border border-gray-300 focus:border-teal-400 focus:outline-none shadow-sm"
-                    isSearchable={false} // Tắt tính năng tìm kiếm
+                    formatOptionLabel={formatOptionLabel}
+                    className="!w-12"
+                    classNamePrefix="select"
+                    isSearchable={false}
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        minHeight: '24px',
+                        height: '24px',
+                        padding: 0,
+                        border: 'none',
+                        boxShadow: 'none',
+                        '&:hover': {
+                          border: 'none'
+                        }
+                      }),
+                      valueContainer: (base) => ({
+                        ...base,
+                        height: '24px',
+                        padding: 0,
+                        margin: 0
+                      }),
+                      dropdownIndicator: (base) => ({
+                        ...base,
+                        padding: 0
+                      }),
+                      option: (base) => ({
+                        ...base,
+                        padding: '2px 4px'
+                      })
+                    }}
                   />
+                </div>
+                <div className="flex items-center justify-center mb-10">
+                    <a href="/" className="flex items-center space-x-4">
+                      <img src={logoImg} alt="logo" className="h-16 w-16" />
+                      <span className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">
+                        VIETCODE
+                      </span>
+                    </a>
                 </div>
                 <form onSubmit={handleSubmitStep2(handleVerifyOTP)}>
                   <div className="flex flex-col items-center mb-6">
@@ -510,10 +603,46 @@ const ResetPasswordPage: React.FC = () => {
                     value={languageOptions.find(option => option.value === selectedLanguage)}
                     onChange={handleChange}
                     options={languageOptions}
-                    formatOptionLabel={formatOptionLabel2}
-                    className="rounded-md font-semibold text-gray-700 border border-gray-300 focus:border-teal-400 focus:outline-none shadow-sm"
+                    formatOptionLabel={formatOptionLabel}
+                    className="!w-12"
+                    classNamePrefix="select"
                     isSearchable={false}
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        minHeight: '24px',
+                        height: '24px',
+                        padding: 0,
+                        border: 'none',
+                        boxShadow: 'none',
+                        '&:hover': {
+                          border: 'none'
+                        }
+                      }),
+                      valueContainer: (base) => ({
+                        ...base,
+                        height: '24px',
+                        padding: 0,
+                        margin: 0
+                      }),
+                      dropdownIndicator: (base) => ({
+                        ...base,
+                        padding: 0
+                      }),
+                      option: (base) => ({
+                        ...base,
+                        padding: '2px 4px'
+                      })
+                    }}
                   />
+                </div>
+                <div className="flex items-center justify-center mb-10">
+                    <a href="/" className="flex items-center space-x-4">
+                      <img src={logoImg} alt="logo" className="h-16 w-16" />
+                      <span className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">
+                        VIETCODE
+                      </span>
+                    </a>
                 </div>
                 <div className='flex justify-center mb-4'>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-14 border border-zinc-400 rounded-lg bg-white">

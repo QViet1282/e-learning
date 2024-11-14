@@ -4,7 +4,9 @@
     "navbar": {
       "homepage": "Home",
       "posts": "Posts",
-      "about_us": "About",
+      "teaching": "Teaching on VIETCODE",
+      "teacher": "Teacher",
+      "admin": "Admin",
       "contact_us": "Contact us",
       "sign_out": "Log out",
       "cart": "Cart",
@@ -52,6 +54,7 @@
       "email_exists": "Email already exists",
       "accept_terms": "Please accept the terms & conditions",
       "username_invalid": "Username must start with a letter and contain no special characters or spaces",
+      "back_to_home": "Back to home",
       "toast": {
         "login_success": "Login successfully",
         "login_failed": "Login failed",
@@ -210,7 +213,8 @@
       "continue": "Continue",
       "signin_again_confirm": "Please sign in again to continue",
       "sessionExpired": "Session expired",
-      "logout_success": "Logout successfully"
+      "logout_success": "Logout successfully",
+      "diem": "Score achieved in the most recent exam"
     },
     "course":{
       "minutes":"minutes on-demand video",
@@ -250,7 +254,8 @@
       "no_video": "This course doesn't have any video.",
       "adding": "Adding...",
       "enrolling": "Enrolling...",
-      "go_to_cart": "Go to Cart"
+      "go_to_cart": "Go to Cart",
+      "requirements": "Requirements"
     },
     "learning": {
       "updated_at":"Updated at",
@@ -384,6 +389,104 @@
       "amount": "Amount",
       "purchased_courses": "Purchased Courses",
       "price": "Price"
+    },
+    "teachingPage": {
+      "welcome": "Come teach with us",
+      "description": "Become an instructor and change lives of everyone, including your own life",
+      "getStarted": "Get started",
+      "CardsSection": {
+        "reasonsToStart": "There are too many reasons to start",
+        "teachYourWay": "Teach your way",
+        "teachYourWayDescription": "Publish the desired course, in the desired way, and you always have control over your own content.",
+        "inspireStudents": "Inspire students",
+        "inspireStudentsDescription": "Teach what you know and help students explore interests, acquire new skills, and advance in their careers.",
+        "earnRewards": "Earn rewards",
+        "earnRewardsDescription": "Expand your professional network, build expertise, and earn income from each paid enrollment."
+      },
+      "StatsSection": {
+        "stat1Value": "73 million",
+        "stat1Label": "Learners",
+        "stat2Value": "Over 75",
+        "stat2Label": "Languages",
+        "stat3Value": "1 billion",
+        "stat3Label": "Enrollments",
+        "stat4Value": "Over 180",
+        "stat4Label": "Countries",
+        "stat5Value": "Over 16,000",
+        "stat5Label": "Enterprise customers"
+      },
+      "GettingStartedTabs": {
+        "howToStart": "How to get started",
+        "planCurriculum": "Plan Your Curriculum",
+        "planCurriculumDescription1": "Start with your passion and knowledge. Then, choose a promising topic with the help of our Market Insights tool.",
+        "planCurriculumDescription2": "You get to decide both what you teach and how you teach it.",
+        "howWeHelp": "How We Help You",
+        "planCurriculumHelp": "We offer plenty of resources on how to create your first course. And, our Instructor Dashboard and Curriculum pages help keep you organized.",
+        "recordVideo": "Record Video",
+        "recordVideoDescription1": "Use basic tools like a smartphone or a DSLR camera. Add a good microphone, and you’re ready to start.",
+        "recordVideoDescription2": "If you don’t like to be on camera, just capture your screen. Either way, we recommend recording at least 2 hours of video for a paid course.",
+        "recordVideoHelp": "Our support team is available to help you throughout the process and provide feedback on test videos.",
+        "launchCourse": "Launch Your Course",
+        "launchCourseDescription1": "Gather your first ratings and reviews by promoting your course through social media and your professional networks.",
+        "launchCourseDescription2": "Your course will be discoverable in our marketplace where you earn revenue from each paid enrollment.",
+        "launchCourseHelp": "Our custom coupon tool lets you offer attractive discounts, and our global promotions help drive traffic to your course."
+      },
+      "TestimonialSlider": {
+        "testimonial1": {
+          "name": "Frank Kane",
+          "title": "IT and Data Science Certification",
+          "quote": "I am proud to wake up knowing that my work is helping people around the world improve their careers and create good things. Although becoming a full-time instructor is hard work, this job allows you to work anytime, anywhere, and in the way that you want."
+        },
+        "testimonial2": {
+          "name": "Paulo Dichone",
+          "title": "Developer (Android Specialist)",
+          "quote": "Udemy has changed my life. Udemy allows me to pursue my passion and become an instructor. I love seeing my students achieve success and hearing them share that they have learned more and faster when taking my courses compared to their time at university. It is an honor and privilege."
+        },
+        "testimonial3": {
+          "name": "Deborah Grayson Riege",
+          "title": "Leadership, Communication",
+          "quote": "Teaching on Udemy has given me two important things: the opportunity to reach more students than if I did it on my own, and a stable supplemental income. I love sharing my knowledge with others and seeing them advance further in their careers thanks to the knowledge I share."
+        }
+      },
+      "SupportSection": {
+        "title": "You won't have to do this alone",
+        "instructorSupportTeam": "Instructor Support Team",
+        "description": "is always available to answer your questions and review your test videos. Additionally, the Teaching Center provides you with plenty of resources to help you throughout the process. Moreover, you will receive support from experienced instructors in the online community.",
+        "learnMore": "Need more details before you start? Learn more."
+      },
+      "JoinTodaySection": {
+        "title": "Become an instructor today",
+        "description": "Join one of the largest online learning marketplaces in the world.",
+        "button": "Get Started"
+      }
+    },
+    "onboarding": {
+      "step": "Step",
+      "exit": "Exit",
+      "share_knowledge": "Share Your Knowledge",
+      "create_course": "Create a Course",
+      "expand_reach": "Expand Your Reach",
+      "share_knowledge_desc": "Courses on VIETCODE provide a learning experience through video. This helps students practice skills easily.",
+      "create_course_desc": "Over the years, we have helped thousands of instructors learn how to record at home. Whether you have experience or not, we will guide you through each step.",
+      "expand_reach_desc": "After publishing the course, you can increase your student base and make an impact with our support. Together, we will help the right audience find your course.",
+      "teaching_experience": "What kind of teaching experience do you have?",
+      "video_experience": "Do you have experience creating videos?",
+      "followers": "How many followers do you have?",
+      "In-person, informal": "In-person, informal",
+      "In-person, professional": "In-person, professional",
+      "Online": "Online",
+      "Other": "Other",
+      "I am new": "I am new",
+      "I have some knowledge": "I have some knowledge",
+      "I am experienced": "I am experienced",
+      "I have videos ready to upload": "I have videos ready to upload",
+      "Not at this time": "Not at this time",
+      "I have a small following": "I have a small following",
+      "I have a moderate following": "I have a moderate following",
+      "I have a large following": "I have a large following",
+      "previous": "Previous",
+      "next": "Next",
+      "continue_to_management": "Continue to Management"
     }
   }
 }

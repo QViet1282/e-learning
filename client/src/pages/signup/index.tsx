@@ -12,6 +12,7 @@ import imgRegister from '../../assets/images/login/register.png'
 import imgFlagUK from '../../assets/images/login/Flag_of_the_United_Kingdom.png'
 import imgFlagVN from '../../assets/images/login/Flag_of_Vietnam.png'
 import google_icon from '../../assets/images/login/google-icon.png'
+import logoImg from '../../assets/images/navbar/logo.png'
 import Select from 'react-select'
 import ROUTES from 'routes/constant'
 import { useForm } from 'react-hook-form'
@@ -116,16 +117,9 @@ const RegisterPage = () => {
   )
 
   const formatOptionLabel = ({ label, flagUrl }: any) => (
-       <div className="flex items-center">
-         <img src={flagUrl} alt="" className="w-6 h-4 mr-2" />
-         {label}
-       </div>
-  )
-
-  const formatOptionLabel2 = ({ label, flagUrl }: any) => (
-       <div className="flex items-center">
-         <img src={flagUrl} alt="" className="w-6 h-4" />
-       </div>
+    <div className="flex items-center">
+      <img src={flagUrl} alt="" className="w-6 h-4" />
+    </div>
   )
 
   const handleChange = useCallback(
@@ -164,6 +158,10 @@ const RegisterPage = () => {
     [i18n, step1Methods, errorsStep1, t, termsError]
   )
 
+  const handleBackToHome = () => {
+    navigate(ROUTES.homePage)
+  }
+
   return (
        <div className="flex h-screen items-center justify-center bg-gray-100 overflow-hidden">
          <div className="flex w-full h-full shadow-lg overflow-hidden relative">
@@ -188,30 +186,93 @@ const RegisterPage = () => {
              </div>
              {/* Language Selector */}
              <div className="absolute top-4 right-4 z-10 hidden md:block">
-               <Select
-                 value={languageOptions.find(option => option.value === selectedLanguage)}
-                 onChange={handleChange}
-                 options={languageOptions}
-                 formatOptionLabel={formatOptionLabel}
-                 className="w-30 rounded-md font-semibold text-gray-700 border border-gray-300 focus:border-teal-400 focus:outline-none shadow-sm"
-                 isSearchable={false} // Tắt tính năng tìm kiếm
-               />
+                <Select
+                  value={languageOptions.find(option => option.value === selectedLanguage)}
+                  onChange={handleChange}
+                  options={languageOptions}
+                  formatOptionLabel={formatOptionLabel}
+                  className="!w-12"
+                  classNamePrefix="select"
+                  isSearchable={false}
+                  styles={{
+                    control: (base) => ({
+                      ...base,
+                      minHeight: '24px',
+                      height: '24px',
+                      padding: 0,
+                      border: 'none',
+                      boxShadow: 'none',
+                      '&:hover': {
+                        border: 'none'
+                      }
+                    }),
+                    valueContainer: (base) => ({
+                      ...base,
+                      height: '24px',
+                      padding: 0,
+                      margin: 0
+                    }),
+                    dropdownIndicator: (base) => ({
+                      ...base,
+                      padding: 0
+                    }),
+                    option: (base) => ({
+                      ...base,
+                      padding: '2px 4px'
+                    })
+                  }}
+                />
              </div>
              {/* Form */}
              <div className="relative w-full max-w-xl bg-white bg-opacity-90 p-4 rounded-lg md:bg-white">
                {/* Language Selector for Mobile */}
                <div className="absolute top-0 right-0 md:hidden">
-                 <Select
-                   value={languageOptions.find(option => option.value === selectedLanguage)}
-                   onChange={handleChange}
-                   options={languageOptions}
-                   formatOptionLabel={formatOptionLabel2}
-                   className="rounded-md font-semibold text-gray-700 border border-gray-300 focus:border-teal-400 focus:outline-none shadow-sm"
-                   isSearchable={false} // Tắt tính năng tìm kiếm
-                 />
+                <Select
+                    value={languageOptions.find(option => option.value === selectedLanguage)}
+                    onChange={handleChange}
+                    options={languageOptions}
+                    formatOptionLabel={formatOptionLabel}
+                    className="!w-12"
+                    classNamePrefix="select"
+                    isSearchable={false}
+                    styles={{
+                      control: (base) => ({
+                        ...base,
+                        minHeight: '24px',
+                        height: '24px',
+                        padding: 0,
+                        border: 'none',
+                        boxShadow: 'none',
+                        '&:hover': {
+                          border: 'none'
+                        }
+                      }),
+                      valueContainer: (base) => ({
+                        ...base,
+                        height: '24px',
+                        padding: 0,
+                        margin: 0
+                      }),
+                      dropdownIndicator: (base) => ({
+                        ...base,
+                        padding: 0
+                      }),
+                      option: (base) => ({
+                        ...base,
+                        padding: '2px 4px'
+                      })
+                    }}
+                  />
                </div>
 
-               <h2 className="text-2xl md:text-3xl font-semibold text-center text-blue-500 mb-20">{t('login.welcome')}</h2>
+               <div className="flex items-center justify-center mb-10">
+                    <a href="/" className="flex items-center space-x-4">
+                      <img src={logoImg} alt="logo" className="h-16 w-16" />
+                      <span className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500">
+                        VIETCODE
+                      </span>
+                    </a>
+                </div>
 
                <form onSubmit={handleSubmitStep1(handleRegister)}>
                  {/* Name Field */}
@@ -418,6 +479,16 @@ const RegisterPage = () => {
                    </Link>
                  </p>
                </div>
+
+               <div className="flex justify-center mt-4">
+                    <button onClick={handleBackToHome} className="flex items-center space-x-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M5.25 11.25H20.25C20.4489 11.25 20.6397 11.329 20.7803 11.4697C20.921 11.6103 21 11.8011 21 12C21 12.1989 20.921 12.3897 20.7803 12.5303C20.6397 12.671 20.4489 12.75 20.25 12.75H5.25C5.05109 12.75 4.86032 12.671 4.71967 12.5303C4.57902 12.3897 4.5 12.1989 4.5 12C4.5 11.8011 4.57902 11.6103 4.71967 11.4697C4.86032 11.329 5.05109 11.25 5.25 11.25Z" fill="black" />
+                        <path d="M5.56038 12L11.7809 18.219C11.9217 18.3598 12.0008 18.5508 12.0008 18.75C12.0008 18.9491 11.9217 19.1401 11.7809 19.281C11.64 19.4218 11.449 19.5009 11.2499 19.5009C11.0507 19.5009 10.8597 19.4218 10.7189 19.281L3.96888 12.531C3.89903 12.4613 3.84362 12.3785 3.80581 12.2874C3.768 12.1963 3.74854 12.0986 3.74854 12C3.74854 11.9013 3.768 11.8036 3.80581 11.7125C3.84362 11.6214 3.89903 11.5386 3.96888 11.469L10.7189 4.71897C10.8597 4.57814 11.0507 4.49902 11.2499 4.49902C11.449 4.49902 11.64 4.57814 11.7809 4.71897C11.9217 4.8598 12.0008 5.05081 12.0008 5.24997C12.0008 5.44913 11.9217 5.64014 11.7809 5.78097L5.56038 12Z" fill="black" />
+                      </svg>
+                      <span>{t('login.back_to_home')}</span>
+                    </button>
+                </div>
              </div>
            </div>
          </div>

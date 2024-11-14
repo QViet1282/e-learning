@@ -225,48 +225,48 @@ const Learning = () => {
     return true
   }
   // =====================================
-  useEffect(() => {
-    console.log('Running')
-    let isMounted = true
-    const lessonIds: Array<number | React.SetStateAction<null>> = []
-    lessions.forEach((category) => {
-      category.forEach((lesson: { id: number | React.SetStateAction<null> }) => {
-        lessonIds.push(lesson.id)
-      })
-    })
-    if (enrollData && lessions && lessonIds.length > 0) {
-      const fetchData = async () => {
-        const queryParams = new URLSearchParams(location.search)
-        const newLessonId = Number(queryParams.get('id')) || 0
-        const firstLessonId = await fetchFirstLessonId(courseData?.id ?? '')
-        if (newLessonId) {
-          const hasPermission = hasPermissionToViewLesson(newLessonId, courseProgress, lessions, firstLessonId)
-          if (!hasPermission) {
-            navigate(`?id=${firstLessonId}`, { state: { courseData }, replace: true })
-          } else if (isMounted) {
-            const fetchedLession = await getLessionById({ id: String(newLessonId) })
-            console.log('fetchedLession____________', fetchedLession?.data.name)
-            setActiveDrop(fetchedLession?.data.name)
-            setLession(fetchedLession.data)
-            console.log('check Lession --------------------------', fetchedLession.data)
-            let categoryIndex = -1
-            for (let i = 0; i < parts?.length; i++) {
-              const part = parts[i]
-              if (part.name === fetchedLession.data.categoryLessionName) {
-                categoryIndex = i
-                break
-              }
-            }
-            setActiveIndexes(prevIndexes => [...prevIndexes, categoryIndex])
-          }
-        }
-      }
-      fetchData()
-    }
-    return () => {
-      isMounted = false
-    }
-  }, [courseProgress, location])
+  // useEffect(() => {
+  //   console.log('Running')
+  //   let isMounted = true
+  //   const lessonIds: Array<number | React.SetStateAction<null>> = []
+  //   lessions.forEach((category) => {
+  //     category.forEach((lesson: { id: number | React.SetStateAction<null> }) => {
+  //       lessonIds.push(lesson.id)
+  //     })
+  //   })
+  //   if (enrollData && lessions && lessonIds.length > 0) {
+  //     const fetchData = async () => {
+  //       const queryParams = new URLSearchParams(location.search)
+  //       const newLessonId = Number(queryParams.get('id')) || 0
+  //       const firstLessonId = await fetchFirstLessonId(courseData?.id ?? '')
+  //       if (newLessonId) {
+  //         const hasPermission = hasPermissionToViewLesson(newLessonId, courseProgress, lessions, firstLessonId)
+  //         if (!hasPermission) {
+  //           navigate(`?id=${firstLessonId}`, { state: { courseData }, replace: true })
+  //         } else if (isMounted) {
+  //           const fetchedLession = await getLessionById({ id: String(newLessonId) })
+  //           console.log('fetchedLession____________', fetchedLession?.data.name)
+  //           setActiveDrop(fetchedLession?.data.name)
+  //           setLession(fetchedLession.data)
+  //           console.log('check Lession --------------------------', fetchedLession.data)
+  //           let categoryIndex = -1
+  //           for (let i = 0; i < parts?.length; i++) {
+  //             const part = parts[i]
+  //             if (part.name === fetchedLession.data.categoryLessionName) {
+  //               categoryIndex = i
+  //               break
+  //             }
+  //           }
+  //           setActiveIndexes(prevIndexes => [...prevIndexes, categoryIndex])
+  //         }
+  //       }
+  //     }
+  //     fetchData()
+  //   }
+  //   return () => {
+  //     isMounted = false
+  //   }
+  // }, [courseProgress, location])
   useEffect(() => {
     console.log('Running')
     let isMounted = true
@@ -342,7 +342,7 @@ const Learning = () => {
         return
       }
       console.log('isLessonCompleted', isLessonCompleted)
-      if (lession.type !== 'MP4' && !isLessonCompleted) {
+      if (lession.type === 'PDF' && !isLessonCompleted) {
         try {
           const response = await addProgress(payload)
           setCourseProgress([...courseProgress, payload])
@@ -511,6 +511,7 @@ const Learning = () => {
       : [...activeIndexes, index])
   }
   const handleDropClick = async (drop: { name: string, id: string, order: number, categoryOrder: number }, dropIndex: number) => {
+    setCurrentComponent('examCard')
     const pdfContainer = pdfContainerRef.current as HTMLElement | null
     if (pdfContainer) {
       pdfContainer.scrollTop = 0
@@ -542,6 +543,7 @@ const Learning = () => {
   const percentage = parseFloat((completedLessonsCount / totalCourses * 100).toFixed(2))
 
   const handlePreviousClick = () => {
+    setCurrentComponent('examCard')
     const currentCategoryIndex = lessions.findIndex(category =>
       category.some((lesson: { id: any }) => lesson.id === lession.id)
     )
@@ -571,6 +573,7 @@ const Learning = () => {
   }
 
   const handleNextClick = useCallback(async () => {
+    setCurrentComponent('examCard')
     const pdfContainer = pdfContainerRef.current as HTMLElement | null
     if (pdfContainer) {
       pdfContainer.scrollTop = 0
@@ -782,12 +785,75 @@ const Learning = () => {
     }
   }
 
-  const handleSubmitComplete = () => {
+  const handleSubmitComplete = async () => {
     // Sau khi nộp bài, chuyển sang chế độ xem kết quả
     setMode('view')
     setCurrentComponent('detail')
+    console.log('fetchExamDetails----------------------')
+    // Thêm tiến trình cho bài học kiểu exam
+    if (lession && enrollData) {
+      const payload = {
+        lessionId: lession?.id,
+        enrollmentId: enrollData?.id
+      }
+      const queryParams = new URLSearchParams(location.search)
+      const newLessonId = queryParams.get('id')
+      // Kiểm tra xem bài học đã được xem chưa
+      const isLessonCompleted = courseProgress.some(
+        (progress) => Number(progress.lessionId) === Number(newLessonId)
+      )
+      // Nếu bài học đã hoàn thành, không gọi API nữa
+      if (isLessonCompleted) {
+        console.log('Tiến độ đã tồn tại, không cần gọi API')
+        return
+      }
+      console.log('isLessonCompleted', isLessonCompleted)
+      if (lession.type === 'exam' && !isLessonCompleted) {
+        try {
+          const response = await addProgress(payload)
+          setCourseProgress([...courseProgress, payload])
+          const currentCategoryIndex = lessions.findIndex(category =>
+            category.some((lesson: { id: any }) => lesson.id === lession.id)
+          )
+          const sortedLessions = [...lessions[currentCategoryIndex]].sort((a, b) => a.order - b.order)
+          const currentLessonIndex = sortedLessions.findIndex(
+            (lesson) => lesson.id === lession.id
+          )
+  
+          const isLastLesson = currentCategoryIndex === lessions.length - 1 && currentLessonIndex === sortedLessions.length - 1
+          // Fix_1000
+          // Tìm tất cả các bài học chưa học
+          const allLessons = lessions.flat()
+          const uncompletedLessons = allLessons.filter(lesson => !courseProgress.some(progress => progress.lessionId === lesson.id))
+          const isLastUncompletedLesson = uncompletedLessons.length === 1 && uncompletedLessons[0].id === lession.id
+  
+          if (isLastLesson || isLastUncompletedLesson) {
+            const responseMark = await markCourseAsDone({ courseId: courseData?.id })
+            // const responseNoti = await createNotification({ title: 'Course completed', message: `Congratulations! ${courseData?.name} completed!`, url: '/myCourses' })
+            console.log('responseMark', responseMark)
+            // console.log('responseNoti', responseNoti)
+            // if (responseMark && responseNoti) {
+            if (responseMark) {
+              // const data = {
+              //   id: responseNoti.data.recipients.recipientId,
+              //   notificationId: 1,
+              //   status: false,
+              //   updatedAt: new Date(),
+              //   createdAt: new Date(),
+              //   userId,
+              //   notificationDetails: { id: 1, title: 'Course completed', message: `Congratulations! ${courseData?.name} completed!`, url: '/myCourses', createdAt: new Date(), updatedAt: new Date() }
+              // }
+              // dispatch(addNotification(data))
+              toast.success('Congratulations! Course completed!')
+            }
+          }
+        } catch (error) {
+          console.log('error hoc lai>>>', error)
+        }
+      }
+    }
   }
-
+  
   const handleModeChange = (newMode: 'test' | 'view') => {
     setMode(newMode)
   }
@@ -962,12 +1028,12 @@ const Learning = () => {
         <div className='lg:relative lg:flex'>
           <div className={`${isExpanded ? 'lg:w-full' : 'lg:w-9/12'} transition-all duration-700 ease-in-out`}>
             <div ref={pdfContainerRef} className='md:overflow-y-auto custom-scrollbar h-full lg:h-lvh' style={{ height: '100vh', overflowY: 'scroll' }}>
-              <div className='w-full object-cover xl:mb-24 mb-4'>
+              <div className='w-full object-cover xl:mb-24 mb-4 px-6'>
                 {/* Điều kiện hiển thị nội dung bài học */}
                 {/* Nếu lession.type là 'MP4', nội dung video sẽ được hiển thị. */}
                 {lession.type === 'MP4'
                   ? (
-                    <div className="rounded-2xl overflow-hidden w-full h-full bg-red-500">
+                    <div className="rounded-2xl overflow-hidden w-full h-full bg-white">
                    <div
                             ref={playerContainerRef}
                             className="relative w-full h-full"
@@ -1104,7 +1170,7 @@ const Learning = () => {
                     // Hiển thị thông báo đang tải nếu dữ liệu đang được load
                     <div className="text-center">{t('loading')}</div>
                       )
-                    ) : (
+                    ) : lession.type === 'PDF' ? (
                       <div className=''>
                         {/* Nếu không, nội dung khác (ví dụ: PDF) sẽ được hiển thị. */}
                         <div className='lg:pt-14 pt-8 w-full justify-center items-center flex'>
@@ -1136,7 +1202,7 @@ const Learning = () => {
                           </Document>
                         </div>
                       </div>
-                    )}
+                    ) : null}
                 {/* Điều kiện hiển thị thông tin bài học: */}
                 {/* Nếu lession.type là 'MP4', thông tin bài học sẽ được hiển thị. */}
                 {lession.type === 'MP4' &&
@@ -1389,3 +1455,4 @@ Nếu không, và nếu !isAllowedToView hoặc !allPreviousLessonsCompleted, bi
   )
 }
 export default Learning
+// xong 

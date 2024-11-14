@@ -72,6 +72,15 @@ const MyCourse = loadable(async () => await import('pages/myCourse'), {
 const PurchaseHistory = loadable(async () => await import('pages/purchaseHistory'), {
   fallback: <Loading />
 })
+
+const TeachingPage = loadable(async () => await import('pages/teaching'), {
+  fallback: <Loading />
+})
+
+const OnboardingPage = loadable(async () => await import('pages/onboarding'), {
+  fallback: <Loading />
+})
+
 /**
     * Use <AuthRoute /> to protect authenticate pages
     */
@@ -123,6 +132,22 @@ const routes: RouteObject[] = [
       { path: ROUTES.purchaseHistory, element: <PurchaseHistory /> },
       { path: ROUTES.cart, element: <Cart /> },
       { path: ROUTES.myCourse, element: <MyCourse /> },
+      {
+        path: ROUTES.teachingPage,
+        element: (
+          <AuthRoute excludedRoles={['ADMIN', 'MANAGER']}>
+            <TeachingPage />
+          </AuthRoute>
+        )
+      },
+      {
+        path: ROUTES.onboardingPage,
+        element: (
+          <AuthRoute excludedRoles={['ADMIN', 'MANAGER']}>
+            <OnboardingPage />
+          </AuthRoute>
+        )
+      },
       { path: ROUTES.notfound, element: <NotFound /> }
     ]
   }
