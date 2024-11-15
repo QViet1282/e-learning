@@ -143,15 +143,11 @@ const CourseManagementPage = (): JSX.Element => {
         Course Management
       </h2>
       <div>
-        <div className="flex items-center justify-between mb-4 space-x-4">
-
-        </div>
-
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           {/* Select for price range */}
           <select
             onChange={(e) => handleRangeChange(e, 'price')}
-            className="border border-gray-300 rounded-md h-12 w-64 items-center px-2"
+            className="border border-gray-300 rounded-md h-12 md:w-52 w-full  items-center px-2"
           >
             {/* <option value="">Min-Max Price</option> */}
             {priceRanges.map((range, index) => (
@@ -164,7 +160,7 @@ const CourseManagementPage = (): JSX.Element => {
           {/* Dropdown cho khoảng thời gian */}
           <select
             onChange={(e) => handleRangeChange(e, 'duration')}
-            className="border border-gray-300 rounded-md h-12 w-48 items-center px-2"
+            className="border border-gray-300 rounded-md h-12 w-full md:w-44 items-center px-2"
           >
             {/* <option value="">Min-Max Duration (min)</option> */}
             {durationRanges.map((range, index) => (
@@ -177,7 +173,7 @@ const CourseManagementPage = (): JSX.Element => {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(Number(e.target.value))}
-            className="border border-gray-300 rounded-md h-12 w-60 items-center px-2"
+            className="border border-gray-300 rounded-md h-12 w-full md:w-52 items-center px-2"
           >
             <option value={0}>All Courses</option>
             {courseCategories.map((category) => (
@@ -190,7 +186,7 @@ const CourseManagementPage = (): JSX.Element => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="border border-gray-300 rounded-md h-12 w-60 items-center px-2"
+            className="border border-gray-300 rounded-md h-12 w-full md:w-52 items-center px-2"
           >
             <option value="all">All Status</option>
             <option value="active">Active</option>
@@ -201,17 +197,17 @@ const CourseManagementPage = (): JSX.Element => {
             placeholder="Search by course name"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-80 h-12 bg-white border border-gray-300 rounded-md items-center px-2"
+            className="md:w-72 h-12 w-full bg-white border border-gray-300 rounded-md items-center px-2"
           />
           <button
-            className="bg-teal-600 w-32 h-12 font-sans text-white font-bold rounded hover:bg-teal-500 items-center justify-center flex"
+            className="bg-teal-600 w-2/5 md:w-28 h-12 font-sans text-white font-bold rounded hover:bg-teal-500 items-center justify-center flex"
             onClick={handleSearch}
           >
             Tìm kiếm
           </button>
 
           <button
-            className="bg-teal-600 w-32 h-12 font-sans text-white font-bold rounded hover:bg-teal-500 items-center justify-center flex"
+            className="bg-teal-600 w-2/5 md:w-28 h-12 font-sans text-white font-bold rounded hover:bg-teal-500 items-center justify-center flex"
             onClick={() => setOpen(true)}
           >
             Add Course

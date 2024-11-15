@@ -1,1 +1,22 @@
-
+2024-10-27T16:07:18+07:00 | ERROR | Error /editStudyItemAndExam/21 | method:PUT | endpoint:/editStudyItemAndExam/21 | request:{"studyItemId":"21"} | error:"URI malformed" | user:11
+2024-10-27T16:09:48+07:00 | ERROR | Error /editStudyItemAndExam/21 | method:PUT | endpoint:/editStudyItemAndExam/21 | request:{"studyItemId":"21"} | error:"URI malformed" | user:11
+2024-11-01T00:41:05+07:00 | ERROR | Error /getUsers | method:GET | endpoint:/getUsers | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:41:06+07:00 | ERROR | Error /getUsers | method:GET | endpoint:/getUsers | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:43:42+07:00 | ERROR | Error /getUsers | method:GET | endpoint:/getUsers | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:44:51+07:00 | ERROR | Error /getUsers | method:GET | endpoint:/getUsers | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:45:32+07:00 | ERROR | Error /getUsers/ | method:GET | endpoint:/getUsers/ | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:45:33+07:00 | ERROR | Error /getUsers/ | method:GET | endpoint:/getUsers/ | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:45:34+07:00 | ERROR | Error /getUsers/ | method:GET | endpoint:/getUsers/ | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:45:34+07:00 | ERROR | Error /getUsers/ | method:GET | endpoint:/getUsers/ | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:45:35+07:00 | ERROR | Error /getUsers/ | method:GET | endpoint:/getUsers/ | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:46:59+07:00 | ERROR | Error /getUsers/ | method:GET | endpoint:/getUsers/ | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:47:22+07:00 | ERROR | Error /getUsers | method:GET | endpoint:/getUsers | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:47:23+07:00 | ERROR | Error /getUsers | method:GET | endpoint:/getUsers | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:48:43+07:00 | ERROR | Error /getUsers | method:GET | endpoint:/getUsers | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:50:24+07:00 | ERROR | Error /getUsers/ | method:GET | endpoint:/getUsers/ | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:50:25+07:00 | ERROR | Error /getUsers/ | method:GET | endpoint:/getUsers/ | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:50:40+07:00 | ERROR | Error /getUsers/ | method:GET | endpoint:/getUsers/ | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:54:27+07:00 | ERROR | Error /getUsers/ | method:GET | endpoint:/getUsers/ | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:54:34+07:00 | ERROR | Error /getUsers | method:GET | endpoint:/getUsers | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-01T00:54:36+07:00 | ERROR | Error /getUsers | method:GET | endpoint:/getUsers | request:{"id":"getUsers"} | error:"User not found" | user:11
+2024-11-12T21:37:44+07:00 | ERROR | Error /getAllCourseByTeacher | method:GET | endpoint:/getAllCourseByTeacher | request:{} | error:"Unknown column 'Course.teacherId' in 'where clause'" | user:11

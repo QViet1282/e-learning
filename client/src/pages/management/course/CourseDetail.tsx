@@ -2,7 +2,7 @@
 /* PAGE: COURSEPAGE
    ========================================================================== */
 import React, { useEffect, useState } from 'react'
-import { Accordion, AccordionSummary, AccordionDetails, Box, Typography } from '@mui/material'
+import { Accordion, AccordionSummary, AccordionDetails, Box } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { useLocation } from 'react-router-dom'
 import Curriculum from './Curriculum'
@@ -13,6 +13,8 @@ import PricingAndPublishing from './PricingAndPublishing'
 import StudentList from './StudentList'
 import DoExamList from './DoExamList'
 import TargetStudents from './TargetStudents'
+import Notification from './Notification'
+import Statistics from './Statistics'
 
 export default function CourseDetailPage (): JSX.Element {
   const location = useLocation()
@@ -60,14 +62,12 @@ export default function CourseDetailPage (): JSX.Element {
         />
       case 'Danh sách học viên':
         return <StudentList courseId={course?.id} />
-      case 'Trang tổng quan khóa học':
-        return <Typography>Trang tổng quan của khóa học.</Typography>
       case 'Kết quả các bài trắc nghiệm':
         return <DoExamList courseId={courseId} />
-      case 'Khuyến mại':
-        return <Typography>Chi tiết về các chương trình khuyến mại.</Typography>
-      case 'Tin nhắn khóa học':
-        return <Typography>Tin nhắn gửi đến học viên.</Typography>
+      case 'Thông báo':
+        return <Notification courseId={courseId}/>
+      case 'Thống kê':
+        return <Statistics courseId={courseId}/>
       default:
         return <CourseOverview
         courseId={course?.id}
@@ -116,8 +116,8 @@ export default function CourseDetailPage (): JSX.Element {
             <Box display="flex" flexDirection="column" gap={2}>
               <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Danh sách học viên')}>Danh sách học viên</button>
               <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Kết quả các bài trắc nghiệm')}>Kết quả các bài trắc nghiệm</button>
-              {/* <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Khuyến mại')}>Khuyến mại</button> */}
-              {/* <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Tin nhắn khóa học')}>Tin nhắn khóa học</button> */}
+              <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Thông báo')}>Thông báo</button>
+              <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Thống kê')}>Thống kê</button>
             </Box>
           </AccordionDetails>
         </Accordion>

@@ -101,6 +101,9 @@ const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, l
     setIsEditingExam(false)
   }
 
+  console.log('data', studyItem.description)
+  console.log('data2', dataExam.description)
+
   return (
     <div className="flex flex-col flex-1 h-auto p-2 mb-4 relative border-4 gap-2 bg-white">
       <div className="w-full flex justify-between items-center p-2">

@@ -39,7 +39,7 @@ const Pagination: React.FC<PaginationProps> = ({
   const pages = getPageNumbers()
 
   return (
-    <div className="flex justify-center mt-4">
+    <div className="flex justify-center mt-4 w-full">
       <button
         onClick={handlePrevious}
         disabled={currentPage === 1}

@@ -10,6 +10,11 @@ const StyledQuill = styled(ReactQuill)`
   .ql-editor {
     padding: 0; /* Xóa padding cho editor */
   }
+  .ql-editor img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
 `
 
 // Xuất StyledQuill

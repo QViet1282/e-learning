@@ -60,6 +60,10 @@ export const createQuestion = async (payload: newQuestion): Promise<AxiosRespons
   return await requestWithJwt.post<any>('/questions/createQuestion', payload, { withCredentials: true })
 }
 
+export const createAndReplicateNotification = async (payload: any): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.post<any>('/notifications/createAndReplicateNotification', { data: payload })
+}
+
 // trang home page
 
 export const getListCourses = async ({
