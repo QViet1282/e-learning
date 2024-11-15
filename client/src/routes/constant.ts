@@ -21,7 +21,9 @@ const ROUTES = {
   dashboard: '/dashboard', // TODO: remove later
   cancel: '/payment-cancel',
   success: '/payment-success',
-  purchaseHistory: '/purchase-history'
+  purchaseHistory: '/purchase-history',
+  teachingPage: '/teaching',
+  onboardingPage: '/onboarding'
 }
 
 export default ROUTES

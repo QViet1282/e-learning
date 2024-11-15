@@ -4,7 +4,9 @@
     "navbar": {
       "homepage": "Trang chủ",
       "posts": "Bài viết",
-      "about_us": "Về chúng tôi",
+      "teaching": "Giảng dạy trên VIETCODE",
+      "teacher": "Giảng viên",
+      "admin": "Quản trị viên",
       "contact_us": "Liên hệ",
       "sign_out": "Đăng xuất",
       "cart": "Giỏ hàng",
@@ -53,6 +55,7 @@
       "email_exists": "Email đã tồn tại",
       "accept_terms": "Vui lòng chấp nhận điều khoản và điều kiện",
       "username_invalid": "Tên người dùng phải bắt đầu bằng chữ cái và không chứa ký tự đặc biệt hoặc khoảng trắng",
+      "back_to_home": "Quay lại trang chủ",
       "toast": {
         "login_success": "Đăng nhập thành công",
         "login_failed": "Đăng nhập thất bại",
@@ -211,7 +214,8 @@
       "continue": "Tiếp",
       "signin_again_confirm": "Vui lòng đăng nhập lại để tiếp tục",
       "sessionExpired": "Phiên đăng nhập đã hết hạn",
-      "logout_success": "Đăng xuất thành công"
+      "logout_success": "Đăng xuất thành công",
+      "diem": "Điểm số đạt được ở lần thi gần đây"
     },
     "course":{
       "minutes":"phút video theo yêu cầu",
@@ -386,6 +390,104 @@
       "amount": "Số tiền",
       "purchased_courses": "Khóa học đã mua",
       "price": "Giá"
+    },
+    "teachingPage":{
+      "welcome": "Hãy đến giảng dạy với chúng tôi",
+      "description": "Trở thành giảng viên và thay đổi cuộc sống của mọi người, bao gồm cả cuộc sống của chính bạn",
+      "getStarted": "Bắt đầu",
+      "CardsSection": {
+        "reasonsToStart": "Có quá nhiều lý do để bắt đầu",
+        "teachYourWay": "Giảng dạy theo cách của bạn",
+        "teachYourWayDescription": "Xuất bản khóa học mong muốn, theo cách mong muốn và bạn luôn có quyền kiểm soát nội dung của riêng mình.",
+        "inspireStudents": "Truyền cảm hứng cho học viên",
+        "inspireStudentsDescription": "Dạy những gì bạn biết và giúp học viên khám phá sở thích, tiếp thu kỹ năng mới và thăng tiến trong sự nghiệp của họ.",
+        "earnRewards": "Nhận phần thưởng",
+        "earnRewardsDescription": "Mở rộng mạng lưới nghề nghiệp, xây dựng kiến thức chuyên môn và kiếm thu nhập từ mỗi lượt ghi danh có trả phí."
+      },
+      "StatsSection": {
+        "stat1Value": "73 triệu",
+        "stat1Label": "Học viên",
+        "stat2Value": "Hơn 75",
+        "stat2Label": "Ngôn ngữ",
+        "stat3Value": "1 tỷ",
+        "stat3Label": "Lượt ghi danh",
+        "stat4Value": "Hơn 180",
+        "stat4Label": "Quốc gia",
+        "stat5Value": "Hơn 16,000",
+        "stat5Label": "Khách hàng doanh nghiệp"
+      },
+      "GettingStartedTabs": {
+        "howToStart": "Cách thức để bắt đầu",
+        "planCurriculum": "Lên Kế Hoạch Chương Trình Học",
+        "planCurriculumDescription1": "Hãy bắt đầu với niềm đam mê và kiến thức của bạn. Sau đó, bạn có thể chọn một chủ đề triển vọng với sự trợ giúp của công cụ Thông tin chi tiết về thị trường.",
+        "planCurriculumDescription2": "Bạn là người quyết định phương pháp cũng như kiến thức giảng dạy.",
+        "howWeHelp": "Cách Chúng Tôi Trợ Giúp Bạn",
+        "planCurriculumHelp": "Chúng tôi cung cấp nhiều tài nguyên về cách tạo khóa học đầu tiên. Ngoài ra, bảng điều khiển của giảng viên và trang khung chương trình của chúng tôi sẽ giúp bạn tổ chức khóa học hiệu quả.",
+        "recordVideo": "Quay Video",
+        "recordVideoDescription1": "Sử dụng các công cụ cơ bản như điện thoại thông minh hoặc camera DSLR. Thêm một chiếc micrô tốt là bạn đã sẵn sàng bắt đầu.",
+        "recordVideoDescription2": "Nếu không thích xuất hiện trên camera, bạn chỉ cần ghi lại màn hình của mình. Dù với cách nào thì bạn cũng nên quay video dài từ 2 tiếng trở lên cho khóa học có trả phí.",
+        "recordVideoHelp": "Nhóm Hỗ trợ của chúng tôi luôn sẵn sàng trợ giúp bạn trong suốt quá trình thực hiện và đưa ra phản hồi về video thử nghiệm.",
+        "launchCourse": "Ra Mắt Khóa Học",
+        "launchCourseDescription1": "Thu thập các xếp hạng và đánh giá đầu tiên bằng cách quảng bá khóa học trên mạng xã hội và mạng lưới nghề nghiệp của bạn.",
+        "launchCourseDescription2": "Người dùng sẽ dễ dàng khám phá khóa học của bạn trên cổng khóa học của chúng tôi. Đây là nơi bạn kiếm được doanh thu từ mỗi lượt ghi danh có trả phí.",
+        "launchCourseHelp": "Công cụ coupon tùy chỉnh cho phép bạn đưa ra ưu đãi thu hút học viên ghi danh, đồng thời các chương trình quảng cáo toàn cầu của chúng tôi giúp thúc đẩy lưu lượng truy cập vào khóa học."
+      },
+      "TestimonialSlider": {
+        "testimonial1": {
+          "name": "Frank Kane",
+          "title": "Chứng chỉ CNTT và Khoa học dữ liệu",
+          "quote": "Tôi tự hào khi thức dậy và biết rằng công việc của mình đang giúp mọi người trên khắp thế giới cải thiện sự nghiệp của họ và tạo ra những điều tốt đẹp. Mặc dù trở thành giảng viên toàn thời gian là một công việc khó khăn nhưng công việc này cho phép bạn làm việc bất cứ lúc nào, ở bất cứ đâu và theo cách mà bạn muốn."
+        },
+        "testimonial2": {
+          "name": "Paulo Dichone",
+          "title": "Nhà phát triển (Chuyên ngành Android)",
+          "quote": "Udemy đã thay đổi cuộc đời tôi. Udemy cho phép tôi theo đuổi đam mê của mình và trở thành giảng viên. Tôi thích chứng kiến học viên của mình đạt được thành công, cũng như nghe họ tâm sự rằng họ đã học được nhiều hơn và nhanh hơn khi tham gia các khóa học của tôi so với thời đại học. Thật là vinh dự và vinh hạnh"
+        },
+        "testimonial3": {
+          "name": "Deborah Grayson Riege",
+          "title": "Năng lực lãnh đạo, Giao tiếp",
+          "quote": "Công việc giảng dạy trên Udemy đã mang lại cho tôi hai thứ quan trọng, đó là: cơ hội tiếp cận với nhiều học viên hơn so với nếu tôi tự làm một mình và một nguồn thu nhập bổ sung ổn định. Tôi thích việc chia sẻ kiến thức của mình với người khác và thấy họ tiến xa hơn trong sự nghiệp của mình nhờ kiến thức mà tôi chia sẻ."
+        }
+      },
+      "SupportSection": {
+        "title": "Bạn sẽ không phải làm việc này một mình",
+        "instructorSupportTeam": "Nhóm Hỗ trợ giảng viên",
+        "description": "luôn có mặt để giải đáp thắc mắc cũng như đánh giá video thử nghiệm của bạn. Đồng thời, Teaching Center cung cấp cho bạn nhiều tài nguyên để giúp bạn trong suốt quá trình làm việc. Ngoài ra, bạn sẽ nhận được sự hỗ trợ từ các giảng viên giàu kinh nghiệm trong cộng đồng online.",
+        "learnMore": "Bạn cần biết thêm chi tiết trước khi bắt đầu? Hãy tìm hiểu thêm."
+      },
+      "JoinTodaySection": {
+        "title": "Trở thành giảng viên ngay hôm nay",
+        "description": "Tham gia một trong những thị trường học tập trực tuyến lớn nhất thế giới.",
+        "button": "Bắt đầu"
+      }
+    },
+    "onboarding": {
+      "step": "Bước",
+      "exit": "Thoát",
+      "share_knowledge": "Chia sẻ kiến thức của bạn",
+      "create_course": "Tạo một khóa học",
+      "expand_reach": "Mở rộng phạm vi tiếp cận của bạn",
+      "share_knowledge_desc": "Các khóa học trên VIETCODE đều mang lại trải nghiệm học tập bằng cách xem video. Điều này giúp học viên có cơ hội học kỹ năng dễ thực hành.",
+      "create_course_desc": "Trong nhiều năm qua, chúng tôi đã giúp hàng nghìn giảng viên học cách ghi hình tại nhà. Bất kể bạn có kinh nghiệm hay không, chúng tôi sẽ hướng dẫn bạn qua từng bước.",
+      "expand_reach_desc": "Sau khi xuất bản khóa học, bạn có thể tăng lượng học viên và tạo ra tác động với sự hỗ trợ từ chúng tôi. Chúng ta sẽ cùng nhau giúp đối tượng học viên phù hợp tìm ra khóa học của bạn.",
+      "teaching_experience": "Bạn đã từng thực hiện hình thức giảng dạy nào trước đây?",
+      "video_experience": "Bạn có kinh nghiệm với việc tạo video không?",
+      "followers": "Số lượng người theo dõi của bạn là bao nhiêu?",
+      "In-person, informal": "Trực tiếp, không chính thức",
+      "In-person, professional": "Trực tiếp, chuyên nghiệp",
+      "Online": "Online",
+      "Other": "Chủ đề khác",
+      "I am new": "Tôi là người mới",
+      "I have some knowledge": "Tôi có một chút kiến thức",
+      "I am experienced": "Tôi có kinh nghiệm",
+      "I have videos ready to upload": "Tôi có video sẵn sàng để tải lên",
+      "Not at this time": "Không phải lúc này",
+      "I have a small following": "Tôi có một lượng người theo dõi nhỏ",
+      "I have a moderate following": "Tôi có một lượng người theo tương đối",
+      "I have a large following": "Tôi có lượng người theo dõi khá lớn",
+      "previous": "Trước",
+      "next": "Tiếp tục",
+      "continue_to_management": "Tiếp tục đến Management"
     }
   }
 }

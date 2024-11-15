@@ -12,7 +12,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import SidebarLinkGroup from './SidebarLinkGroup'
 import LogoutOutlinedIcon from '@mui/icons-material/LogoutOutlined'
 import KeyboardReturnOutlinedIcon from '@mui/icons-material/KeyboardReturnOutlined'
-
+import logoImg from '../assets/images/navbar/logo.png'
 import { getFromLocalStorage, removeLocalStorage } from 'utils/functions'
 import CryptoJS from 'crypto-js'
 
@@ -30,6 +30,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const { t } = useTranslation()
 
   const [tokens, setTokens] = useState(getFromLocalStorage<any>('tokens'))
+  const isAuthenticated = !!tokens?.accessToken
   useEffect(() => {
     const handleStorageChange = () => {
       setTokens(getFromLocalStorage<any>('tokens'))
@@ -99,6 +100,8 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
     navigate(ROUTES.homePage)
   }, [navigate])
 
+  const isAdmin = data?.toUpperCase() === 'ADMIN'
+  const isManager = data?.toUpperCase() === 'MANAGER'
   return (
        <div>
          {/* Sidebar backdrop (mobile only) */}
@@ -130,37 +133,21 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                  <path d="M10.7 18.7l1.4-1.4L7.8 13H20v-2H7.8l4.3-4.3-1.4-1.4L4 12z" />
                </svg>
              </button>
-             {/* Logo */}
-             <NavLink end to="/" className="block">
-               <svg width="32" height="32" viewBox="0 0 32 32">
-                 <defs>
-                   <linearGradient x1="28.538%" y1="20.229%" x2="100%" y2="108.156%" id="logo-a">
-                     <stop stopColor="#A5B4FC" stopOpacity="0" offset="0%" />
-                     <stop stopColor="#A5B4FC" offset="100%" />
-                   </linearGradient>
-                   <linearGradient x1="88.638%" y1="29.267%" x2="22.42%" y2="100%" id="logo-b">
-                     <stop stopColor="#38BDF8" stopOpacity="0" offset="0%" />
-                     <stop stopColor="#38BDF8" offset="100%" />
-                   </linearGradient>
-                 </defs>
-                 <rect fill="#6366F1" width="32" height="32" rx="16" />
-                 <path d="M18.277.16C26.035 1.267 32 7.938 32 16c0 8.837-7.163 16-16 16a15.937 15.937 0 01-10.426-3.863L18.277.161z" fill="#4F46E5" />
-                 <path
-                   d="M7.404 2.503l18.339 26.19A15.93 15.93 0 0116 32C7.163 32 0 24.837 0 16 0 10.327 2.952 5.344 7.404 2.503z"
-                   fill="url(#logo-a)"
-                 />
-                 <path
-                   d="M2.223 24.14L29.777 7.86A15.926 15.926 0 0132 16c0 8.837-7.163 16-16 16-5.864 0-10.991-3.154-13.777-7.86z"
-                   fill="url(#logo-b)"
-                 />
-               </svg>
-             </NavLink>
+            {/* Logo */}
+            <NavLink end to="/" className="flex items-center">
+              <img src={logoImg} alt="logo" className="h-10" />
+              <span className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 ml-2">
+                VIETCODE
+              </span>
+            </NavLink>
            </div>
 
            {/* Links */}
            <div className="space-y-8">
              {/* Pages group */}
              <div>
+             {(isAdmin || isManager) && (
+                <>
                <div>
                  <div className="flex items-center">
                    <div className="flex-shrink-0">
@@ -183,28 +170,75 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                  </span>
                  <span className="lg:hidden lg:sidebar-expanded:block 2xl:block">{t('sidebar.pages')}</span>
                </h3>
+                </>
+             )}
+              {(!isAdmin && !isManager) && (
+                <>
+                  <ul className="mt-3">
+                    {/* Home */}
+                    <li className={`py-2 rounded-sm mb-0.5 last:mb-0 ${pathname === '/' && 'bg-teal-300 text-blue-500'}`}>
+                      <NavLink
+                        end
+                        to="/"
+                        className={`block ${pathname === '/' ? 'text-white' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname === '/' && 'hover:text-slate-200'}`}
+                      >
+                        <div className="flex items-center">
+                          <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
+                            {t('navbar.homepage')}
+                          </span>
+                        </div>
+                      </NavLink>
+                    </li>
+                    {/* Teaching */}
+                    <li className={`py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes(isAdmin ? 'admin' : isManager ? 'management' : 'teaching') && 'bg-teal-300 text-blue-500'}`}>
+                      <NavLink
+                        end
+                        to={isAdmin ? '/admin' : isManager ? '/management' : '/teaching'}
+                        className={`block ${pathname.includes(isAdmin ? 'admin' : isManager ? 'management' : 'teaching') ? 'text-white bg-teal-300' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes(isAdmin ? 'admin' : isManager ? 'management' : 'teaching') && 'hover:text-slate-200'} rounded`}
+                      >
+                        <div className="flex items-center">
+                          <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
+                            {isAdmin ? t('navbar.admin') : isManager ? t('navbar.teacher') : t('navbar.teaching')}
+                          </span>
+                        </div>
+                      </NavLink>
+                    </li>
+                    {/* Contact */}
+                    <li className={`py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('contact') && 'bg-teal-300 text-blue-500'}`}>
+                      <NavLink
+                        end
+                        to="/contact"
+                        className={`block ${pathname.includes('contact') ? 'text-white' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes('contact') && 'hover:text-slate-200'}`}
+                      >
+                        <div className="flex items-center">
+                          <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
+                            {t('navbar.contact_us')}
+                          </span>
+                        </div>
+                      </NavLink>
+                    </li>
+                    {/* Cart */}
+                    {isAuthenticated && (
+                      <li className={`py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('cart') && 'bg-teal-300 text-blue-500'}`}>
+                        <NavLink
+                          end
+                          to="/cart"
+                          className={`block ${pathname.includes('cart') ? 'text-white' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes('cart') && 'hover:text-slate-200'}`}
+                        >
+                          <div className="flex items-center">
+                            <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
+                              {t('navbar.cart')}
+                            </span>
+                          </div>
+                        </NavLink>
+                      </li>
+                    )}
+                  </ul>
+                </>
+              )}
+               {(isAdmin || isManager) && (
+                <>
                <ul className="mt-3">
-                 {/* Permissions */}
-                 <li className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('permission') && 'bg-teal-300 text-blue-500'}`}>
-                   <NavLink
-                     end
-                     to="/permission"
-                     className={`block ${pathname.includes('permission') ? 'text-white' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes('permission') && 'hover:text-slate-200'}`}
-                   >
-                     <div className="flex items-center">
-                       <svg className="shrink-0 h-6 w-6" viewBox="0 0 24 24">
-                         <path className={`fill-current text-slate-600 ${pathname.includes('permission') && 'text-white'}`} d="M1 3h22v20H1z" />
-                         <path
-                           className={`fill-current text-slate-400 ${pathname.includes('permission') && 'text-teal-500'}`}
-                           d="M21 3h2v4H1V3h2V1h4v2h10V1h4v2Z"
-                         />
-                       </svg>
-                       <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
-                         {t('sidebar.permissions')}
-                       </span>
-                     </div>
-                   </NavLink>
-                 </li>
                  {/* users */}
                  <li className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('user') && 'bg-teal-300 text-blue-500'}`}>
                    <NavLink
@@ -225,34 +259,6 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                        </svg>
                        <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
                          {t('sidebar.users')}
-                       </span>
-                     </div>
-                   </NavLink>
-                 </li>
-                 {/* dashboard */}
-                 <li className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('dashboard') && 'bg-teal-300 text-blue-500'}`}>
-                   <NavLink
-                     end
-                     to="/dashboard/enrollment_dashboard"
-                     className={`block ${pathname.includes('dashboard') ? 'text-white' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes('dashboard') && 'hover:text-slate-200'}`}
-                   >
-                     <div className="flex items-center">
-                       <svg className="shrink-0 h-6 w-6" viewBox="0 0 24 24">
-                         <path
-                           className={`fill-current text-slate-400 ${pathname.includes('dashboard') && 'text-indigo-300'}`}
-                           d="M13 15l11-7L11.504.136a1 1 0 00-1.019.007L0 7l13 8z"
-                         />
-                         <path
-                           className={`fill-current text-slate-700 ${pathname.includes('dashboard') && '!text-white'}`}
-                           d="M13 15L0 7v9c0 .355.189.685.496.864L13 24v-9z"
-                         />
-                         <path
-                           className={`fill-current text-slate-600 ${pathname.includes('dashboard') && 'text-white'}`}
-                           d="M13 15.047V24l10.573-7.181A.999.999 0 0024 16V8l-11 7.047z"
-                         />
-                       </svg>
-                       <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
-                         {t('sidebar.dashboard')}
                        </span>
                      </div>
                    </NavLink>
@@ -326,30 +332,13 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                      )
                    }}
                  </SidebarLinkGroup>
-                 {/* lesson */}
-                 <li className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('lesson') && 'bg-teal-300 text-blue-500'}`}>
-                   <NavLink
-                     end
-                     to="/lesson"
-                     className={`block ${pathname.includes('lesson') ? 'text-white' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes('lesson') && 'hover:text-slate-200'}`}
-                   >
-                     <div className="flex items-center">
-                       <svg className="shrink-0 h-6 w-6" viewBox="0 0 24 24">
-                         <path d="M4 19V6.2C4 5.0799 4 4.51984 4.21799 4.09202C4.40973 3.71569 4.71569 3.40973 5.09202 3.21799C5.51984 3 6.0799 3 7.2 3H16.8C17.9201 3 18.4802 3 18.908 3.21799C19.2843 3.40973 19.5903 3.71569 19.782 4.09202C20 4.51984 20 5.0799 20 6.2V17H6C4.89543 17 4 17.8954 4 19ZM4 19C4 20.1046 4.89543 21 6 21H20M9 7H15M9 11H15M19 17V21" stroke="#6b7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                       </svg>
-                       <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
-                         {t('lesson.lesson')}
-                       </span>
-                     </div>
-                   </NavLink>
-                 </li>
                  <hr className="bg-slate-200 my-5" />
                  {/* Return to User */}
-                 <li className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('return') && 'bg-teal-300 text-blue-500'}`}>
+                 <li className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0  ${pathname === '/' && 'bg-teal-300 text-blue-500'}`}>
                    <NavLink
                      end
-                     to="/return"
-                     className={`block ${pathname.includes('return') ? 'text-white' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes('return') && 'hover:text-slate-200'}`}
+                     to="/"
+                     className={`block ${pathname === '/' ? 'text-white' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname === '/' && 'hover:text-slate-200'}`}
                    >
                      <div className="flex items-center">
                        <KeyboardReturnOutlinedIcon />
@@ -376,6 +365,8 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                    </NavLink>
                  </li>
                </ul>
+                </>
+               )}
              </div>
            </div>
 

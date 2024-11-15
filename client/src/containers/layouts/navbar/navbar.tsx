@@ -67,15 +67,16 @@ const Navbar: FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const pathRegEx = new RegExp('^/lesson/edit/[^/]+$')
   const isPathMatch = pathRegEx.test(location.pathname)
   const isAdmin = data?.toUpperCase() === 'ADMIN'
-  const alwaysShowHamburgerPaths = [
-    '/permission',
-    '/user',
-    '/settings/profile',
-    '/lesson',
-    '/lesson/add',
-    '/dashboard/enrollment_dashboard'
-  ]
-  const showHamburgerButton = (alwaysShowHamburgerPaths.includes(location.pathname) && isAdmin) || (isPathMatch && isAdmin)
+  const isManager = data?.toUpperCase() === 'MANAGER'
+  // const alwaysShowHamburgerPaths = [
+  //   '/permission',
+  //   '/user',
+  //   '/settings/profile',
+  //   '/lesson',
+  //   '/lesson/add',
+  //   '/dashboard/enrollment_dashboard'
+  // ]
+  // const showHamburgerButton = alwaysShowHamburgerPaths.some((path) => location.pathname.includes(path)) || isPathMatch
 
   const handleLoginClick = () => {
     // Nếu `from` không tồn tại, lưu `location.pathname`
@@ -126,7 +127,6 @@ const Navbar: FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
           {/* Header: Left side */}
           <div className="flex">
             {/* Hamburger button */}
-            {showHamburgerButton && (
               <button
                 className="text-slate-500 hover:text-slate-600 lg:hidden"
                 aria-controls="sidebar"
@@ -140,11 +140,11 @@ const Navbar: FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
                   <rect x="4" y="17" width="16" height="2" />
                 </svg>
               </button>
-            )}
 
             {/* Logo */}
-            <a href="/" className="flex-shrink-0 flex items-center">
-              <img src={logoImg} alt="logo" className="h-10" /> <span className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 ml-2">VIETCODE</span>
+            <a href="/" className="hidden lg:flex-shrink-0 lg:flex items-center">
+              <img src={logoImg} alt="logo" className="h-10" />
+              <span className="text-xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-blue-500 ml-2">VIETCODE</span>
             </a>
           </div>
 
@@ -154,8 +154,8 @@ const Navbar: FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
             <a href="/" className={`block ${pathname === '/' ? 'text-white bg-teal-300' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname === '/' && 'hover:text-slate-200'} rounded px-2`}>
               {t('navbar.homepage')}
             </a>
-            <a href="/about" className={`block ${pathname.includes('about') ? 'text-white bg-teal-300' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes('about') && 'hover:text-slate-200'} rounded px-2`}>
-              {t('navbar.about_us')}
+            <a href={isAdmin ? '/admin' : isManager ? '/management' : '/teaching'} className={`block ${pathname.includes(isAdmin ? 'admin' : isManager ? 'management' : 'teaching') ? 'text-white bg-teal-300' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes(isAdmin ? 'admin' : isManager ? 'management' : 'teaching') && 'hover:text-slate-200'} rounded px-2`}>
+              {isAdmin ? t('navbar.admin') : isManager ? t('navbar.teacher') : t('navbar.teaching')}
             </a>
             <a href="/contact" className={`block ${pathname.includes('contact') ? 'text-white bg-teal-300' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes('contact') && 'hover:text-slate-200'} rounded px-2`}>
               {t('navbar.contact_us')}
@@ -233,6 +233,23 @@ const Navbar: FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
             )
               : (
                 <>
+                  {isAuthenticated && (
+                    <div className="flex items-center space-x-3">
+                        <div className='lg:hidden'>
+                          <button
+                            onClick={() => navigate('/cart')}
+                            className="items-center block text-gray-500 hover:text-neutral-400 truncate transition duration-150 rounded px-2 relative"
+                          >
+                            <ShoppingCartOutlinedIcon sx={{ color: 'teal' }} />
+                            {totalItems > 0 && (
+                              <span className="absolute top-0 right-0 inline-block h-4 w-4 text-xs font-semibold text-white bg-red-600 rounded-full text-center">
+                                {totalItems}
+                              </span>
+                            )}
+                          </button>
+                        </div>
+                    </div>
+                  )}
                   <Notifications align="right" />
                   <hr className="w-px h-6 bg-slate-200 mx-3" />
                   <UserMenu align="right" />

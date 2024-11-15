@@ -345,3 +345,13 @@ export const removeNotification = async (payload: any): Promise<AxiosResponse<an
 export const removeAllNotification = async (): Promise<AxiosResponse<any>> => {
   return await requestWithJwt.delete<any>('/notifications/removeAllNotification')
 }
+
+// -----------------------------------------------trang profile----------------------------
+export const updateAvatar = async (id: string, avatarUrl: string): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.put<any>(`/users/${id}/avatar`, { avatarUrl })
+}
+
+// -----------------------------------------------trang giảng viên----------------------------
+export const updateRoleToTeacher = async (id: string): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.put<any>(`/users/${id}/role/teacher`)
+}

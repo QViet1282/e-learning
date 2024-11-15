@@ -62,12 +62,13 @@ const ExamCard = ({
     if (!score) {
       return null
     }
-    return <div className="text-lg font-semibold w-36 text-right">{score}</div>
-  }, [score])
-
-  const descriptionExcerptText = useMemo(() => {
-    return description?.substring(0, 100) + '...'
-  }, [description])
+    return (
+      <div className='flex items-center mb-2'>
+        <div className="text-sm text-gray-500 flex items-center">{t('homepage.diem')}: </div>
+        <div className="ml-1 text-lg font-semibold">{score}</div>
+      </div>
+    )
+  }, [score, t])
 
   const duration = useMemo(() => {
     if (!durationInMinute) {
@@ -88,17 +89,17 @@ const ExamCard = ({
     )
   }, [t])
   return (
-    <div className="relative w-full h-52 bg-white p-4 rounded-lg border border-gray-300 cursor-pointer transition ease-in-out duration-200 hover:shadow-md">
+    <div className="relative w-full bg-white p-4 rounded-lg border border-gray-300 cursor-pointer transition ease-in-out duration-200 hover:shadow-md md:h-auto lg:h-auto">
       <div className={`text-right text-lg ${status === 'tested' ? 'text-blue-500' : 'text-red-500'}`}>
         {statusText}
       </div>
-      <div className="flex justify-between border-b border-gray-300 mb-2 text-gray-800">
-        <div className="text-xl font-semibold truncate" title={name}>{name}</div>
+      <div className="flex flex-col border-b border-gray-300 mb-2 text-gray-800">
+        <div className="text-xl font-semibold mb-2" title={name}>{name}</div>
         {scoreText}
-        <div className="text-sm text-gray-500">{duration}</div>
+        <div className="text-sm text-gray-500 mb-2">{duration}</div>
       </div>
-      <div className="text-sm text-gray-800 truncate">{descriptionExcerptText}</div>
-      <div className="flex justify-end mt-2 gap-2 absolute bottom-2">
+      <div className="text-sm text-gray-800 mb-4">{description}</div>
+      <div className="flex flex-col md:flex-row justify-start mt-2 gap-2">
         {attempted && onViewHistory && (
           <div onClick={onViewHistory} className="flex items-center justify-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-500 cursor-pointer">
             <SearchIcon />

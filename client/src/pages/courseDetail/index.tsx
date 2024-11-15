@@ -45,6 +45,8 @@ import { addCourseToCart, fetchCart, selectCartItems } from '../../redux/cart/ca
 import { AppDispatch, RootState } from 'redux/store'
 import ReactPlayer from 'react-player'
 import ChoiceModal from '../../components/ChoiceModal/index'
+// import ReactQuill from 'react-quill'
+// import 'react-quill/dist/quill.snow.css'
 
 import PlayArrowIcon from '@mui/icons-material/PlayArrow'
 import PauseIcon from '@mui/icons-material/Pause'
@@ -505,6 +507,12 @@ const CourseDetail = () => {
                     <div className='text-blue-700 font-bold text-xl'>{t('course_detail.overview')}</div>
                     <div className='font-bold text-pretty mt-3'>{t('course_detail.course_summary')}</div>
                     <div className='mt-3'>{data.summary}</div>
+                    {/* <div className='mt-3'>
+                    <ReactQuill
+                    value={data.summary}
+                    readOnly={true}
+                    theme="bubble"
+                  /></div> */}
                     <div className='font-bold text-pretty mt-3'>{t('course_detail.what_u_will_learn')}</div>
                     <div className="grid md:grid-cols-2 gap-4 mt-3">
                       {data.description?.split('.').map((item, index) =>
