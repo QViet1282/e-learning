@@ -101,6 +101,7 @@ const Login = () => {
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search)
+    console.log('URL Params:', urlParams.toString())
     const googleAuthSuccess = urlParams.get('googleAuthSuccess')
     const accessToken = urlParams.get('accessToken')
     const id = urlParams.get('id')
