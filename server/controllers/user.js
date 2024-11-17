@@ -228,10 +228,18 @@ router.put('/:id/role/teacher', isAuthenticated, async (req, res) => {
   try {
     const { id } = req.params
     const user = await models.User.findByPk(id)
+    if (!user) {
+      logError(req, MASSAGE.USER_NOT_FOUND)
+      return res.status(404).json({ message: MASSAGE.USER_NOT_FOUND })
+    }
     user.roleId = 2 // Update role to teacher
     await user.save()
+    logInfo(req, user)
+    res.json(user)
+  } catch (error) {
+    logError(req, error)
     res.status(500).json({ message: MASSAGE.NO_UPDATE_USER })
-    }
+  }
 })
 
 router.get('/getUsers', isAuthenticated, async (req, res) => {
