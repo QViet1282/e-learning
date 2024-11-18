@@ -506,13 +506,18 @@ const CourseDetail = () => {
                   <div className='p-5'>
                     <div className='text-blue-700 font-bold text-xl'>{t('course_detail.overview')}</div>
                     <div className='font-bold text-pretty mt-3'>{t('course_detail.course_summary')}</div>
-                    <div className='mt-3'>{data.summary}</div>
+                    {/* <div className='mt-3'>{data.summary}</div> */}
                     {/* <div className='mt-3'>
                     <ReactQuill
                     value={data.summary}
                     readOnly={true}
                     theme="bubble"
                   /></div> */}
+                    <div
+                      className="ql-editor"
+                      data-gramm="false"
+                      dangerouslySetInnerHTML={{ __html: data?.summary ?? '' }}
+                    />
                     <div className='font-bold text-pretty mt-3'>{t('course_detail.what_u_will_learn')}</div>
                     <div className="grid md:grid-cols-2 gap-4 mt-3">
                       {data.description?.split('.').map((item, index) =>

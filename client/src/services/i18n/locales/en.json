@@ -128,12 +128,17 @@
     "sidebar":{
       "pages": "Pages",
       "permissions": "Permissions",
-      "users": "Users",
+      "management": "Management Courses",
       "dashboard": "Dashboard",
       "settings": "Settings",
       "myAccount": "My Account",
       "returnToUser": "Return to User",
-      "logOut": "Log out"
+      "logOut": "Log out",
+      "dashboard_lecturer": "Dashboard Lecturer",
+      "management_course": "Management Courses",
+      "management_notification": "Management Notifications",
+      "management_user": "Management Users",
+      "management_statistical": "Management Statisticals"
     },
     "alert": {
       "sessionExpired": "Session expired",
@@ -487,6 +492,11 @@
       "previous": "Previous",
       "next": "Next",
       "continue_to_management": "Continue to Management"
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "To contact us, please use one of the following methods, we will respond as soon as possible.",
+      "addressTitle": "Our Address"
     }
   }
 }

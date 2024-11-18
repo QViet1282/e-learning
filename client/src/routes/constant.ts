@@ -3,14 +3,18 @@
 
 const ROUTES = {
   homePage: '/',
-  home: '/home',
+  home: '/home', // không dùng -> nó vẫn hiện
   notfound: '*',
   login: '/login',
-  course: '/course',
-  management: '/management',
+  course: '/course', // bỏ luôn
+  management: '/management', // không cần dùng
   lectuterDashboard: '/dashboard/lectuter',
   detailCourse: '/management/detail-course',
-  temp: '/management/temp',
+  courseManagement: '/management/course',
+  notificationManagement: '/management/notification',
+  statisticalManagement: '/management/statistical',
+  userManagement: '/management/user',
+  temp: '/management/temp', // không dùng
   signup: '/signup',
   forgotpassword: '/forgot-password',
   courseDetail: '/courses/:id',
@@ -18,12 +22,13 @@ const ROUTES = {
   profile: '/settings/profile',
   myCourse: '/myCourses',
   cart: '/cart',
-  dashboard: '/dashboard', // TODO: remove later
+  dashboard: '/dashboard', // không dùng - bỏ luôn
   cancel: '/payment-cancel',
   success: '/payment-success',
   purchaseHistory: '/purchase-history',
   teachingPage: '/teaching',
-  onboardingPage: '/onboarding'
+  onboardingPage: '/onboarding',
+  contact: '/contact'
 }
 
 export default ROUTES

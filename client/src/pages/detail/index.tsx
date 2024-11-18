@@ -276,7 +276,12 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
               <p className="ml-2">{t('detail.back')}</p>
             </button>
             <div className="text-2xl font-bold">{data?.name}</div>
-            <div className="text-lg break-words">{data?.description}</div>
+            {/* <div className="text-lg break-words">{data?.description}</div> */}
+            <div
+              className="ql-editor"
+              data-gramm="false"
+              dangerouslySetInnerHTML={{ __html: data?.description ?? '' }}
+            />
           </div>
           {validEndTime && (
             <CountDownTimer targetDate={validEndTime.getTime()}></CountDownTimer>

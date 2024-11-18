@@ -1177,7 +1177,12 @@ const Learning = () => {
                           <div className='xl:w-3/5 lg:w-4/5 md:w-4/5 w-full border-b border-gray-200 pb-5 px-2'>
                             <div className='text-3xl font-bold'>{lession.name}</div>
                             <div className='mt-3'>{t('learning.updated_at')} {formattedDate}</div>
-                            <div className='font-bold mt-3'>{lession.description}</div>
+                            {/* <div className='font-bold mt-3'>{lession.description}</div> */}
+                            <div
+                              className="ql-editor"
+                              data-gramm="false"
+                              dangerouslySetInnerHTML={{ __html: lession?.description ?? '' }}
+                            />
                             <div className='mt-3'>{t('learning.description')}</div>
                           </div>
                         </div>

@@ -129,12 +129,17 @@
     "sidebar":{
       "pages": "Trang", 
       "permissions": "Quyền",
-      "users": "Người dùng",
+      "management": "Quản lý khóa học",
       "dashboard": "Thống kê",
       "settings": "Cài đặt",
       "myAccount": "Tài khoản của tôi",
       "returnToUser": "Quay lại người dùng",
-      "logOut": "Đăng xuất"
+      "logOut": "Đăng xuất",
+      "dashboard_lecturer": "Bảng điều khiển giảng viên",
+      "management_course": "Quản lý khóa học",
+      "management_notification": "Quản lý thông báo",
+      "management_user": "Quản lý người dùng",
+      "management_statistical": "Quản lý thống kê"
     },
     "alert": {
       "sessionExpired": "Phiên đăng nhập đã hết hạn",
@@ -488,6 +493,11 @@
       "previous": "Trước",
       "next": "Tiếp tục",
       "continue_to_management": "Tiếp tục đến Management"
+    },
+    "contact": {
+      "title": "Liên hệ",
+      "description": "Để liên hệ với chúng tôi, vui lòng sử dụng một trong các phương thức sau, chúng tôi sẽ phản hồi trong thời gian sớm nhất.",
+      "addressTitle": "Địa chỉ của chúng tôi"
     }
   }
 }
