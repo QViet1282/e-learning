@@ -67,7 +67,7 @@ const Navbar: FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const pathRegEx = new RegExp('^/lesson/edit/[^/]+$')
   const isPathMatch = pathRegEx.test(location.pathname)
   const isAdmin = data?.toUpperCase() === 'ADMIN'
-  const isManager = data?.toUpperCase() === 'MANAGER'
+  const isTeacher = data?.toUpperCase() === 'TEACHER'
   // const alwaysShowHamburgerPaths = [
   //   '/permission',
   //   '/user',
@@ -154,8 +154,8 @@ const Navbar: FC<HeaderProps> = ({ sidebarOpen, setSidebarOpen }) => {
             <a href="/" className={`block ${pathname === '/' ? 'text-white bg-teal-300' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname === '/' && 'hover:text-slate-200'} rounded px-2`}>
               {t('navbar.homepage')}
             </a>
-            <a href={isAdmin ? '/admin' : isManager ? '/management' : '/teaching'} className={`block ${pathname.includes(isAdmin ? 'admin' : isManager ? 'management' : 'teaching') ? 'text-white bg-teal-300' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes(isAdmin ? 'admin' : isManager ? 'management' : 'teaching') && 'hover:text-slate-200'} rounded px-2`}>
-              {isAdmin ? t('navbar.admin') : isManager ? t('navbar.teacher') : t('navbar.teaching')}
+            <a href={isAdmin ? '/management/course' : isTeacher ? '/dashboard/lectuter' : '/teaching'} className={`block ${pathname.includes(isAdmin ? 'management/course' : isTeacher ? 'dashboard/lectuter' : 'teaching') ? 'text-white bg-teal-300' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes(isAdmin ? 'management/course' : isTeacher ? 'dashboard/lectuter' : 'teaching') && 'hover:text-slate-200'} rounded px-2`}>
+              {isAdmin ? t('navbar.admin') : isTeacher ? t('navbar.teacher') : t('navbar.teaching')}
             </a>
             <a href="/contact" className={`block ${pathname.includes('contact') ? 'text-white bg-teal-300' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes('contact') && 'hover:text-slate-200'} rounded px-2`}>
               {t('navbar.contact_us')}

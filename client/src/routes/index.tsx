@@ -82,6 +82,25 @@ const OnboardingPage = loadable(async () => await import('pages/onboarding'), {
   fallback: <Loading />
 })
 
+const Contact = loadable(async () => await import('pages/contact'), {
+  fallback: <Loading />
+})
+
+const CourseManagement = loadable(async () => await import('pages/management/course/CourseManagement'), {
+  fallback: <Loading />
+})
+
+const NotificationManager = loadable(async () => await import('pages/management/notification'), {
+  fallback: <Loading />
+})
+
+const StatisticsManager = loadable(async () => await import('pages/management/statistics'), {
+  fallback: <Loading />
+})
+
+const UserManager = loadable(async () => await import('pages/management/user'), {
+  fallback: <Loading />
+})
 /**
     * Use <AuthRoute /> to protect authenticate pages
     */
@@ -121,9 +140,7 @@ const routes: RouteObject[] = [
     children: [
       { index: true, element: <HomePage /> },
       { path: ROUTES.management, element: <ManagementPage /> },
-      { path: ROUTES.lectuterDashboard, element: <LectuterDashboard /> },
       { path: ROUTES.notfound, element: <NotFound /> },
-      { path: ROUTES.detailCourse, element: <CourseDetailPage/> },
       { path: ROUTES.courseDetail, element: <CourseDetail /> },
       { path: ROUTES.learning, element: <Learning /> },
       { path: ROUTES.profile, element: <Profile /> },
@@ -133,11 +150,60 @@ const routes: RouteObject[] = [
       { path: ROUTES.success, element: <Success /> },
       { path: ROUTES.purchaseHistory, element: <PurchaseHistory /> },
       { path: ROUTES.cart, element: <Cart /> },
+      { path: ROUTES.contact, element: <Contact /> },
       { path: ROUTES.myCourse, element: <MyCourse /> },
+      {
+        path: ROUTES.detailCourse,
+        element: (
+          <AuthRoute allowedRoles={['ADMIN', 'TEACHER']}>
+            <CourseDetailPage />
+          </AuthRoute>
+        )
+      },
+      {
+        path: ROUTES.lectuterDashboard,
+        element: (
+          <AuthRoute allowedRoles={['TEACHER']}>
+            <LectuterDashboard />
+          </AuthRoute>
+        )
+      },
+      {
+        path: ROUTES.courseManagement,
+        element: (
+          <AuthRoute allowedRoles={['ADMIN']}>
+            <CourseManagement />
+          </AuthRoute>
+        )
+      },
+      {
+        path: ROUTES.notificationManagement,
+        element: (
+          <AuthRoute allowedRoles={['ADMIN']}>
+            <NotificationManager />
+          </AuthRoute>
+        )
+      },
+      {
+        path: ROUTES.statisticalManagement,
+        element: (
+          <AuthRoute allowedRoles={['ADMIN']}>
+            <StatisticsManager />
+          </AuthRoute>
+        )
+      },
+      {
+        path: ROUTES.userManagement,
+        element: (
+          <AuthRoute allowedRoles={['ADMIN']}>
+            <UserManager />
+          </AuthRoute>
+        )
+      },
       {
         path: ROUTES.teachingPage,
         element: (
-          <AuthRoute excludedRoles={['ADMIN', 'MANAGER']}>
+          <AuthRoute excludedRoles={['ADMIN', 'TEACHER']}>
             <TeachingPage />
           </AuthRoute>
         )
@@ -145,7 +211,7 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.onboardingPage,
         element: (
-          <AuthRoute excludedRoles={['ADMIN', 'MANAGER']}>
+          <AuthRoute excludedRoles={['ADMIN', 'TEACHER']}>
             <OnboardingPage />
           </AuthRoute>
         )

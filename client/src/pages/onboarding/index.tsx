@@ -59,11 +59,11 @@ const UdemyForm: React.FC = () => {
         if (response.status === 200) {
           // Update role in localStorage
           const tokens = getFromLocalStorage<any>('tokens')
-          const encryptedGroupWithRoles = encryptData('MANAGER', 'Access_Token_Secret_#$%_ExpressJS_Authentication')
+          const encryptedGroupWithRoles = encryptData('TEACHER', 'Access_Token_Secret_#$%_ExpressJS_Authentication')
           tokens.key = encryptedGroupWithRoles
           localStorage.setItem('tokens', JSON.stringify(tokens))
           window.dispatchEvent(new Event('storage'))
-          navigate('/management')
+          navigate('/dashboard/lectuter')
         }
       } catch (error) {
         console.error('Failed to update role to teacher:', error)

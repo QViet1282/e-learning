@@ -41,7 +41,8 @@ const AuthRoute = ({ children, allowedRoles, excludedRoles }: IAuthRouteProps) =
     ROUTES.signup,
     ROUTES.forgotpassword,
     ROUTES.courseDetail,
-    ROUTES.teachingPage
+    ROUTES.teachingPage,
+    ROUTES.contact
   ]
 
   // Kiểm tra nếu là một route công khai hoặc là chi tiết khóa học `/courses/:id`
@@ -64,9 +65,12 @@ const AuthRoute = ({ children, allowedRoles, excludedRoles }: IAuthRouteProps) =
 
   // Kiểm tra vai trò người dùng nếu có yêu cầu loại trừ vai trò cụ thể - chỗ này dùng để loại trừ vai trò giảng viên và admin khi vào trang teaching , onboarding sẽ bị đẩy về trang management
   if (excludedRoles && data && excludedRoles.includes(data)) {
-    return <Navigate to={ROUTES.management} />
+    if (data === 'TEACHER') {
+      return <Navigate to={ROUTES.lectuterDashboard} />
+    } else if (data === 'ADMIN') {
+      return <Navigate to={ROUTES.courseManagement} />
+    }
   }
-
   return <>{children}</>
 }
 

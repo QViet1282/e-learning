@@ -98,7 +98,12 @@ const ExamCard = ({
         {scoreText}
         <div className="text-sm text-gray-500 mb-2">{duration}</div>
       </div>
-      <div className="text-sm text-gray-800 mb-4">{description}</div>
+      {/* <div className="text-sm text-gray-800 mb-4">{description}</div> */}
+      <div
+        className="ql-editor"
+        data-gramm="false"
+        dangerouslySetInnerHTML={{ __html: description ?? '' }}
+      />
       <div className="flex flex-col md:flex-row justify-start mt-2 gap-2">
         {attempted && onViewHistory && (
           <div onClick={onViewHistory} className="flex items-center justify-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-500 cursor-pointer">

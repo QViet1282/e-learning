@@ -210,7 +210,7 @@ function DropdownProfile ({ align }: DropdownProfileProps) {
                  </Link>
                </li>
 
-               {/* {(data === 'ADMIN' || data === 'MANAGER') && (
+               {/* {(data === 'ADMIN' || data === 'TEACHER') && (
 
                  <li>
                    <Link
@@ -274,7 +274,7 @@ function DropdownProfile ({ align }: DropdownProfileProps) {
                  </button>
                </li>
                <hr className="bg-slate-200 my-2" />
-               {(data === 'ADMIN' || data === 'MANAGER') && (
+               {(data === 'ADMIN' || data === 'TEACHER') && (
                  <li>
                    {/* <Link
                      className="font-medium text-sm text-gray-500 hover:text-teal-600 flex items-center py-1 px-6"

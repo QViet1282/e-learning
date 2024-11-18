@@ -67,7 +67,7 @@
 //   const pathRegEx = new RegExp('^/lesson/edit/[^/]+$')
 //   const isPathMatch = pathRegEx.test(location.pathname)
 //   const isAdmin = data?.toUpperCase() === 'ADMIN'
-//   const isTeacher = data?.toUpperCase() === 'MANAGER'
+//   const isTeacher = data?.toUpperCase() === 'TEACHER'
 //   const alwaysShowSidebarPaths = ['/permission', '/user', '/settings/profile', '/lesson', '/lesson/add', '/dashboard/enrollment_dashboard']
 //   const showSidebar = (alwaysShowSidebarPaths.includes(location.pathname) && isAdmin) || (isPathMatch && isAdmin) || (isPathMatch && isTeacher) || (alwaysShowSidebarPaths.includes(location.pathname) && isTeacher)
 //   const showFooter = !location.pathname.startsWith('/learning')
@@ -183,8 +183,8 @@ const Default = () => {
   const pathRegEx = new RegExp('^/lesson/edit/[^/]+$')
   const isPathMatch = pathRegEx.test(location.pathname)
   const isAdmin = data?.toUpperCase() === 'ADMIN'
-  const isTeacher = data?.toUpperCase() === 'MANAGER'
-  const alwaysShowSidebarPaths = ['/permission', '/user', '/settings/profile', '/lesson', '/lesson/add', '/dashboard/enrollment_dashboard']
+  const isTeacher = data?.toUpperCase() === 'TEACHER'
+  const alwaysShowSidebarPaths = ['/settings/profile', '/management', '/management/course', '/management/notification', '/management/statistical', '/management/user', '/management/detail-course', '/dashboard/lectuter']
   const showSidebar = (alwaysShowSidebarPaths.includes(location.pathname) && isAdmin) || (isPathMatch && isAdmin) || (isPathMatch && isTeacher) || (alwaysShowSidebarPaths.includes(location.pathname) && isTeacher)
   const showFooter = !location.pathname.startsWith('/learning')
 
