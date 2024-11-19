@@ -18,6 +18,7 @@ const Notification = require('./notification')
 const NotificationRecipient = require('./notification_recipient')
 const Order = require('./order')
 const Payment = require('./payment')
+const PayoutRequest = require('./payout_requests')
 
 Course.hasMany(CategoryLession, { foreignKey: 'courseId' })
 CategoryLession.belongsTo(Course, { foreignKey: 'courseId' })
@@ -102,6 +103,9 @@ StudyItem.belongsToMany(Enrollment, { through: CourseProgress, foreignKey: 'stud
 Course.belongsTo(User, { foreignKey: 'assignedBy' })
 User.hasMany(Course, { foreignKey: 'assignedBy' })
 
+User.hasMany(PayoutRequest, { foreignKey: 'instructorId' })
+PayoutRequest.belongsTo(User, { foreignKey: 'instructorId' })
+
 module.exports = {
   sequelize,
   models: {
@@ -122,6 +126,7 @@ module.exports = {
     CourseProgress,
     Enrollment,
     Order,
-    Payment
+    Payment,
+    PayoutRequest
   }
 }
