@@ -12,8 +12,8 @@ const StyledQuill = styled(ReactQuill)`
   }
   .ql-editor img {
     display: block;
-    margin-left: auto;
-    margin-right: auto;
+    margin-left: 4px;
+    margin-right: 4px;
   }
 `
 

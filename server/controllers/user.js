@@ -133,11 +133,9 @@ router.get('/getEnrollmentUserByCourseId/:courseId', isAuthenticated, async (req
     const offset = (page - 1) * limit
     const searchQuery = req.query.search?.trim() || ''
 
-    // Tạo điều kiện tìm kiếm
     let searchConditions = []
     if (searchQuery) {
-      const tokens = searchQuery.split(' ') // Tách chuỗi thành các từ
-      // Tạo điều kiện tìm kiếm với từng token
+      const tokens = searchQuery.split(' ')
       searchConditions = tokens.map((token) => ({
         [Op.or]: [
           { firstName: { [Op.like]: `%${token}%` } },
@@ -153,7 +151,7 @@ router.get('/getEnrollmentUserByCourseId/:courseId', isAuthenticated, async (req
           ? {
               [Op.or]: searchConditions.flatMap(condition => condition[Op.or])
             }
-          : {} // Nếu không có điều kiện tìm kiếm, trả về tất cả người dùng
+          : {}
       },
       include: [
         {
@@ -187,7 +185,7 @@ router.get('/getEnrollmentUserByCourseId/:courseId', isAuthenticated, async (req
       }
     })
 
-    const totalPages = Math.ceil((count < users.length && users.length < 10) ? count : users.length / limit) // Sử dụng count thay vì users.length
+    const totalPages = Math.ceil((count < users.length && users.length < 10) ? count : users.length / limit)
 
     res.json({
       totalItems: (count < users.length && users.length < 10) ? count : users.length,
@@ -197,7 +195,7 @@ router.get('/getEnrollmentUserByCourseId/:courseId', isAuthenticated, async (req
     })
   } catch (error) {
     logError(req, error)
-    res.status(500).json({ message: 'Có lỗi xảy ra khi lấy danh sách học viên', error })
+    res.status(500).json({ message: MASSAGE.USER_NOT_FOUND })
   }
 })
 
@@ -263,7 +261,7 @@ router.get('/getUsers', isAuthenticated, async (req, res) => {
     const roleCondition = role ? { id: role } : {}
 
     const totalUsers = await models.User.count({
-      where: searchConditions, // Chỉ áp dụng điều kiện tìm kiếm
+      where: searchConditions,
       include: [
         {
           model: models.Role,
@@ -275,9 +273,8 @@ router.get('/getUsers', isAuthenticated, async (req, res) => {
 
     const totalPages = Math.ceil(totalUsers / limitNumber)
 
-    // Lấy danh sách người dùng
     const users = await models.User.findAll({
-      where: searchConditions, // Sử dụng điều kiện tìm kiếm
+      where: searchConditions,
       attributes: ['id', 'firstName', 'lastName', 'email', 'avatar', 'gender', 'age'],
       include: [
         {
@@ -296,13 +293,40 @@ router.get('/getUsers', isAuthenticated, async (req, res) => {
       data: users,
       meta: {
         currentPage: pageNumber,
-        totalPages,
+        totalPages: totalPages > 1 ? totalPages : 1,
         totalUsers
       }
     })
   } catch (error) {
-    console.error('Lỗi khi lấy danh sách users:', error)
-    res.status(500).json({ message: 'Lỗi khi lấy danh sách users' })
+    logError(req, error)
+    res.status(500).json({ message: MASSAGE.USER_NOT_FOUND })
+  }
+})
+
+// Find PendingRevenue
+router.get('/getPendingRevenue', isAuthenticated, async (req, res) => {
+  try {
+    const id = req.user.id
+
+    const user = await models.User.findByPk(id, {
+      attributes: ['id', 'pendingRevenue']
+    })
+
+    if (!user) {
+      logError(req, MASSAGE.USER_NOT_FOUND)
+      return res.status(404).json({ message: MASSAGE.USER_NOT_FOUND })
+    }
+
+    const result = {
+      id: user.id,
+      pendingRevenue: user.pendingRevenue
+    }
+
+    logInfo(req, result)
+    res.json(result)
+  } catch (error) {
+    logError(req, error)
+    res.status(500).json({ message: MASSAGE.USER_NOT_FOUND })
   }
 })
 

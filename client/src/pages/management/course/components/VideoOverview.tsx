@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { CloudUpload } from '@mui/icons-material'
 import axios from 'axios'
 import { editCourse } from 'api/put/put.api'
+import { toast } from 'react-toastify'
 
 interface VideoOverviewProps {
   videoLocationPath: string
@@ -66,7 +67,11 @@ const VideoOverview: React.FC<VideoOverviewProps> = ({
 
       // Cập nhật videoLocationPath trong state của khóa học
       //   setUpdatedCourse({ videoLocationPath: response.data.secure_url })
-      await editCourse(courseId, { videoLocationPath: response.data.secure_url })
+      await editCourse(courseId, { videoLocationPath: response.data.secure_url }).then(() => {
+        toast.success('Cập nhật video đại diện khóa học thành công!')
+      }).catch(() => {
+        toast.error('Cập nhật video đại diện khóa học thất bại. Vui lòng thử lại!')
+      })
       await fetchCourse()
       setIsUploading(false)
     } catch (error) {
@@ -86,7 +91,7 @@ const VideoOverview: React.FC<VideoOverviewProps> = ({
     <div className="ml-2">
       <label className="cursor-pointer">
         {/* {isEditing && ( */}
-            <CloudUpload fontSize="large" />
+            <CloudUpload fontSize="large" className='active:scale-95'/>
         {/* )} */}
         <input type="file" accept="video/*" onChange={handleVideoChange} hidden />
       </label>
@@ -94,13 +99,13 @@ const VideoOverview: React.FC<VideoOverviewProps> = ({
   </label>
 
   <div className="border-4 border-gray-300 mt-2">
-    <div className="w-96 h-52 flex justify-center items-center"> {/* Đặt chiều cao cố định */}
+    <div className="md:w-96 md:h-52 flex justify-center items-center"> {/* Đặt chiều cao cố định */}
       {isUploading ? (
         <div className="flex flex-col justify-center items-center w-full h-full">
           <p className="text-gray-700 mb-2">Đang tải lên: {uploadProgress}%</p>
           <button
             onClick={handleCancelUpload}
-            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400"
+            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400 active:scale-95"
           >
             Hủy
           </button>

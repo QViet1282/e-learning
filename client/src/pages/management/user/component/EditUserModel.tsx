@@ -3,22 +3,25 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { User, Role } from 'api/get/get.interface'
 import { updateUser } from 'api/post/post.api'
+import { useTranslation } from 'react-i18next'
 
 interface EditUserModalProps {
   user: User | null
   onClose: () => void
   roles: Role[]
+  fetchUsers: () => Promise<void>
 }
 
-const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles }) => {
+const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles, fetchUsers }) => {
+  const { t } = useTranslation()
   const [firstName, setFirstName] = useState<string>(user?.firstName ?? '')
   const [lastName, setLastName] = useState<string>(user?.lastName ?? '')
   const [email, setEmail] = useState<string>(user?.email ?? '')
   const [selectedRole, setSelectedRole] = useState<number | null>(user?.Role?.id ?? null)
   const [avatar, setAvatar] = useState<File | null>(null)
   const [avatarPreview, setAvatarPreview] = useState<string | undefined>(user?.avatar ?? '')
-  const [gender, setGender] = useState<number>(user?.gender ?? 0) // 0 for Male, 1 for Female
-  const [age, setAge] = useState<number>(user?.age ?? 18) // Default to 18
+  const [gender, setGender] = useState<string | undefined>(user?.gender)
+  const [age, setAge] = useState<number | undefined>(user?.age ?? undefined)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -29,8 +32,12 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles }) =
       setEmail(user.email ?? '')
       setSelectedRole(user.Role?.id ?? null)
       setAvatarPreview(user.avatar ?? '')
-      setGender(user.gender ?? 0)
-      setAge(user.age ?? 18)
+      setGender(user?.gender === '1'
+        ? 'Male'
+        : user?.gender === '0'
+          ? 'Female'
+          : undefined)
+      setAge(user.age ?? undefined)
     }
   }, [user])
 
@@ -61,7 +68,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles }) =
       if (user?.id !== undefined) {
         await updateUser(user?.id, payload)
       }
-
+      void fetchUsers()
       onClose()
     } catch (error) {
       console.error('Lỗi khi cập nhật user:', error)
@@ -103,7 +110,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles }) =
 
         {/* Basic Information Section */}
         <div className="mb-4">
-          <h4 className="text-lg font-medium text-gray-600 mb-2">Thông tin cơ bản</h4>
+          <h4 className="text-lg font-medium text-gray-600 mb-2">{t('profile.basic_information')}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <input
               type="text"
@@ -126,12 +133,13 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles }) =
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             className="w-full p-2 mb-2 border rounded-md focus:border-blue-500"
+            disabled={true}
           />
         </div>
 
         {/* Role Selection */}
         <div className="mb-4">
-          <h4 className="text-lg font-medium text-gray-600 mb-2">Vai trò</h4>
+          <h4 className="text-lg font-medium text-gray-600 mb-2">{t('profile.role')}</h4>
           <select
             value={selectedRole ?? ''}
             onChange={(e) => setSelectedRole(Number(e.target.value))}
@@ -146,18 +154,20 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles }) =
         {/* Gender and Age Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <h4 className="text-lg font-medium text-gray-600 mb-2">Giới tính</h4>
+            <h4 className="text-lg font-medium text-gray-600 mb-2">{t('profile.gender')}</h4>
             <select
               value={gender}
-              onChange={(e) => setGender(Number(e.target.value))}
+              onChange={(e) => setGender(e.target.value)}
               className="w-full p-2 border rounded-md focus:border-blue-500"
             >
-              <option value={0}>Male</option>
-              <option value={1}>Female</option>
+              <option value="">{t('profile.selectGender')}</option>
+                   <option value="Male">{t('profile.male')}</option>
+                   <option value="Female">{t('profile.female')}</option>
+                   <option value="Other">{t('profile.other')}</option>
             </select>
           </div>
           <div>
-            <h4 className="text-lg font-medium text-gray-600 mb-2">Tuổi</h4>
+            <h4 className="text-lg font-medium text-gray-600 mb-2">{t('profile.age')}</h4>
             <input
               type="number"
               value={age}

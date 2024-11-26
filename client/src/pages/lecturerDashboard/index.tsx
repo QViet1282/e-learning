@@ -4,13 +4,15 @@ import React, { useState, useEffect, ChangeEvent } from 'react'
 import LineChart from './component/LineChart'
 import StatisticsCards from './component/StatisticsCards'
 import { CategoryCourse, Course } from 'api/get/get.interface'
-import { getAllCategoryCourse, getAllCourseByTeacher } from 'api/get/get.api'
+import { getAllCategoryCourse, getAllCourseByTeacher, getOverviewStatisticsByTeacher, getPendingRevenue } from 'api/get/get.api'
 import { useNavigate } from 'react-router-dom'
 import ROUTES from 'routes/constant'
-import { ExpandMore, ExpandLess, Close } from '@mui/icons-material'
+import { ExpandMore, ExpandLess, Close, AddCircleOutline } from '@mui/icons-material'
 import { newCourse } from 'api/post/post.interface'
 import { IconButton, Modal } from '@mui/material'
 import { createCourse } from 'api/post/post.api'
+import LecturerRevenue from './component/LecturerRevenue'
+import { toast } from 'react-toastify'
 
 const LecturerDashboard = () => {
   const navigate = useNavigate()
@@ -27,10 +29,33 @@ const LecturerDashboard = () => {
     categoryCourseId: 0,
     name: ''
   })
+  const [pendingRevenue, setPendingRevenue] = useState<number>(0)
+  const [isExpanded, setIsExpanded] = useState(false)
+  const [teacherStats, setTeacherStats] = useState({
+    totalRevenue: 0,
+    totalStudents: 0,
+    averageRating: 0,
+    totalReviews: 0,
+    totalPublishedCourses: 0,
+    totalEnrollments: 0
+  })
 
-  useEffect(() => {
-    void fetchCourseCategories()
-  }, [])
+  const fetchStatistics = async () => {
+    try {
+      const response = await getOverviewStatisticsByTeacher({})
+      const stats = response.data
+      setTeacherStats({
+        totalRevenue: stats.totalRevenue ?? 0,
+        totalStudents: stats.uniqueStudents ?? 0,
+        averageRating: stats.averageRating ?? 0,
+        totalReviews: stats.totalRatings ?? 0,
+        totalPublishedCourses: stats.totalCourses ?? 0,
+        totalEnrollments: stats.totalEnrollments ?? 0
+      })
+    } catch (error) {
+      console.error('Error fetching statistics:', error)
+    }
+  }
 
   const fetchCourseCategories = async (): Promise<void> => {
     try {
@@ -41,13 +66,25 @@ const LecturerDashboard = () => {
     }
   }
 
+  const fetchPendingRevenue = async (): Promise<void> => {
+    try {
+      const response = await getPendingRevenue()
+      setPendingRevenue(Number(response.data.pendingRevenue))
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+    }
+  }
+
+  useEffect(() => {
+    void fetchStatistics()
+    void fetchCourseCategories()
+    void fetchPendingRevenue()
+  }, [])
+
   const handleInputChange = (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>): void => {
     const { name, value } = event.target
     setNewCourse({ ...newCourse, [name]: value })
   }
-
-  // Trạng thái mở rộng/thu gọn
-  const [isExpanded, setIsExpanded] = useState(false)
 
   // Update selectedYearTop and selectedMonthTop when the year/month is changed
   const handleYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -94,19 +131,19 @@ const LecturerDashboard = () => {
   }
 
   const handleSave = async (): Promise<void> => {
-    if (newCourse.categoryCourseId == null) {
-      alert('Please select a valid category.')
+    if (newCourse.name.length < 12) {
+      toast.error('Course name at least 12 characters')
       return
     }
-    if (newCourse.name.length === 0) {
-      alert('Tên không được để trống')
+    if (newCourse.categoryCourseId === 0) {
+      toast.error('Please select a valid category')
       return
     }
     try {
       const response = await createCourse(newCourse)
       console.log('Course Data:', newCourse)
       setIsCreateCourseModalOpen(false)
-      void fetchCourses() // Refresh the course list after creating a new course
+      void fetchCourses()
       navigate(ROUTES.detailCourse, {
         state: { courseId: response.data.id }
       })
@@ -117,92 +154,101 @@ const LecturerDashboard = () => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-4/5 bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-2xl font-bold mb-8 text-center">Bảng điều khiển Giảng viên</h1>
+      <div className="w-full bg-white md:p-8 p-1 border-x-2 border-shadow">
+        <h1 className="text-2xl font-bold md:mb-8 text-center">Bảng điều khiển Giảng viên</h1>
+        <div className="flex flex-col md:flex-row items-center">
+          <div className="w-full md:w-3/5 md:pr-4 mb-4 md:mb-0">
+            <LecturerRevenue totalRevenue={teacherStats.totalRevenue} pendingRevenue={pendingRevenue} />
+          </div>
 
-        {/* Thống kê */}
-        <StatisticsCards />
+          <div className="w-full md:w-2/5">
+            <StatisticsCards
+              totalRevenue={teacherStats.totalRevenue}
+              totalEnrollments={teacherStats.totalEnrollments}
+              totalStudents={teacherStats.totalStudents}
+              averageRating={teacherStats.averageRating}
+              totalReviews={teacherStats.totalReviews}
+              totalPublishedCourses={teacherStats.totalPublishedCourses}
+            />
+          </div>
+        </div>
 
-        {/* Nút mở rộng */}
         <div
-  onClick={handleToggleExpand}
-  className="flex items-center justify-center w-full p-4 rounded cursor-pointer transition-all duration-300"
->
-  <span className="font-semi text-gray-400">Xem biểu đồ</span>
-  {isExpanded
-    ? (
-    <ExpandLess className="w-6 h-6 text-gray-400" />
-      )
-    : (
-    <ExpandMore className="w-6 h-6 text-gray-400" />
-      )}
-</div>
+          onClick={handleToggleExpand}
+          className="flex items-center justify-center w-full p-4 rounded cursor-pointer transition-all duration-300"
+        >
+          <span className="font-semi text-gray-400">Xem biểu đồ</span>
+          {isExpanded
+            ? (
+              <ExpandLess className="w-6 h-6 text-gray-400" />
+              )
+            : (
+              <ExpandMore className="w-6 h-6 text-gray-400" />
+              )}
+        </div>
 
-{/* Phần mở rộng */}
-{isExpanded && (
-  <div className="shadow-lg rounded-lg transition-all duration-500 transform scale-100 opacity-100 mb-2">
-    {/* Tiêu đề biểu đồ doanh thu */}
-    <h2 className="text-xl font-semibold mb-2">Thống kê Doanh thu & Lượt đăng ký</h2>
+        {/* Phần mở rộng */}
+        {isExpanded && (
+          <div className="shadow-lg rounded-lg transition-all duration-500 transform scale-100 opacity-100 mb-2">
+            <h2 className="text-xl font-semibold mb-2">Thống kê Doanh thu & Lượt đăng ký</h2>
 
-    {/* Bộ lọc năm và tháng */}
-    <div className="flex items-center justify-center mb-4">
-      <label className="mr-4 font-semibold">Chọn năm:</label>
-      <select
-        value={selectedYearTop}
-        onChange={handleYearChange}
-        className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-      >
-        {[2024, 2023, 2022].map((year) => (
-          <option key={year} value={year}>
-            {year}
-          </option>
-        ))}
-      </select>
-      {selectedYearTop && (
-        <>
-          <label className="ml-6 mr-4 font-semibold">Chọn tháng:</label>
-          <select
-            value={selectedMonthTop ?? undefined}
-            onChange={handleMonthChange}
-            className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            <option value={undefined}>Tháng 1-12</option>
-            {[...Array(12)].map((_, i) => (
-              <option key={i + 1} value={i + 1}>
-                Tháng {i + 1}
-              </option>
-            ))}
-          </select>
-        </>
-      )}
-    </div>
-    <div>
-      <LineChart
-        type={selectedMonthTop ? 'day' : 'month'}
-        year={selectedYearTop}
-        month={selectedMonthTop}
-      />
-    </div>
-  </div>
-)}
+            {/* Bộ lọc năm và tháng */}
+            <div className="flex items-center justify-center mb-4">
+              <label className="mr-4 font-semibold">Chọn năm:</label>
+              <select
+                value={selectedYearTop}
+                onChange={handleYearChange}
+                className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                {[2024, 2023, 2022].map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+              {selectedYearTop && (
+                <>
+                  <label className="ml-6 mr-4 font-semibold">Chọn tháng:</label>
+                  <select
+                    value={selectedMonthTop ?? undefined}
+                    onChange={handleMonthChange}
+                    className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  >
+                    <option value={undefined}>Tháng 1-12</option>
+                    {[...Array(12)].map((_, i) => (
+                      <option key={i + 1} value={i + 1}>
+                        Tháng {i + 1}
+                      </option>
+                    ))}
+                  </select>
+                </>
+              )}
+            </div>
+            <div>
+              <LineChart
+                type={selectedMonthTop ? 'day' : 'month'}
+                year={selectedYearTop}
+                month={selectedMonthTop}
+              />
+            </div>
+          </div>
+        )}
 
-        {/* Tiêu đề tìm kiếm và danh sách khóa học */}
         <h2 className="text-xl font-semibold mb-4">Danh sách Khóa học</h2>
 
-        {/* Tìm kiếm khóa học */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 md:space-x-2 space-x-1 flex-wrap gap-2">
           <input
             type="text"
             placeholder="Tìm khóa học..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            className="p-2 border rounded w-1/2"
+            className="p-2 border rounded md:w-1/2 w-full focus:outline-none"
           />
           <button
             onClick={handleCreateCourseModalToggle}
-            className="ml-4 p-2 bg-blue-500 text-white rounded"
+            className="px-4 py-2 bg-blue-500 text-white rounded flex items-center gap-1"
           >
-            Tạo khóa học mới
+            <AddCircleOutline className="" /><p>Tạo khóa học mới</p>
           </button>
         </div>
 
@@ -210,29 +256,29 @@ const LecturerDashboard = () => {
         <div className="w-full">
           {filteredCourses.length > 0
             ? (
-            <div className="grid grid-cols-1 gap-4">
-              {filteredCourses.map(course => (
-                <div
-                  key={course.id}
-                  className="bg-white rounded-lg shadow-md p-4 flex items-center border border-gray-300"
-                  onClick={() => navigate(ROUTES.detailCourse, { state: { courseId: course.id } })}
-                >
-                  <img
-                    src={course.locationPath}
-                    alt={course.name}
-                    className="w-48 h-24 object-cover rounded mr-4"
-                  />
-                  <div>
-                    <h3 className="text-lg font-semibold">{course.name}</h3>
+              <div className="grid grid-cols-1 gap-4">
+                {filteredCourses.map(course => (
+                  <div
+                    key={course.id}
+                    className="bg-white rounded-lg shadow-md p-4 flex items-center border border-gray-300 hover:shadow-lg group"
+                    onClick={() => navigate(ROUTES.detailCourse, { state: { courseId: course.id } })}
+                  >
+                    <img
+                      src={course.locationPath}
+                      alt={course.name}
+                      className="w-48 h-24 object-cover rounded mr-4 group-hover:scale-105"
+                    />
+                    <div>
+                      <h3 className="text-lg font-semibold group-hover:scale-105">{course.name}</h3>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
               )
             : (
-            <div className="flex items-center justify-center h-96">
-              <p className="text-gray-500 text-lg">Không có khóa học nào được tìm thấy.</p>
-            </div>
+              <div className="flex items-center justify-center h-96">
+                <p className="text-gray-500 text-lg">Không có khóa học nào được tìm thấy.</p>
+              </div>
               )}
         </div>
       </div>
@@ -240,54 +286,54 @@ const LecturerDashboard = () => {
       {/* Modal tạo khóa học */}
       <Modal open={isCreateCourseModalOpen} onClose={() => setIsCreateCourseModalOpen(false)}>
       <div className="flex items-center justify-center min-h-screen p-2">
-        <div className="bg-white w-96 p-6 rounded-md shadow-lg">
-          <div className='flex items-center justify-between mb-4'>
-            <h2 className="text-xl font-semibold">Add New Course</h2>
-            <IconButton onClick={() => setIsCreateCourseModalOpen(false)}>
-                  <Close />
+          <div className="bg-white w-96 p-6 rounded-md shadow-lg">
+            <div className='flex items-center justify-between mb-4'>
+              <h2 className="text-xl font-semibold">Add New Course</h2>
+              <IconButton onClick={() => setIsCreateCourseModalOpen(false)}>
+                <Close />
               </IconButton>
-          </div>
-          <label className="block text-sm font-medium text-gray-700">
-            Course Name
-          </label>
-          <input
-            type="text"
-            name="name"
-            value={newCourse.name}
-            onChange={handleInputChange}
-            className="w-full h-9 px-2 mt-1 border border-gray-300 rounded-md focus:outline-none"
-          />
-          <div className="mt-4">
+            </div>
             <label className="block text-sm font-medium text-gray-700">
-              Category
+              Course Name
             </label>
-            <select
-              name="categoryCourseId"
-              value={newCourse.categoryCourseId}
+            <input
+              type="text"
+              name="name"
+              value={newCourse.name}
               onChange={handleInputChange}
-              className="w-full mt-1 p-2 border border-gray-300 rounded-md"
-            >
-              <option value="0" disabled hidden>
-                Select a category
-              </option>
-              {courseCategories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
+              className="w-full h-9 px-2 mt-1 border border-gray-300 rounded-md focus:outline-none"
+            />
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Category
+              </label>
+              <select
+                name="categoryCourseId"
+                value={newCourse.categoryCourseId}
+                onChange={handleInputChange}
+                className="w-full mt-1 p-2 border border-gray-300 rounded-md"
+              >
+                <option value="0" disabled hidden>
+                  Select a category
                 </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex justify-end mt-6">
-            <button onClick={() => {
-              handleSave().catch((error) => {
-                console.error('Save failed:', error)
-              })
-            }} color="primary">
-              Save
-            </button>
+                {courseCategories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end mt-6">
+              <button onClick={() => {
+                handleSave().catch((error) => {
+                  console.error('Save failed:', error)
+                })
+              }} className='bg-teal-300 hover:bg-teal-500 text-white px-4 py-2 rounded-md flex items-center gap-2 active:scale-95'>
+                Save
+              </button>
+            </div>
           </div>
         </div>
-      </div>
       </Modal>
     </div>
   )

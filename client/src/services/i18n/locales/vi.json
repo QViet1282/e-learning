@@ -14,7 +14,6 @@
       "english": "Tiếng Anh",
       "login": "Đăng nhập",
       "signup": "Đăng ký"
-
     },
     "dropdown": {
       "darkTheme": "Chế độ tối",
@@ -102,7 +101,7 @@
         "confirm_password_required": "Xác nhận mật khẩu là bắt buộc",
         "confirm_password_must_match": "Xác nhận mật khẩu phải giống mật khẩu mới"
       },
-      "toast":{
+      "toast": {
         "otp_sent_successfully": "Mã OTP đã được gửi thành công",
         "error_sending_otp": "Lỗi khi gửi mã OTP",
         "otp_verified_successfully": "Xác minh mã OTP thành công",
@@ -126,8 +125,8 @@
       "follow_us": "Theo Dõi Chúng Tôi",
       "rights_reserved": "Đã đăng ký bản quyền."
     },
-    "sidebar":{
-      "pages": "Trang", 
+    "sidebar": {
+      "pages": "Trang",
       "permissions": "Quyền",
       "management": "Quản lý khóa học",
       "dashboard": "Thống kê",
@@ -139,7 +138,8 @@
       "management_course": "Quản lý khóa học",
       "management_notification": "Quản lý thông báo",
       "management_user": "Quản lý người dùng",
-      "management_statistical": "Quản lý thống kê"
+      "management_statistical": "Quản lý thống kê",
+      "management_payout": "Quản lý trả tiền"
     },
     "alert": {
       "sessionExpired": "Phiên đăng nhập đã hết hạn",
@@ -156,11 +156,11 @@
       "startDate": "Ngày bắt đầu",
       "endDate": "Ngày kết thúc",
       "find": "Tìm",
-      "allCourse":"Tất cả khóa học",
+      "allCourse": "Tất cả khóa học",
       "free": "Miễn phí",
-      "paidCourse":"Khóa học Pro",
-      "freeCourse":"Khóa học miễn phí",
-      "findByCourseName":"Tìm theo tên khóa học",
+      "paidCourse": "Khóa học Pro",
+      "freeCourse": "Khóa học miễn phí",
+      "findByCourseName": "Tìm theo tên khóa học",
       "all_courses": "Tất cả khóa học",
       "filter_title_course": "Danh Mục Khóa Học",
       "empty_data": "Không có bài thi nào",
@@ -185,23 +185,23 @@
       "from_label": "Từ ngày",
       "to_label": "Đến ngày",
       "getStarted": "Bắt đầu học ngay hôm nay",
-      "welcome":"Chọn lộ trình học tập tối ưu dành cho bạn",
-      "description":"Với lộ trình học được thiết kế kỹ lưỡng, đây là lựa chọn hoàn hảo để bạn tiếp cận những kiến thức mới mẻ và hữu ích. Nội dung khóa học đa dạng, từ cơ bản đến nâng cao, phù hợp cho mọi đối tượng học viên. Khám phá và chinh phục những thử thách để nâng tầm bản thân mỗi ngày!",
-      "learnerAreViewing":"Người học đang theo dõi",
-      "popularCategories":"Danh mục phổ biến",
+      "welcome": "Chọn lộ trình học tập tối ưu dành cho bạn",
+      "description": "Với lộ trình học được thiết kế kỹ lưỡng, đây là lựa chọn hoàn hảo để bạn tiếp cận những kiến thức mới mẻ và hữu ích. Nội dung khóa học đa dạng, từ cơ bản đến nâng cao, phù hợp cho mọi đối tượng học viên. Khám phá và chinh phục những thử thách để nâng tầm bản thân mỗi ngày!",
+      "learnerAreViewing": "Người học đang theo dõi",
+      "popularCategories": "Danh mục phổ biến",
       "trendingNow": "Xu hướng hiện nay",
-      "topCategories":"Danh mục hàng đầu",
-      "itandSoftware":"IT and Software",
-      "music":"Nhạc",
-      "photography":"Ảnh",
-      "bussiness":"Kinh doanh",
-      "development":"Lập trình",
-      "marketing":"Marketing",
-      "analyst":"Phân tích",
-      "design":"Thiết kế",
-      "courseAndProfessionalCertificates":"Khóa học và Chứng chỉ chuyên nghiệp",
-      "newOnCoursera":"Mới trên Coursera",
-      "explore":"Đã được thêm gần đây",
+      "topCategories": "Danh mục hàng đầu",
+      "itandSoftware": "IT and Software",
+      "music": "Nhạc",
+      "photography": "Ảnh",
+      "bussiness": "Kinh doanh",
+      "development": "Lập trình",
+      "marketing": "Marketing",
+      "analyst": "Phân tích",
+      "design": "Thiết kế",
+      "courseAndProfessionalCertificates": "Khóa học và Chứng chỉ chuyên nghiệp",
+      "newOnCoursera": "Mới trên Coursera",
+      "explore": "Đã được thêm gần đây",
       "showMore": "Xem thêm",
       "viewAll": "Xem tất cả",
       "outComes": "Kết quả đầu ra của VIETCODE",
@@ -212,8 +212,8 @@
       "audiobooks": "Sách nói",
       "designTech": "Thiết kế & Công nghệ",
       "appsSoftware": "Ứng dụng & Phần mềm",
-      "exploreCard":"Khám phá",
-      "logout":"Đăng xuất",
+      "exploreCard": "Khám phá",
+      "logout": "Đăng xuất",
       "logout_confirm": "Bạn có chắc chắn muốn đăng xuất không?",
       "decline": "Hủy",
       "continue": "Tiếp",
@@ -222,16 +222,16 @@
       "logout_success": "Đăng xuất thành công",
       "diem": "Điểm số đạt được ở lần thi gần đây"
     },
-    "course":{
-      "minutes":"phút video theo yêu cầu",
-      "articles":"bài học",
-      "access":"Truy cập bằng điện thoại hoặc TV",
-      "active_installations":"người đăng ký",
+    "course": {
+      "minutes": "phút video theo yêu cầu",
+      "articles": "bài học",
+      "access": "Truy cập bằng điện thoại hoặc TV",
+      "active_installations": "người đăng ký",
       "continue": "Tiếp tục học",
       "enrollNow": "Tham gia ngay",
       "createdAt": "Ngày tạo"
     },
-    "course_detail":{
+    "course_detail": {
       "overview": "Tổng quan",
       "course_summary": "Tóm tắt khóa học",
       "what_u_will_learn": "Bạn sẽ học được gì?",
@@ -239,24 +239,24 @@
       "share": "Chia sẻ",
       "continueLearning": "Tiếp tục học",
       "enrollNow": "Đăng ký ngay",
-      "enroll_confirm":"Bạn có chắc chắn muốn tham gia khóa học này không?",
-      "continued_course":"Bạn muốn tiếp tục học khóa học này không?",
-      "enter_course":"Vào học",
-      "lessions":"bài học",
-      "chapter":"chương",
-      "expand_all":"Mở tất cả",
-      "collapse_all":"Đóng tất cả",
-      "course_content":"Nội dung khóa học",
-      "duration":"Thời lượng",
-      "minute":"phút",
-      "total":"Tổng",
-      "study_everywhere_anytime":"Học mọi lúc, mọi nơi",
-      "full_life_time_access":"Truy cập trọn đời",
-      "assignments":"Bài tập",
-      "certificate_of_completion":"Chứng chỉ hoàn thành",
-      "chapter2":"Chương",
-      "includes":"Bao gồm",
-      "requirements":"Yêu cầu",
+      "enroll_confirm": "Bạn có chắc chắn muốn tham gia khóa học này không?",
+      "continued_course": "Bạn muốn tiếp tục học khóa học này không?",
+      "enter_course": "Vào học",
+      "lessions": "bài học",
+      "chapter": "chương",
+      "expand_all": "Mở tất cả",
+      "collapse_all": "Đóng tất cả",
+      "course_content": "Nội dung khóa học",
+      "duration": "Thời lượng",
+      "minute": "phút",
+      "total": "Tổng",
+      "study_everywhere_anytime": "Học mọi lúc, mọi nơi",
+      "full_life_time_access": "Truy cập trọn đời",
+      "assignments": "Bài tập",
+      "certificate_of_completion": "Chứng chỉ hoàn thành",
+      "chapter2": "Chương",
+      "includes": "Bao gồm",
+      "requirements": "Yêu cầu",
       "home": "Trang Chủ",
       "no_video": "Khóa học này không có video.",
       "adding": "Đang thêm...",
@@ -264,39 +264,41 @@
       "go_to_cart": "Đi đến Giỏ Hàng"
     },
     "learning": {
-      "updated_at":"Cập nhật vào",
-      "lession":"bài học",
-      "note":"Ghi chú",
-      "help":"Hướng dẫn",
-      "description":"Chúng tôi sử dụng nhiều hình ảnh minh họa, chú ý giải thích bằng ngôn ngữ dễ hiểu và sử dụng nhiều ví dụ cụ thể nhất có thể.Tôi sẽ rất vui nếu sự hiểu biết của mọi người có thể được cải thiện hơn nữa.",
-      "shortcut":"Phím tắt: Ctrl+ Enter",
-      "previous":"BÀI TRƯỚC",
-      "next":"BÀI TIẾP THEO",
+      "updated_at": "Cập nhật vào",
+      "lession": "bài học",
+      "note": "Ghi chú",
+      "help": "Hướng dẫn",
+      "description": "Chúng tôi sử dụng nhiều hình ảnh minh họa, chú ý giải thích bằng ngôn ngữ dễ hiểu và sử dụng nhiều ví dụ cụ thể nhất có thể.Tôi sẽ rất vui nếu sự hiểu biết của mọi người có thể được cải thiện hơn nữa.",
+      "shortcut": "Phím tắt: Ctrl+ Enter",
+      "previous": "BÀI TRƯỚC",
+      "next": "BÀI TIẾP THEO",
       "lesson_update": "Khóa học đã được cập nhật. Bạn có muốn học ngay không?",
       "continue_title": "Khóa học đã cập nhật",
       "continue_message": "Bạn có muốn học ngay không?",
       "continue": "Tiếp tục"
     },
-    "profile":{
-      "editProfile" : "Sửa thông tin",
-      "myProfile" : "Thông tin cá nhân",
-      "firstName" : "Tên",
-      "lastName" : "Họ",
-      "gender" : "Giới tính",
-      "selectGender" : "Chọn giới tính",
-      "male" : "Nam",
+    "profile": {
+      "editProfile": "Sửa thông tin",
+      "myProfile": "Thông tin cá nhân",
+      "firstName": "Tên",
+      "lastName": "Họ",
+      "gender": "Giới tính",
+      "selectGender": "Chọn giới tính",
+      "male": "Nam",
       "female": "Nữ",
-      "other" : "Khác",
+      "other": "Khác",
       "age": "Tuổi",
-      "email" : "Email",
-      "password" : "Mật khẩu",
-      "setNewPassword" : "Đặt mật khẩu mới",
-      "cancelSetNewPassword" : "Hủy đặt mật khẩu mới",
+      "email": "Email",
+      "password": "Mật khẩu",
+      "setNewPassword": "Đặt mật khẩu mới",
+      "cancelSetNewPassword": "Hủy đặt mật khẩu mới",
       "title": "Bạn có thể đặt mật khẩu cố định nếu không muốn sử dụng mã đăng nhập tạm thời.",
       "cancel": "Hủy",
-      "saveChanges" : "Lưu thay đổi",
-      "enterNewPassword" : "Nhập mật khẩu mới",
-      "enterCurrentPassword" : "Nhập mật khẩu hiện tại"
+      "saveChanges": "Lưu thay đổi",
+      "enterNewPassword": "Nhập mật khẩu mới",
+      "enterCurrentPassword": "Nhập mật khẩu hiện tại",
+      "basic_information": "Thông tin cơ bản",
+      "role": "Vai trò"
     },
     "history": {
       "homepage": "Trang chủ",
@@ -396,7 +398,7 @@
       "purchased_courses": "Khóa học đã mua",
       "price": "Giá"
     },
-    "teachingPage":{
+    "teachingPage": {
       "welcome": "Hãy đến giảng dạy với chúng tôi",
       "description": "Trở thành giảng viên và thay đổi cuộc sống của mọi người, bao gồm cả cuộc sống của chính bạn",
       "getStarted": "Bắt đầu",
@@ -498,6 +500,44 @@
       "title": "Liên hệ",
       "description": "Để liên hệ với chúng tôi, vui lòng sử dụng một trong các phương thức sau, chúng tôi sẽ phản hồi trong thời gian sớm nhất.",
       "addressTitle": "Địa chỉ của chúng tôi"
+    },
+    "notificationManagement": {
+      "warningText": "Bạn có chắc chắn muốn xóa phần tử này không? Hành động này không thể hoàn tác.",
+      "empty": "Không có thông báo nào!",
+      "searchTitle": "Tìm kiếm thông báo...",
+      "create": "Gửi thông báo",
+      "item": "Thông báo",
+      "title": "Quản lý thông báo",
+      "toast": {
+        "delete_success": "Thông báo đã được xóa thành công!",
+        "create_success": "Thông báo đã được tạo thành công!"
+      },
+      "errors": {
+        "CREATE_ERROR": "Tạo thông báo thất bại, vui lòng thử lại!",
+        "DELETE_ERROR": "Xóa thông báo thất bại, vui lòng thử lại!",
+        "SERVER_ERROR": "Đã xảy ra lỗi, vui lòng thử lại sau",
+        "NO_NOTIFICATION_ERROR": "Không tìm thấy thông báo để xóa!",
+        "TITLE_AND_CONTENT_REQUIRED": "Tiêu đề và nội dung không thể để trống!"
+      },
+      "createModal": {
+        "title": "Tạo thông báo mới",
+        "fields": {
+          "title": "Tiêu đề",
+          "message": "Nội dung",
+          "url": "Liên kết (URL)",
+          "notifyAt": "Lên lịch thông báo (tùy chọn)"
+        },
+        "cancelButton": "Hủy",
+        "createButton": "Tạo"
+      }
+    },
+    "Curriculum": {
+      "warningText": "Bạn có chắc chắn muốn xóa chương trình giảng dạy này?"
+    },
+    "deleteModal": {
+      "title": "Xác nhận xóa",
+      "yes": "Xóa",
+      "no": "Hủy"
     }
   }
 }

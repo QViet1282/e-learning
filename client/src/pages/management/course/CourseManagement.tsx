@@ -9,8 +9,10 @@ import { createCourse } from 'api/post/post.api'
 import { newCourse as NewCourseInterface } from 'api/post/post.interface'
 import { CategoryCourse, Course, GetAllCourseParams } from 'api/get/get.interface'
 import CourseCard from './components/CourseCard'
-import Pagination from './components/Pagination'
-import { Close } from '@mui/icons-material'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { AddCircle, AddCircleOutline, Close, Search } from '@mui/icons-material'
+import { toast } from 'react-toastify'
+import Pagination from '../component/Pagination'
 
 const priceRanges = [
   { label: 'Min-Max Price', min: undefined, max: undefined },
@@ -22,9 +24,10 @@ const priceRanges = [
 
 const durationRanges = [
   { label: 'Min-Max Duration', min: undefined, max: undefined },
-  { label: '0 - 100 min', min: 0, max: 100 },
-  { label: '100 - 200 min', min: 100, max: 200 },
-  { label: '200 - 300 min', min: 200, max: 300 }
+  { label: 'Dưới 1 hour', min: 0, max: 59 },
+  { label: '1 đến 5 hour', min: 60, max: 300 },
+  { label: '5 đến 15 hour', min: 300, max: 900 },
+  { label: '15 hour trở lên', min: 900, max: undefined }
 ]
 
 const CourseManagementPage = (): JSX.Element => {
@@ -54,7 +57,7 @@ const CourseManagementPage = (): JSX.Element => {
 
   useEffect(() => {
     void fetchCourses()
-  }, [currentPage])
+  }, [currentPage, selectedCategory, priceRange, durationRange, statusFilter])
 
   const fetchCourses = async (): Promise<void> => {
     try {
@@ -97,19 +100,19 @@ const CourseManagementPage = (): JSX.Element => {
   }
 
   const handleSave = async (): Promise<void> => {
-    if (newCourse.categoryCourseId == null) {
-      alert('Please select a valid category.')
+    if (newCourse.name.length < 12) {
+      toast.error('Course name at least 12 characters') // trans
       return
     }
-    if (newCourse.name.length === 0) {
-      alert('Tên không được để trống')
+    if (newCourse.categoryCourseId === 0) {
+      toast.error('Please select a valid category') // trans
       return
     }
     try {
       const response = await createCourse(newCourse)
       console.log('Course Data:', newCourse)
       setOpen(false)
-      void fetchCourses() // Refresh the course list after creating a new course
+      toast.success('Tạo thành công') // trans
       navigate(ROUTES.detailCourse, {
         state: { courseId: response.data.id }
       })
@@ -138,8 +141,8 @@ const CourseManagementPage = (): JSX.Element => {
   }
 
   return (
-    <div className="ml-0 md:ml-14 py-8 md:px-8 px-2 bg-slate-100">
-      <h2 className="text-4xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-teal-400 mb-8">
+    <div className="ml-0 py-8 md:px-8 px-2 bg-sky-100 border-x-2">
+      <h2 className="text-4xl font-semibold text-center text-transparent bg-clip-text bg-gradient-to-r from-green-500 via-teal-400 to-blue-500 mb-8">
         Course Management
       </h2>
       <div>
@@ -147,7 +150,7 @@ const CourseManagementPage = (): JSX.Element => {
           {/* Select for price range */}
           <select
             onChange={(e) => handleRangeChange(e, 'price')}
-            className="border border-gray-300 rounded-md h-12 md:w-52 w-full  items-center px-2"
+            className="border-2 rounded-md h-12 md:w-52 w-full  items-center px-2"
           >
             {/* <option value="">Min-Max Price</option> */}
             {priceRanges.map((range, index) => (
@@ -160,7 +163,7 @@ const CourseManagementPage = (): JSX.Element => {
           {/* Dropdown cho khoảng thời gian */}
           <select
             onChange={(e) => handleRangeChange(e, 'duration')}
-            className="border border-gray-300 rounded-md h-12 w-full md:w-44 items-center px-2"
+            className="border-2 rounded-md h-12 w-full md:w-44 items-center px-2"
           >
             {/* <option value="">Min-Max Duration (min)</option> */}
             {durationRanges.map((range, index) => (
@@ -173,7 +176,7 @@ const CourseManagementPage = (): JSX.Element => {
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(Number(e.target.value))}
-            className="border border-gray-300 rounded-md h-12 w-full md:w-52 items-center px-2"
+            className="border-2 rounded-md h-12 w-full md:w-52 items-center px-2"
           >
             <option value={0}>All Courses</option>
             {courseCategories.map((category) => (
@@ -186,53 +189,58 @@ const CourseManagementPage = (): JSX.Element => {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="border border-gray-300 rounded-md h-12 w-full md:w-52 items-center px-2"
+            className="border-2 rounded-md h-12 w-full md:w-52 items-center px-2"
           >
             <option value="all">All Status</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
+            <option value={0} >Chưa xuất bản</option>
+            <option value={1} >Yêu cầu xuất bản</option>
+            <option value={2} >Đã xuất bản</option>
+            <option value={3} >Đã xuất bản (Đăng ký giới hạn)</option>
+            <option value={4} >Riêng tư</option>
+            <option value={5} >Yêu cầu công khai nội dung mới</option>
+            {/* <option value={6} >Yêu cầu công khai nội dung mới</option>
+            <option value={7} >Yêu cầu công khai nội dung mới</option> */}
           </select>
-
           <input
             placeholder="Search by course name"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="md:w-72 h-12 w-full bg-white border border-gray-300 rounded-md items-center px-2"
+            className="md:w-72 h-12 w-full bg-white border-2 rounded-md items-center px-2 focus:outline-none"
           />
           <button
-            className="bg-teal-600 w-2/5 md:w-28 h-12 font-sans text-white font-bold rounded hover:bg-teal-500 items-center justify-center flex"
+            className="w-2/5 md:w-12 h-12 font-sans bg-white rounded-md border-2 items-center justify-center flex active:scale-95 hover:bg-slate-50"
             onClick={handleSearch}
           >
-            Tìm kiếm
+            <Search className="text-gray-500" />
           </button>
 
           <button
-            className="bg-teal-600 w-2/5 md:w-28 h-12 font-sans text-white font-bold rounded hover:bg-teal-500 items-center justify-center flex"
+            className="bg-teal-300 px-4 h-12 font-sans text-white font-bold rounded hover:bg-teal-500 items-center justify-center flex gap-2 active:scale-95"
             onClick={() => setOpen(true)}
           >
-            Add Course
+            <AddCircleOutline className="" /><p>Add New Course</p>
           </button>
         </div>
 
-        <div className="w-full min-h-96">
+        <div className="w-full">
           {courses.length > 0
             ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {courses.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  course={course}
-                  // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
-                  category={categoriesMap[course.categoryCourseId] || 'Unknown'}
-                  onClick={() => navigate(ROUTES.detailCourse, { state: { courseId: course.id } })}
-                />
-              ))}
-            </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 lg:grid-rows-1 gap-4">
+                {courses.map((course) => (
+                  <CourseCard
+                    key={course.id}
+                    course={course}
+                    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+                    category={categoriesMap[course.categoryCourseId] || 'Unknown'}
+                    onClick={() => navigate(ROUTES.detailCourse, { state: { courseId: course.id } })}
+                  />
+                ))}
+              </div>
               )
             : (
-            <div className="flex items-center justify-center h-96">
-              <p className="text-gray-500 text-lg">Không có khóa học nào được tìm thấy.</p>
-            </div>
+              <div className="flex items-center justify-center h-96">
+                <p className="text-gray-500 text-lg">Không có khóa học nào được tìm thấy.</p>
+              </div>
               )}
         </div>
 
@@ -250,8 +258,8 @@ const CourseManagementPage = (): JSX.Element => {
             <div className='flex items-center justify-between mb-4'>
               <h2 className="text-xl font-semibold">Add New Course</h2>
               <IconButton onClick={() => setOpen(false)}>
-                    <Close />
-                </IconButton>
+                <Close />
+              </IconButton>
             </div>
             <label className="block text-sm font-medium text-gray-700">
               Course Name
@@ -288,7 +296,7 @@ const CourseManagementPage = (): JSX.Element => {
                 handleSave().catch((error) => {
                   console.error('Save failed:', error)
                 })
-              }} color="primary">
+              }} className='bg-teal-300 hover:bg-teal-500 text-white px-4 py-2 rounded-md flex items-center gap-2 active:scale-95'>
                 Save
               </button>
             </div>

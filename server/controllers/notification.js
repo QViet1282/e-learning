@@ -161,8 +161,24 @@ router.post('/createAndReplicateNotification', isAuthenticated, async (req, res)
   const { title, message, url, notifyAt, courseId } = req.body.data
 
   try {
-    const users = await models.User.findAll({ attributes: ['id'] })
-    const userIds = users.map((user) => user.id)
+    let userIds
+
+    if (courseId) {
+      const enrolledUsers = await models.Enrollment.findAll({
+        where: { courseId },
+        include: [
+          {
+            model: models.Order,
+            attributes: ['userId']
+          }
+        ]
+      })
+
+      userIds = enrolledUsers.map((enrollment) => enrollment.Order.userId)
+    } else {
+      const users = await models.User.findAll({ attributes: ['id'] })
+      userIds = users.map((user) => user.id)
+    }
 
     const notification = await models.Notification.create({
       title,
@@ -171,6 +187,8 @@ router.post('/createAndReplicateNotification', isAuthenticated, async (req, res)
       notifyAt: notifyAt ? new Date(notifyAt) : Date.now(),
       courseId: courseId ?? null
     })
+
+    console.log('User IDs:', userIds)
 
     const recipients = userIds.map((userId) => ({
       notificationId: notification.id,
@@ -187,14 +205,13 @@ router.post('/createAndReplicateNotification', isAuthenticated, async (req, res)
 
     res.status(201).json(notificationWithRecipients)
   } catch (err) {
-    console.error(err)
+    console.error('Error:', err)
     res.status(500).json({ message: 'Internal server error' })
   }
 })
 
-
 router.get('/getAllNotification', isAuthenticated, async (req, res) => {
-  const { page = 1, limit = 10, search = '' } = req.query
+  const { page = 1, limit = 10, search = '', courseId } = req.query
 
   try {
     const offset = (page - 1) * limit
@@ -209,19 +226,23 @@ router.get('/getAllNotification', isAuthenticated, async (req, res) => {
       })
     }
 
+    if (courseId && courseId !== 'undefined') {
+      whereClause.courseId = courseId
+    }
+
     const { count, rows: notifications } = await models.Notification.findAndCountAll({
       where: whereClause,
       limit: parseInt(limit),
       offset: parseInt(offset),
-      order: [['createdAt', 'DESC']]
+      order: [['notifyAt', 'DESC']]
     })
 
     res.status(200).json({
       data: notifications,
       meta: {
-        total: count,
+        totalItems: count,
         page: parseInt(page),
-        totalPages: Math.ceil(count / limit)
+        totalPages: Math.ceil(count / limit) >= 1 ? Math.ceil(count / limit) : 1
       }
     })
   } catch (err) {
@@ -258,7 +279,7 @@ router.get('/getAllDeletedNotification', isAuthenticated, async (req, res) => {
       meta: {
         total: count,
         page: parseInt(page),
-        totalPages: Math.ceil(count / limit)
+        totalPages: Math.ceil(count / limit) >= 1 ? Math.ceil(count / limit) : 1
       }
     })
   } catch (err) {
@@ -292,28 +313,5 @@ router.put('/edit/:id', isAuthenticated, async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' })
   }
 })
-
-// router.get('/recipients', isAuthenticated, async (req, res) => {
-//   try {
-//     const recipients = await models.NotificationRecipient.findAll({
-//       include: [
-//         {
-//           model: models.User,
-//           attributes: ['id', 'firstName', 'lastName', 'email', 'username']
-//         },
-//         {
-//           model: models.Notification,
-//           attributes: ['id', 'title', 'message', 'url']
-//         }
-//       ],
-//       order: [['createdAt', 'DESC']]
-//     })
-
-//     res.status(200).json(recipients)
-//   } catch (err) {
-//     console.error(err)
-//     res.status(500).json({ message: 'Internal server error' })
-//   }
-// })
 
 module.exports = router

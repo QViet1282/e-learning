@@ -4,8 +4,9 @@
 import React, { useEffect, useState } from 'react'
 import { getExamsByCourseId } from 'api/get/get.api' // Thay đổi đường dẫn API cho phù hợp
 import { IconButton } from '@mui/material'
-import { Refresh } from '@mui/icons-material'
-import Pagination from './components/Pagination'
+import { Refresh, Search } from '@mui/icons-material'
+import Pagination from '../component/Pagination'
+import { PacmanLoader } from 'react-spinners'
 
 interface DoExamProps {
   courseId?: number
@@ -70,12 +71,12 @@ const DoExamList: React.FC<DoExamProps> = ({ courseId }) => {
       <div className="w-full border-b-2">
         <div className="text-3xl font-bold p-2">Danh sách bài kiểm tra</div>
       </div>
-      <div className="w-full shadow-2xl mt-6 bg-slate-100 px-8 py-4 rounded-lg">
+      <div className="w-full shadow-2xl mt-6 bg-gradient-to-r from-gray-50 to-gray-100 md:px-8 px-4 py-4 rounded-lg">
         <div className="flex flex-wrap justify-between items-center mb-4">
           <div className="flex items-center">
             <span className="text-lg mr-4">Tổng số bài kiểm tra: {totalExams}</span>
             <IconButton onClick={handleReload} color="primary">
-              <Refresh />
+              <Refresh className='text-teal-400 hover:text-teal-300'/>
             </IconButton>
           </div>
           <div className="flex items-center">
@@ -84,16 +85,32 @@ const DoExamList: React.FC<DoExamProps> = ({ courseId }) => {
               placeholder="Tìm kiếm bài kiểm tra..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="border p-2 rounded flex-grow mr-2"
+              className="border-2 p-2 rounded flex-grow mr-2 focus:outline-none"
             />
-            <button onClick={handleSearch} className="bg-blue-500 text-white p-2 rounded">Tìm kiếm</button>
+            <button onClick={handleSearch} className="p-2 bg-white rounded-md border-2">
+              <Search className="text-gray-500" />
+            </button>
           </div>
         </div>
 
         {loading ? (
-          <p>Loading...</p>
+          <div className="flex justify-center items-center w-full min-h-96 mt-15">
+            <PacmanLoader
+              className='flex justify-center items-center w-full mt-20'
+              color='#5EEAD4'
+              cssOverride={{
+                display: 'block',
+                margin: '0 auto',
+                borderColor: 'blue'
+              }}
+              loading
+              margin={10}
+              speedMultiplier={3}
+              size={40}
+            />
+          </div>
         ) : (
-          <div className="flex flex-col">
+          <div className="flex flex-col min-h-96">
             {exams.length > 0 ? (
               <>
                 {exams.map((exam, index) => (
@@ -116,18 +133,18 @@ const DoExamList: React.FC<DoExamProps> = ({ courseId }) => {
                 ))}
               </>
             ) : (
-              <p className="text-center py-4 text-gray-500">
+              <div className="text-center py-4 text-gray-500 items-center justify-center flex h-96">
                 Không có bài kiểm tra nào được tìm thấy.
-              </p>
+              </div>
             )}
           </div>
         )}
 
-<Pagination
-        currentPage={page}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
       </div>
     </div>
   )

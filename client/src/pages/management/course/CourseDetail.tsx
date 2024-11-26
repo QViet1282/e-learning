@@ -22,6 +22,7 @@ export default function CourseDetailPage (): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedContent, setSelectedContent] = useState<string>('Tổng quan khóa học')
   const [course, setCourse] = useState<Course | null>(null)
+  const [isManagement, setIsManagement] = useState<boolean>(false)
 
   useEffect(() => {
     void fetchCourse()
@@ -31,6 +32,7 @@ export default function CourseDetailPage (): JSX.Element {
     try {
       const response = await getCourseById(courseId)
       setCourse(response.data)
+      setIsManagement(course?.status !== 0 && course?.status !== 1)
     } catch (error) {
       console.error('Error fetching course:', error)
     }
@@ -38,7 +40,7 @@ export default function CourseDetailPage (): JSX.Element {
   const renderContent = (content: string | null): JSX.Element | null => {
     switch (content) {
       case 'Học viên mục tiêu':
-        return <TargetStudents courseId={course?.id} description={course?.description} fetchCourse={fetchCourse} prepare={course?.prepare}/>
+        return <TargetStudents courseId={course?.id} description={course?.description} fetchCourse={fetchCourse} prepare={course?.prepare} />
       case 'Tổng quan khóa học':
         return <CourseOverview
           courseId={course?.id}
@@ -48,41 +50,42 @@ export default function CourseDetailPage (): JSX.Element {
           locationPath={course?.locationPath}
           videoLocationPath={course?.videoLocationPath}
           fetchCourse={fetchCourse}
-          />
+        />
       case 'Chương trình giảng dạy':
-        return <Curriculum courseId={courseId} courseStatus={course?.status ?? 0}/>
+        return <Curriculum courseId={courseId} courseStatus={course?.status ?? 0} />
       case 'Định giá & Xuất bản':
         return <PricingAndPublishing
-        courseId={course?.id}
-        status={course?.status}
-        price={course?.price}
-        startDateRegister={course?.startDate}
-        endDateRegister={course?.endDate}
-        fetchCourse={fetchCourse}
+          courseId={course?.id}
+          status={course?.status}
+          price={course?.price}
+          startDateRegister={course?.startDate}
+          endDateRegister={course?.endDate}
+          assignedBy={course?.assignedBy}
+          fetchCourse={fetchCourse}
         />
       case 'Danh sách học viên':
         return <StudentList courseId={course?.id} />
       case 'Kết quả các bài trắc nghiệm':
         return <DoExamList courseId={courseId} />
       case 'Thông báo':
-        return <Notification courseId={courseId}/>
+        return <Notification courseId={courseId} />
       case 'Thống kê':
-        return <Statistics courseId={courseId}/>
+        return <Statistics courseId={courseId} />
       default:
         return <CourseOverview
-        courseId={course?.id}
-        categoryCourseId={course?.categoryCourseId}
-        name={course?.name}
-        summary={course?.summary}
-        locationPath={course?.locationPath}
-        fetchCourse={fetchCourse}
+          courseId={course?.id}
+          categoryCourseId={course?.categoryCourseId}
+          name={course?.name}
+          summary={course?.summary}
+          locationPath={course?.locationPath}
+          fetchCourse={fetchCourse}
         />
     }
   }
 
   console.log('courseId(DetailPage)', courseId)
   return (
-    <div className='grid md:grid-cols-5 grid-cols-1 gap-6 p-4 bg-gray-100'>
+    <div className='grid md:grid-cols-5 grid-cols-1 gap-6 p-4 bg-white border-x-2'>
       <Box className='col-span-1 '>
         <Accordion defaultExpanded sx={{ backgroundColor: 'rgb(241, 245, 249)' }} className='shadow-xl'>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -108,16 +111,44 @@ export default function CourseDetailPage (): JSX.Element {
             </div>
           </AccordionDetails>
         </Accordion>
-        <Accordion defaultExpanded sx={{ backgroundColor: 'rgb(241, 245, 249)' }} className='shadow-xl' >
+        <Accordion defaultExpanded sx={{ backgroundColor: 'rgb(241, 245, 249)' }} className='shadow-xl'>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
             <div className='font-bold text-lg'>Quản lý khóa học</div>
           </AccordionSummary>
-          <AccordionDetails>
-            <Box display="flex" flexDirection="column" gap={2}>
-              <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Danh sách học viên')}>Danh sách học viên</button>
-              <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Kết quả các bài trắc nghiệm')}>Kết quả các bài trắc nghiệm</button>
-              <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Thông báo')}>Thông báo</button>
-              <button className='bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none' onClick={() => setSelectedContent('Thống kê')}>Thống kê</button>
+          <AccordionDetails >
+            <Box display="flex" flexDirection="column" gap={2} >
+              <button
+                disabled={!isManagement}
+                className={`rounded py-2 w-full shadow focus:outline-none 
+    ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
+                onClick={() => setSelectedContent('Danh sách học viên')}
+              >
+                Danh sách học viên
+              </button>
+              <button
+                disabled={!isManagement}
+                className={`rounded py-2 w-full shadow focus:outline-none 
+    ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
+                onClick={() => setSelectedContent('Kết quả các bài trắc nghiệm')}
+              >
+                Kết quả các bài trắc nghiệm
+              </button>
+              <button
+                disabled={!isManagement}
+                className={`rounded py-2 w-full shadow focus:outline-none 
+    ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
+                onClick={() => setSelectedContent('Thông báo')}
+              >
+                Thông báo
+              </button>
+              <button
+                disabled={!isManagement}
+                className={`rounded py-2 w-full shadow focus:outline-none 
+    ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
+                onClick={() => setSelectedContent('Thống kê')}
+              >
+                Thống kê
+              </button>
             </Box>
           </AccordionDetails>
         </Accordion>

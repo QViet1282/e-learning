@@ -14,6 +14,7 @@ import { StudyItem } from 'api/get/get.interface'
 import { editExam } from 'api/put/put.interface'
 import { editStudyItemAndExam } from 'api/put/put.api'
 import { QuillEditor } from './QuillEditor'
+import { toast } from 'react-toastify'
 
 interface EditExamFormProps {
   userId: number
@@ -73,6 +74,11 @@ const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, l
   }
 
   const handleAddExam = async (): Promise<void> => {
+    if (dataExam.name.trim() === '') {
+      toast.error('Vui lòng nhập tên bài học hợp lệ!')
+      return
+    }
+
     try {
       const payload: editExam = {
         name: dataExam.name,
@@ -81,9 +87,12 @@ const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, l
         pointToPass: dataExam.pointToPass,
         numberOfAttempt: dataExam.numberOfAttempt
       }
-      const response = await editStudyItemAndExam(studyItem.id, payload)
-      await fetchStudyItems()
-      console.log('Ket qua them newCategory', response.status)
+      editStudyItemAndExam(studyItem.id, payload).then(async () => {
+        toast.success('Lưu thành công')
+        await fetchStudyItems()
+      }).catch(() => {
+        toast.error('Lỗi trong quá trình tạo. Xin hãy thử lại!')
+      })
     } catch (error) {
       console.error('Error create new category:', error)
     }
@@ -248,10 +257,12 @@ const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, l
       </div>
 
       {/* Nút lưu */}
-      <div
-        className="p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500 mt-4" onClick={handleAddExam}
-      >
-        Lưu bài kiểm tra
+      <div className='w-full space-x-2 justify-end flex'>
+        <div
+          className="p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95" onClick={handleAddExam}
+        >
+          Lưu bài kiểm tra
+        </div>
       </div>
     </div>
   )

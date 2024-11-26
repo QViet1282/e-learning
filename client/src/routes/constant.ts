@@ -14,6 +14,7 @@ const ROUTES = {
   notificationManagement: '/management/notification',
   statisticalManagement: '/management/statistical',
   userManagement: '/management/user',
+  payoutManagement: '/management/payout',
   temp: '/management/temp', // không dùng
   signup: '/signup',
   forgotpassword: '/forgot-password',

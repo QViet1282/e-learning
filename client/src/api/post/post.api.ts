@@ -355,3 +355,11 @@ export const updateAvatar = async (id: string, avatarUrl: string): Promise<Axios
 export const updateRoleToTeacher = async (id: string): Promise<AxiosResponse<any>> => {
   return await requestWithJwt.put<any>(`/users/${id}/role/teacher`)
 }
+
+export const requestPayout = async (payload: any): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.post<any>('/payout-requests/requestPayout', { data: payload }, {
+    validateStatus: (status) => {
+      return (status >= 200 && status < 300) || status === 409
+    }
+  })
+}

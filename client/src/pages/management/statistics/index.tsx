@@ -314,145 +314,142 @@ const StatisticsPage: React.FC = () => {
   }
 
   return (
-        <div className="ml-0 md:ml-14 py-8 md:px-8 px-2 bg-slate-100 min-h-screen">
-            <h2 className="text-4xl font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-teal-600 to-teal-400 mb-8">
-                User Management
-            </h2>
+    <div className="ml-0 py-8 md:px-8 px-2 min-h-screen bg-sky-100 border-x-2">
+      <h2 className="text-4xl font-semibold text-center text-transparent bg-clip-text bg-gradient-to-r from-green-500 via-teal-400 to-blue-500 mb-8">
+        Quản lý thống kê
+      </h2>
 
-            {/* Grid for the summary cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
-                {/* Thẻ tổng số khóa học */}
-                <div className="bg-teal-600 p-6 rounded-lg shadow-md text-center text-white">
-                    <div className="mb-4 mx-auto">
-                        <School fontSize="large" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">Tổng số khóa học</h3>
-                    <p className="text-3xl font-bold">{statistics.totalCourses}</p>
-                </div>
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
+        {/* Thẻ tổng số khóa học */}
+        <div className="bg-teal-600 p-6 rounded-lg shadow-md text-center text-white hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
+          <div className="mb-4 mx-auto">
+            <School fontSize="large" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Tổng số khóa học</h3>
+          <p className="text-3xl font-bold">{statistics.totalCourses}</p>
+        </div>
 
-                {/* Thẻ tổng số người dùng */}
-                <div className="bg-blue-600 p-6 rounded-lg shadow-md text-center text-white">
-                    <div className="mb-4 mx-auto">
-                        <Group fontSize="large" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">Tổng số người dùng</h3>
-                    <p className="text-3xl font-bold">{statistics.totalUsers}</p>
-                </div>
+        {/* Thẻ tổng số người dùng */}
+        <div className="bg-blue-600 p-6 rounded-lg shadow-md text-center text-white hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
+          <div className="mb-4 mx-auto">
+            <Group fontSize="large" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Tổng số người dùng</h3>
+          <p className="text-3xl font-bold">{statistics.totalUsers}</p>
+        </div>
 
-                {/* Thẻ tổng doanh thu */}
-                <div className="bg-blue-700 p-6 rounded-lg shadow-md text-center text-white">
-                    <div className="mb-4 mx-auto">
-                        <AttachMoney fontSize="large" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">Tổng doanh thu</h3>
-                    <p className="text-3xl font-bold">{statistics.totalEarnings.toLocaleString('vi-VN')} VNĐ</p>
-                </div>
+        {/* Thẻ tổng doanh thu */}
+        <div className="bg-blue-700 p-6 rounded-lg shadow-md text-center text-white hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
+          <div className="mb-4 mx-auto">
+            <AttachMoney fontSize="large" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Tổng doanh thu</h3>
+          <p className="text-3xl font-bold">{statistics.totalEarnings.toLocaleString('vi-VN')} VNĐ</p>
+        </div>
 
-                {/* Thẻ tổng lượt đăng ký */}
-                <div className="bg-orange-600 p-6 rounded-lg shadow-md text-center text-white">
-                    <div className="mb-4 mx-auto">
-                        <EventNote fontSize="large" />
-                    </div>
-                    <h3 className="text-xl font-semibold mb-2">Tổng lượt đăng ký</h3>
-                    <p className="text-3xl font-bold">{statistics.totalRegistrations}</p>
-                </div>
-            </div>
+        {/* Thẻ tổng lượt đăng ký */}
+        <div className="bg-orange-600 p-6 rounded-lg shadow-md text-center text-white hover:shadow-xl transform hover:-translate-y-2 transition-all duration-300">
+          <div className="mb-4 mx-auto">
+            <EventNote fontSize="large" />
+          </div>
+          <h3 className="text-xl font-semibold mb-2">Tổng lượt đăng ký</h3>
+          <p className="text-3xl font-bold">{statistics.totalRegistrations}</p>
+        </div>
+      </div>
 
-            {/* Charts and top rated courses section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                {/* Biểu đồ đăng ký theo tháng và doanh thu theo tháng, chiếm 2/3 */}
-                <div className="md:col-span-2 space-y-4">
-                    {/* Chọn năm */}
-                    <div className="flex items-center justify-center">
-      <label className="mr-4 font-semibold">Chọn năm:</label>
-      <select
-        value={selectedYear}
-        onChange={handleYearChange}
-        className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-      >
-        {[2024, 2023, 2022].map((year) => (
-          <option key={year} value={year}>
-            {year}
-          </option>
-        ))}
-      </select>
-      {selectedYear && (
-        <>
-          <label className="ml-6 mr-4 font-semibold">Tháng:</label>
-          <select
-            value={selectedMonth ?? undefined}
-            onChange={handleMonthChange}
-            className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            <option value={undefined}>Tháng 1-12</option>
-            {[...Array(12)].map((_, i) => (
-              <option key={i + 1} value={i + 1}>
-                Tháng {i + 1}
-              </option>
-            ))}
-          </select>
-        </>
-      )}
-    </div>
-                    <div className="w-full bg-white p-4 rounded-lg shadow-md">
-                        <h3 className="text-xl font-semibold text-center mb-4">Biểu đồ đăng kí và doanh thu</h3>
-                        <Bar data={combinedData} options={options} />
-                    </div>
-
-                    <div className="w-full bg-white p-4 rounded-lg shadow-md">
-                        <h3 className="text-xl font-semibold text-center mb-4">Biểu đồ tăng trưởng người dùng và khóa học</h3>
-                        <Bar data={combinedData2} options={options2} />
-                    </div>
-                </div>
-
-                {/* Top khóa học đánh giá cao, chiếm 1/3 */}
-                <div className="bg-white p-6 rounded-lg shadow-md md:col-span-1 mt-2">
-                    <h3 className="text-2xl font-semibold text-center mb-4">Các khóa học tốt nhất</h3>
-                    <div className="space-y-4">
-                        {topRatedCourses.map((course, index) => (
-                            <div key={index} className={`p-4 border rounded-lg shadow flex items-center ${index < 3 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
-                                {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mr-2">#{index + 1}</span>}
-                                <div>
-                                    <h4 className="text-lg font-semibold mb-1">{course.courseName}</h4>
-                                    <p className="text-gray-700">Đánh giá: {course.bayesianAverage}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            <div className="mb-4">
-                <label htmlFor="year" className="font-semibold text-lg">Chọn năm:</label>
-                <select
-                    id="year"
-                    value={selectedYearTop}
-                    onChange={(e) => {
-                      const selectedYear = e.target.value ? Number(e.target.value) : undefined
-                      if (!selectedYear) {
-                        setSelectedMonthTop(undefined)
-                      }
-                      setSelectedYearTop(selectedYear)
-                    }}
-                    className="ml-4 p-2 border rounded-lg"
-                    defaultValue={undefined}
-                >
-                    <option value={undefined}>Toàn thời gian</option>
-                    <option value={2024}>2024</option>
-                    <option value={2023}>2023</option>
-                    <option value={2022}>2022</option>
-                </select>
-                {(selectedYearTop)
-                  ? (
-        <>
-            <label htmlFor="month" className="font-semibold text-lg ml-4">Chọn tháng:</label>
+      {/* Charts and top rated courses section */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div className="md:col-span-2 space-y-4">
+          <div className="flex items-center justify-center">
+            <label className="mr-4 font-semibold">Chọn năm:</label>
             <select
+              value={selectedYear}
+              onChange={handleYearChange}
+              className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            >
+              {[2024, 2023, 2022].map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+            {selectedYear && (
+              <>
+                <label className="ml-6 mr-4 font-semibold">Tháng:</label>
+                <select
+                  value={selectedMonth ?? undefined}
+                  onChange={handleMonthChange}
+                  className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                  <option value={undefined}>Tháng 1-12</option>
+                  {[...Array(12)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      Tháng {i + 1}
+                    </option>
+                  ))}
+                </select>
+              </>
+            )}
+          </div>
+          <div className="w-full bg-white p-4 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold text-center mb-4">Biểu đồ đăng kí và doanh thu</h3>
+            <Bar data={combinedData} options={options} />
+          </div>
+
+          <div className="w-full bg-white p-4 rounded-lg shadow-md">
+            <h3 className="text-xl font-semibold text-center mb-4">Biểu đồ tăng trưởng người dùng và khóa học</h3>
+            <Bar data={combinedData2} options={options2} />
+          </div>
+        </div>
+
+        {/* Top khóa học đánh giá cao, chiếm 1/3 */}
+        <div className="bg-white p-6 rounded-lg shadow-md md:col-span-1 mt-2">
+          <h3 className="text-2xl font-semibold text-center mb-4">Các khóa học tốt nhất</h3>
+          <div className="space-y-4">
+            {topRatedCourses.map((course, index) => (
+              <div key={index} className={`p-4 border rounded-lg shadow flex items-center ${index < 3 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
+                {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mr-2">#{index + 1}</span>}
+                <div>
+                  <h4 className="text-lg font-semibold mb-1">{course.courseName}</h4>
+                  <p className="text-gray-700">Đánh giá: {course.bayesianAverage}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-4 flex flex-wrap gap-2 items-center">
+        <label htmlFor="year" className="font-semibold text-lg">Chọn năm:</label>
+        <select
+          id="year"
+          value={selectedYearTop}
+          onChange={(e) => {
+            const selectedYear = e.target.value ? Number(e.target.value) : undefined
+            if (!selectedYear) {
+              setSelectedMonthTop(undefined)
+            }
+            setSelectedYearTop(selectedYear)
+          }}
+          className="ml-4 p-2 border rounded-lg"
+          defaultValue={undefined}
+        >
+          <option value={undefined}>Toàn thời gian</option>
+          <option value={2024}>2024</option>
+          <option value={2023}>2023</option>
+          <option value={2022}>2022</option>
+        </select>
+        {(selectedYearTop)
+          ? (
+            <>
+              <label htmlFor="month" className="font-semibold text-lg md:ml-4">Chọn tháng:</label>
+              <select
                 id="month"
                 value={selectedMonthTop}
                 onChange={(e) => setSelectedMonthTop(Number(e.target.value))}
                 className="ml-4 p-2 border rounded-lg"
                 defaultValue={undefined}
-            >
+              >
                 <option value={undefined}>Tháng 1 - 12</option>
                 <option value={1}>Tháng 1</option>
                 <option value={2}>Tháng 2</option>
@@ -466,61 +463,61 @@ const StatisticsPage: React.FC = () => {
                 <option value={10}>Tháng 10</option>
                 <option value={11}>Tháng 11</option>
                 <option value={12}>Tháng 12</option>
-            </select>
-        </>
-                    )
-                  : (<></>)}
-            </div>
-            {/* List of top courses */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Top khóa học có nhiều lượt đăng ký */}
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h3 className="text-2xl font-semibold text-center mb-4">Top khóa học có nhiều đăng ký</h3>
-                    <div className="space-y-4">
-                        {topEnrollmentCourses.map((course, index) => (
-                            <div key={index} className={`p-4 border rounded-lg shadow flex items-center ${index < 3 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
-                                {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mr-2">#{index + 1}</span>}
-                                <div>
-                                    <h4 className="text-lg font-semibold mb-1">{course.courseName}</h4>
-                                    <p className="text-gray-700">Lượt đăng ký: {course.enrollmentCount}</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+              </select>
+            </>
+            )
+          : (<></>)}
+      </div>
+      {/* List of top courses */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Top khóa học có nhiều lượt đăng ký */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-2xl font-semibold text-center mb-4">Top khóa học có nhiều đăng ký</h3>
+          <div className="space-y-4">
+            {topEnrollmentCourses.map((course, index) => (
+              <div key={index} className={`p-4 border rounded-lg shadow flex items-center ${index < 3 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
+                {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mr-2">#{index + 1}</span>}
+                <div>
+                  <h4 className="text-lg font-semibold mb-1">{course.courseName}</h4>
+                  <p className="text-gray-700">Lượt đăng ký: {course.enrollmentCount}</p>
                 </div>
-
-                {/* Top khóa học có doanh thu cao */}
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h3 className="text-2xl font-semibold text-center mb-4">Top khóa học có doanh thu cao</h3>
-                    <div className="space-y-4">
-                        {topEarningCourses.map((course, index) => (
-                            <div key={index} className={`p-4 border rounded-lg shadow flex items-center ${index < 3 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
-                                {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mr-2">#{index + 1}</span>}
-                                <div>
-                                    <h4 className="text-lg font-semibold mb-1">{course.courseName}</h4>
-                                    <p className="text-gray-700">Doanh thu: {course.totalEarnings.toLocaleString('vi-VN')} VNĐ</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-
-                <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h3 className="text-2xl font-semibold text-center mb-4">Top giảng viên có doanh thu cao</h3>
-                    <div className="space-y-4">
-                        {topEarningTeachers.map((teacher, index) => (
-                            <div key={index} className={`p-4 border rounded-lg shadow flex items-center ${index < 3 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
-                                {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mr-2">#{index + 1}</span>}
-                                <div>
-                                    <h4 className="text-lg font-semibold mb-1">{teacher.teacherName}</h4>
-                                    <p className="text-gray-700">Doanh thu: {teacher.totalEarnings.toLocaleString('vi-VN')} VNĐ</p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+              </div>
+            ))}
+          </div>
         </div>
+
+        {/* Top khóa học có doanh thu cao */}
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-2xl font-semibold text-center mb-4">Top khóa học có doanh thu cao</h3>
+          <div className="space-y-4">
+            {topEarningCourses.map((course, index) => (
+              <div key={index} className={`p-4 border rounded-lg shadow flex items-center ${index < 3 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
+                {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mr-2">#{index + 1}</span>}
+                <div>
+                  <h4 className="text-lg font-semibold mb-1">{course.courseName}</h4>
+                  <p className="text-gray-700">Doanh thu: {course.totalEarnings.toLocaleString('vi-VN')} VNĐ</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-md">
+          <h3 className="text-2xl font-semibold text-center mb-4">Top giảng viên có doanh thu cao</h3>
+          <div className="space-y-4">
+            {topEarningTeachers.map((teacher, index) => (
+              <div key={index} className={`p-4 border rounded-lg shadow flex items-center ${index < 3 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
+                {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mr-2">#{index + 1}</span>}
+                <div>
+                  <h4 className="text-lg font-semibold mb-1">{teacher.teacherName}</h4>
+                  <p className="text-gray-700">Doanh thu: {teacher.totalEarnings.toLocaleString('vi-VN')} VNĐ</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 

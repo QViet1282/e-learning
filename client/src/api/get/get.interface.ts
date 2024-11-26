@@ -116,4 +116,6 @@ export interface User {
   email?: string
   avatar?: string
   Role?: Role
+  gender?: string | undefined
+  age?: number | undefined
 }

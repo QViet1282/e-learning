@@ -184,7 +184,7 @@ const Default = () => {
   const isPathMatch = pathRegEx.test(location.pathname)
   const isAdmin = data?.toUpperCase() === 'ADMIN'
   const isTeacher = data?.toUpperCase() === 'TEACHER'
-  const alwaysShowSidebarPaths = ['/settings/profile', '/management', '/management/course', '/management/notification', '/management/statistical', '/management/user', '/management/detail-course', '/dashboard/lectuter']
+  const alwaysShowSidebarPaths = ['/settings/profile', '/management', '/management/course', '/management/notification', '/management/statistical', '/management/user', '/management/payout', '/management/detail-course', '/dashboard/lectuter']
   const showSidebar = (alwaysShowSidebarPaths.includes(location.pathname) && isAdmin) || (isPathMatch && isAdmin) || (isPathMatch && isTeacher) || (alwaysShowSidebarPaths.includes(location.pathname) && isTeacher)
   const showFooter = !location.pathname.startsWith('/learning')
 

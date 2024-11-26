@@ -42,8 +42,8 @@ export const getExamsByCourseId = async ({ courseId, page, limit, search }: { co
   return await requestWithJwt.get<any>(`/study-items/user-answer-history/${courseId}?page=${page}&limit=${limit}&search=${search}`, { withCredentials: true })
 }
 
-export const getAllNotification = async ({ page, limit, search }: { page?: number, limit?: number, search?: string }): Promise<AxiosResponse<any>> => {
-  return await requestWithJwt.get<any>(`/notifications/getAllNotification?page=${page}&limit=${limit}&search=${search}`, { withCredentials: true })
+export const getAllNotification = async ({ page, limit, search, courseId }: { page?: number, limit?: number, search?: string, courseId?: number }): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>(`/notifications/getAllNotification?page=${page}&limit=${limit}&search=${search}&courseId=${courseId}`, { withCredentials: true })
 }
 
 export const getAllDeletedNotification = async ({ page, limit, search }: { page?: number, limit?: number, search?: string }): Promise<AxiosResponse<any>> => {
@@ -124,4 +124,25 @@ export const getOverviewStatisticsByTeacher = async ({ teacherId }: { teacherId?
 // Lấy các khóa học của giáo viên
 export const getAllCourseByTeacher = async ({ teacherId }: { teacherId?: number }): Promise<AxiosResponse<any>> => {
   return await requestWithJwt.get<any>(`/courses/getAllCourseByTeacher?teacherId=${teacherId ?? ''}`, { withCredentials: true })
+}
+// Trang dashboard lecturer
+export const getPendingRevenue = async (): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>('/users/getPendingRevenue', { withCredentials: true })
+}
+
+export const getRequestPayoutHistory = async (): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>('/payout-requests/requestPayoutHistory', { withCredentials: true })
+}
+
+export const getPayoutStatistics = async (): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>('/payout-requests/statistics', { withCredentials: true })
+}
+
+export const getAllPayout = async (
+  search?: string,
+  status?: string,
+  page: number = 1,
+  limit: number = 10
+): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>(`/payout-requests/?page=${page}&limit=${limit}&search=${search}&status=${status}`, { withCredentials: true })
 }

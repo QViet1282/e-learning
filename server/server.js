@@ -23,6 +23,7 @@ const paymentController = require('./controllers/payment')
 const roleController = require('./controllers/role')
 const statisticsController = require('./controllers/statistics')
 const enrollmentController = require('./controllers/enrollment')
+const payoutRequestController = require('./controllers/payoutRequest')
 const seedDatabase = require('./seeds/index')
 const { API_PREFIX } = require('./utils')
 
@@ -68,6 +69,7 @@ app.use(`${API_PREFIX}/payment`, paymentController)
 app.use(`${API_PREFIX}/roles`, roleController)
 app.use(`${API_PREFIX}/statistics`, statisticsController)
 app.use(`${API_PREFIX}/enrollments`, enrollmentController)
+app.use(`${API_PREFIX}/payout-requests`, payoutRequestController)
 
 async function startServer () {
   try {

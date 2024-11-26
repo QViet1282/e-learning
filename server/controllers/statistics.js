@@ -32,50 +32,12 @@ function logInfo (req, response) {
   })
 }
 
-// router.get('/enrollments/monthly-count', async (req, res) => {
-//   const year = req.query.year
-
-//   if (!year) {
-//     return res.status(400).json({ error: 'Year is required' })
-//   }
-
-//   try {
-//     // completedDate
-//     const monthlyEnrollments = await models.Enrollment.findAll({
-//       attributes: [
-//         [sequelize.fn('MONTH', sequelize.col('enrollmentDate')), 'month'],
-//         [sequelize.fn('COUNT', sequelize.col('id')), 'count']
-//       ],
-//       where: {
-//         [Op.and]: [
-//           sequelize.where(sequelize.fn('YEAR', sequelize.col('enrollmentDate')), year),
-//           { status: 1 } // Điều kiện status = 1
-//         ]
-//       },
-//       group: ['month'],
-//       order: [['month', 'ASC']]
-//     })
-
-//     // Đảm bảo trả về đủ 12 tháng, với giá trị 0 nếu tháng không có đăng ký nào
-//     const result = Array.from({ length: 12 }, (_, i) => ({
-//       month: i + 1,
-//       count: monthlyEnrollments.find(e => e.get('month') === i + 1)?.get('count') || 0
-//     }))
-
-//     res.json(result)
-//   } catch (error) {
-//     res.status(500).json({ error: error.message })
-//   }
-// })
-
 router.get('/top-rated-courses', async (req, res) => {
   const { limit } = req.query
 
-  // Chuyển `limit` thành số nguyên, mặc định là 10
   const maxResults = limit ? parseInt(limit, 10) : 10
   const m = 10
   try {
-    // Truy vấn để tính toán điểm trung bình toàn hệ thống (C) và các khóa học top-rated
     const result = await sequelize.query(`
       WITH SystemAverage AS (
         SELECT AVG(rating) AS systemAverage
@@ -100,7 +62,6 @@ router.get('/top-rated-courses', async (req, res) => {
       type: sequelize.QueryTypes.SELECT
     })
 
-    // Kiểm tra nếu kết quả là mảng và thực hiện map
     if (Array.isArray(result)) {
       const resultFormatted = result.map(course => ({
         courseId: course.courseId,
@@ -138,12 +99,11 @@ router.get('/rating/:courseId', async (req, res) => {
         'rating',
         [sequelize.fn('COUNT', sequelize.col('id')), 'count']
       ],
-      where: { courseId }, // Lọc theo courseId
+      where: { courseId },
       group: ['rating'],
       order: [['rating', 'ASC']]
     })
 
-    // Tạo một đối tượng từ 1 đến 5 sao, mặc định count = 0
     const result = Array.from({ length: 5 }, (_, i) => ({
       rating: i + 1,
       count: 0
@@ -178,20 +138,17 @@ router.get('/top-enrollment-courses', async (req, res) => {
 
   const maxResults = limit ? parseInt(limit, 10) : 10
 
-  // Xử lý điều kiện lọc theo year và month
   const filterYear = year?.trim() !== '' ? parseInt(year, 10) : undefined
   const filterMonth = month?.trim() !== '' ? parseInt(month, 10) : undefined
 
   const dateCondition = {}
 
-  // Nếu có filterYear, thêm điều kiện lọc theo năm
   if (filterYear) {
     dateCondition[Op.and] = [
       sequelize.where(sequelize.fn('YEAR', sequelize.col('enrollmentDate')), filterYear)
     ]
   }
 
-  // Nếu có filterMonth và filterYear đã được xác định, thêm điều kiện lọc theo tháng
   if (filterYear && filterMonth) {
     dateCondition[Op.and].push(
       sequelize.where(sequelize.fn('MONTH', sequelize.col('enrollmentDate')), filterMonth)
@@ -219,7 +176,6 @@ router.get('/top-enrollment-courses', async (req, res) => {
       ]
     })
 
-    // Định dạng lại kết quả trước khi trả về
     const result = topCourses.map(course => ({
       courseId: course.courseId,
       courseName: course.Course?.name || 'N/A',
@@ -244,7 +200,6 @@ router.get('/top-enrollment-courses', async (req, res) => {
 router.get('/top-earning-courses', async (req, res) => {
   const { year, month, limit } = req.query
 
-  // Kiểm tra giá trị 'year' và 'month' nếu có
   const filterYear = year?.trim() !== '' ? parseInt(year, 10) : undefined
   const filterMonth = month?.trim() !== '' ? parseInt(month, 10) : undefined
 
@@ -260,7 +215,6 @@ router.get('/top-earning-courses', async (req, res) => {
     )
   }
 
-  // Chuyển đổi limit thành số nguyên
   const maxResults = limit ? parseInt(limit, 10) : 10
 
   try {
@@ -272,7 +226,7 @@ router.get('/top-earning-courses', async (req, res) => {
       where: whereCondition,
       group: ['courseId'],
       order: [[sequelize.fn('SUM', sequelize.col('price')), 'DESC']],
-      limit: maxResults, // Sử dụng giá trị limit để giới hạn số lượng khóa học trả về
+      limit: maxResults,
       include: [
         {
           model: models.Course,
@@ -281,7 +235,6 @@ router.get('/top-earning-courses', async (req, res) => {
       ]
     })
 
-    // Định dạng lại kết quả trả về
     const result = topEarningCourses.map(course => ({
       courseId: course.courseId,
       courseName: course.Course?.name || 'N/A',
@@ -448,7 +401,6 @@ router.get('/user-course-growth-statistics', isAuthenticated, async (req, res) =
       raw: true
     })
 
-    // Tạo dữ liệu kết quả
     const result = {
       labels: [],
       courseGrowthData: [],
@@ -489,7 +441,6 @@ router.get('/user-course-growth-statistics', isAuthenticated, async (req, res) =
       })
     }
 
-    // Trả về kết quả thống kê
     res.json({
       labels: result.labels,
       courseGrowthData: result.courseGrowthData,
@@ -500,101 +451,6 @@ router.get('/user-course-growth-statistics', isAuthenticated, async (req, res) =
     res.status(500).json({ error: 'Internal server error' })
   }
 })
-
-// router.get('/monthly-registrations', async (req, res) => {
-//   const { year } = req.query
-
-//   if (!year) {
-//     return res.status(400).json({ error: 'Year is required' })
-//   }
-
-//   try {
-//     const monthlyRegistrations = await models.Enrollment.findAll({
-//       attributes: [
-//         [sequelize.fn('MONTH', sequelize.col('createdAt')), 'month'],
-//         [sequelize.fn('COUNT', sequelize.col('id')), 'count']
-//       ],
-//       where: {
-//         status: 1,
-//         createdAt: {
-//           [Op.gte]: new Date(`${year}-01-01`),
-//           [Op.lt]: new Date(`${parseInt(year) + 1}-01-01`)
-//         }
-//       },
-//       group: ['month'],
-//       order: [[sequelize.fn('MONTH', sequelize.col('createdAt')), 'ASC']]
-//     })
-
-//     if (monthlyRegistrations.length === 0) {
-//       return res.json({
-//         labels: Array.from({ length: 12 }, (_, i) => i + 1),
-//         data: Array(12).fill(0)
-//       })
-//     }
-
-//     const result = {
-//       labels: Array.from({ length: 12 }, (_, i) => i + 1),
-//       data: []
-//     }
-
-//     for (let i = 1; i <= 12; i++) {
-//       const monthData = monthlyRegistrations.find(m => m.get('month') === i)
-//       result.data.push(monthData ? monthData.get('count') : 0)
-//     }
-
-//     res.json(result)
-//   } catch (error) {
-//     console.error('Error fetching monthly registrations:', error)
-//     res.status(500).json({ error: 'Internal server error' })
-//   }
-// })
-
-// router.get('/monthly-revenue', async (req, res) => {
-//   const { year } = req.query
-
-//   if (!year) {
-//     return res.status(400).json({ error: 'Year is required' })
-//   }
-
-//   try {
-//     const monthlyRevenue = await models.Enrollment.findAll({
-//       attributes: [
-//         [sequelize.fn('MONTH', sequelize.col('Enrollment.createdAt')), 'month'],
-//         [sequelize.fn('SUM', sequelize.col('Course.price')), 'totalRevenue']
-//       ],
-//       include: [
-//         {
-//           model: models.Course,
-//           attributes: []
-//         }
-//       ],
-//       where: {
-//         status: 1,
-//         createdAt: {
-//           [Op.gte]: new Date(`${year}-01-01`),
-//           [Op.lt]: new Date(`${parseInt(year) + 1}-01-01`)
-//         }
-//       },
-//       group: ['month'],
-//       order: [[sequelize.fn('MONTH', sequelize.col('Enrollment.createdAt')), 'ASC']]
-//     })
-
-//     const revenueData = Array.from({ length: 12 }, (_, i) => {
-//       const monthData = monthlyRevenue.find(m => m.get('month') === i + 1)
-//       return monthData ? parseFloat(monthData.get('totalRevenue')) : 0
-//     })
-
-//     const result = {
-//       labels: Array.from({ length: 12 }, (_, i) => i + 1),
-//       revenue: revenueData
-//     }
-
-//     res.json(result)
-//   } catch (error) {
-//     console.error('Error fetching monthly revenue:', error)
-//     res.status(500).json({ error: 'Internal server error' })
-//   }
-// })
 
 // Lấy các dữ liệu tổng quan toàn hệ thống
 router.get('/overview', async (req, res) => {

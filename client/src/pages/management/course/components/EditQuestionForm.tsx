@@ -11,6 +11,7 @@ import { Question } from 'api/get/get.interface'
 import { editLession, editQuestionItem } from 'api/put/put.interface'
 import { editQuestion } from 'api/put/put.api'
 import { QuillEditorQuestion } from './QuillEditor'
+import { toast } from 'react-toastify'
 
 interface EditExamFormProps {
   userId: number
@@ -75,7 +76,7 @@ const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, us
     if (answers.length < maxAnswers) {
       setAnswers([...answers, { content: '', isCorrect: false }]) // Thêm đáp án mới nếu chưa đạt tối đa
     } else {
-      alert(`Chỉ được thêm tối đa ${maxAnswers} đáp án`)
+      toast.warning(`Chỉ được thêm tối đa ${maxAnswers} đáp án`)
     }
   }
 
@@ -86,20 +87,22 @@ const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, us
 
   // Hàm xử lý submit
   const handleSubmit = async (): Promise<void> => {
-    if (dataQuestion.content.length === 0) {
-      alert('Vui lòng nhập câu hỏi')
+    const strippedContent = dataQuestion.content.replace(/<\/?[^>]+(>|$)/g, '').trim()
+
+    if (strippedContent.length === 0) {
+      toast.error('Vui lòng viết câu hỏi')
       return
     }
 
     const filteredAnswers = answers.filter((answer) => answer.content.trim() !== '')
 
     if (filteredAnswers.length < 2) {
-      alert('Vui lòng nhập ít nhất hai đáp án')
+      toast.error('Vui lòng viết ít nhất hai đáp án')
       return
     }
 
     if (!answers.some((answer) => answer.isCorrect)) {
-      alert('Vui lòng chọn ít nhất một đáp án đúng')
+      toast.error('Vui lòng chọn ít nhất một đáp án đúng')
       return
     }
 
@@ -109,7 +112,7 @@ const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, us
       .join('::')
 
     if (correctAnswers.length === 0) {
-      alert('Vui lòng chọn ít nhất một đáp án đúng')
+      toast.error('Vui lòng chọn ít nhất một đáp án đúng')
       return
     }
 
@@ -139,14 +142,14 @@ const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, us
       const response: AxiosResponse<any> = await editQuestion(question.id, payload)
       await fetchQuestions()
       if (response.status === 200) {
-        // alert('Câu hỏi đã được tạo thành công');
-
+        toast.success('Câu hỏi đã được cập nhật thành công!')
       }
     } catch (error) {
-      console.error('Có lỗi xảy ra khi tạo câu hỏi:', error)
+      console.error('Có lỗi xảy ra khi cập nhật câu hỏi:', error)
+      toast.error('Có lỗi xảy ra khi cập nhật câu hỏi. Vui lòng thử lại!')
     }
 
-    // Đặt lại việc thêm câu hỏi
+    // Đặt lại trạng thái
     setIsAddingQuestion(false)
   }
 
@@ -179,7 +182,7 @@ const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, us
             <select
                 value={dataQuestion.instruction}
                 onChange={handleInstructionChange}
-                className="mt-2 border text-sm border-gray-300 h-9 p-2"
+                className="mt-2 border text-sm border-gray-300 h-9 p-2 focus:outline-none"
             >
                 <option value="">Hướng dẫn trả lời (Có thể không chọn)</option>
                 {instructions.map((instruction, index) => (
@@ -258,7 +261,7 @@ const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, us
                         console.error('Error while submitting:', error)
                       })
                     }}
-                    className="p-2 cursor-pointer flex justify-center mt-2 text-white text-lg hover:bg-teal-400 bg-teal-500"
+                    className="p-2 cursor-pointer flex justify-center mt-2 text-white text-lg hover:bg-teal-400 bg-teal-500  rounded-md active:scale-95"
                 >
                     Lưu câu hỏi
                 </div>
