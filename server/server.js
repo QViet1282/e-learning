@@ -24,6 +24,7 @@ const roleController = require('./controllers/role')
 const statisticsController = require('./controllers/statistics')
 const enrollmentController = require('./controllers/enrollment')
 const payoutRequestController = require('./controllers/payoutRequest')
+const dashboardReportController = require('./controllers/dashboardReport')
 const seedDatabase = require('./seeds/index')
 const { API_PREFIX } = require('./utils')
 
@@ -70,7 +71,7 @@ app.use(`${API_PREFIX}/roles`, roleController)
 app.use(`${API_PREFIX}/statistics`, statisticsController)
 app.use(`${API_PREFIX}/enrollments`, enrollmentController)
 app.use(`${API_PREFIX}/payout-requests`, payoutRequestController)
-
+app.use(`${API_PREFIX}/dashboard-report`, dashboardReportController)
 async function startServer () {
   try {
     await sequelize.sync()

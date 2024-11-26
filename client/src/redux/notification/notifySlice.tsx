@@ -6,6 +6,7 @@ interface NotificationDetails {
   title: string
   message: string
   url: string
+  notifyAt: Date
   createdAt: Date
   updatedAt: Date
 }

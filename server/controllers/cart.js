@@ -4,6 +4,121 @@ const { sequelize } = require('../models')
 const router = express.Router()
 const { Op } = require('sequelize')
 
+// router.post('/cart/validate', async (req, res) => {
+//   const { userId } = req.body
+
+//   try {
+//     const order = await models.Order.findOne({
+//       where: { userId, status: 0 },
+//       include: [
+//         {
+//           model: models.Enrollment,
+//           include: [
+//             {
+//               model: models.Course,
+//               attributes: ['id', 'name', 'status', 'startDate', 'endDate']
+//             }
+//           ]
+//         }
+//       ]
+//     })
+
+//     if (!order) {
+//       return res.status(400).json({ message: 'Giỏ hàng trống' })
+//     }
+
+//     const invalidCourses = []
+//     const validCourses = []
+//     const now = new Date()
+
+//     order.Enrollments.forEach(enrollment => {
+//       const course = enrollment.Course
+
+//       // Kiểm tra tính hợp lệ
+//       if (course.status === 0 || course.status === 1 || course.status === 5 || course.status === 4 || (course.status === 3 && (now < new Date(course.startDate) || now > new Date(course.endDate)))) {
+//         invalidCourses.push({
+//           id: course.id,
+//           name: course.name,
+//           reason: course.status === 3
+//             ? 'Khóa học đã chuyển sang trạng thái riêng tư.'
+//             : 'Khóa học đã hết thời hạn đăng ký.'
+//         })
+//       } else {
+//         validCourses.push(course)
+//       }
+//     })
+
+//     return res.status(200).json({ valid: invalidCourses.length === 0, validCourses, invalidCourses })
+//   } catch (error) {
+//     console.error('Error validating cart:', error)
+//     res.status(500).json({ message: 'Lỗi kiểm tra giỏ hàng', error: error.message })
+//   }
+// })
+
+router.post('/cart/validate', async (req, res) => {
+  const { userId } = req.body
+
+  try {
+    const order = await models.Order.findOne({
+      where: { userId, status: 0 },
+      include: [
+        {
+          model: models.Enrollment,
+          include: [
+            {
+              model: models.Course,
+              attributes: ['id', 'name', 'status', 'startDate', 'endDate']
+            }
+          ]
+        }
+      ]
+    })
+
+    if (!order) {
+      return res.status(400).json({ message: 'Giỏ hàng trống' })
+    }
+
+    const invalidCourses = []
+    const validCourses = []
+    const now = new Date()
+
+    order.Enrollments.forEach(enrollment => {
+      const course = enrollment.Course
+
+      const startDate = course.startDate ? new Date(course.startDate) : null
+      const endDate = course.endDate ? new Date(course.endDate) : null
+
+      // Kiểm tra tính hợp lệ
+      if (
+        course.status === 0 || // Không hoạt động
+        course.status === 1 || // Chưa mở bán
+        course.status === 5 || // Đã ngừng hoạt động
+        course.status === 4 || // Đã bị khóa
+        (course.status === 3 && // Trạng thái riêng tư
+          ((startDate && now < startDate) || (endDate && now > endDate))) // Ngoài thời gian đăng ký
+      ) {
+        // Khóa học không hợp lệ
+        invalidCourses.push({
+          id: course.id,
+          name: course.name,
+          reason:
+            course.status === 3
+              ? 'Khóa học đã chuyển sang trạng thái riêng tư hoặc hết thời hạn đăng ký.'
+              : 'Khóa học không khả dụng.'
+        })
+      } else {
+        // Khóa học hợp lệ
+        validCourses.push(course)
+      }
+    })
+
+    return res.status(200).json({ valid: invalidCourses.length === 0, validCourses, invalidCourses })
+  } catch (error) {
+    console.error('Error validating cart:', error)
+    res.status(500).json({ message: 'Lỗi kiểm tra giỏ hàng', error: error.message })
+  }
+})
+
 // // Thêm khóa học vào giỏ hàng
 // router.post('/cart/add', async (req, res) => {
 //   const { userId, courseId } = req.body

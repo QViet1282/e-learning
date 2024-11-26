@@ -12,7 +12,20 @@
    ========================================================================== */
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+import styled from '@emotion/styled'
+import { keyframes } from '@emotion/react'
 
+// Define the keyframes for color change
+const colorChange = keyframes`
+  0% { background-color: #FF5733; }   /* Vibrant Orange */
+  25% { background-color: #C70039; }  /* Bold Red */
+  50% { background-color: #900C3F; }  /* Deep Maroon */
+  75% { background-color: #581845; }  /* Rich Purple */
+  100% { background-color: #FF5733; }
+`
+const AnimatedButton = styled.button`
+animation: ${colorChange} 1s infinite;
+`
 const JoinTodaySection = ({ handleStart }: { handleStart: () => void }) => {
   const { t } = useTranslation()
   return (
@@ -24,12 +37,12 @@ const JoinTodaySection = ({ handleStart }: { handleStart: () => void }) => {
         <p className="text-lg text-gray-700 mb-6">
           {t('teachingPage.JoinTodaySection.description')}
         </p>
-        <button
+        <AnimatedButton
           className="bg-black text-white font-semibold py-3 px-6 rounded-lg hover:bg-gray-800 transition"
           onClick={handleStart}
         >
           {t('teachingPage.JoinTodaySection.button')}
-        </button>
+        </AnimatedButton>
       </div>
     </div>
   )

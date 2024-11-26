@@ -21,7 +21,7 @@ import CheckIcon from '@mui/icons-material/Check'
 import LensIcon from '@mui/icons-material/Lens'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import { toast } from 'react-toastify'
-import AppImage17 from '../assets/images/homePage/osyaberi_man.png'
+import AppImage17 from '../assets/images/homePage/noise.png'
 import { useTheme } from 'services/styled-themes'
 
 interface DropdownNotificationProps {
@@ -78,7 +78,7 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
       }
       dispatch(setTotal(res.data.total))
 
-      const notifications = res.data.notifications.map((notification: { id: any, notificationId: any, status: any, userId: any, createdAt: any, updatedAt: any, Notification: { id: any, title: any, message: any, url: any, createdAt: any, updatedAt: any } }) => ({
+      const notifications = res.data.notifications.map((notification: { id: any, notificationId: any, status: any, userId: any, createdAt: any, updatedAt: any, Notification: { id: any, title: any, message: any, url: any, notifyAt: any, createdAt: any, updatedAt: any } }) => ({
         id: notification.id,
         notificationId: notification.notificationId,
         status: notification.status,
@@ -90,6 +90,7 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
           title: notification.Notification.title,
           message: notification.Notification.message,
           url: notification.Notification.url,
+          notifyAt: notification.Notification.notifyAt,
           createdAt: notification.Notification.createdAt,
           updatedAt: notification.Notification.updatedAt
         }
@@ -232,6 +233,14 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
       console.error(err)
     }
   }
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedNotification, setSelectedNotification] = useState<any>(null)
+  const handleOpenModal = (notification: any) => {
+    setDropdownOpen(false)
+    setSelectedNotification(notification)
+    setIsModalOpen(true)
+  }
+
   return (
        <div className="relative inline-flex">
          <button
@@ -252,7 +261,7 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
          </button>
 
          <Transition
-           className={`origin-top-right z-10 absolute top-full -mr-10 sm:mr-0 sm:min-w-96 min-w-72  bg-white border border-slate-200 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${align === 'right' ? 'right-0' : 'left-0'}`}
+           className={`origin-top-right z-10 absolute top-full -mr-14 sm:mr-0 w-96 bg-white border border-slate-200 py-1.5 rounded shadow-lg overflow-hidden mt-1 ${align === 'right' ? 'right-0' : 'left-0'}`}
            show={dropdownOpen}
            enter="transition ease-out duration-200 transform"
            enterStart="opacity-0 -translate-y-2"
@@ -299,12 +308,11 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
              </div>
              <ul className="h-128 overflow-y-auto" onScroll={handleScroll}>
                {notifications.map((notification) => (
-                 <li key={notification.id} className={`duration-300 border-b border-slate-200  ${isLoading ? '' : 'last: border-0'} flex items-center ${notification.status ? 'bg-white hover:bg-slate-100' : 'bg-slate-100'}`}>
-                   <Link
+                 <li key={notification.id} className={`duration-300 border-b border-slate-200  ${isLoading ? '' : 'last:border-0'} flex items-center ${notification.status ? 'bg-white hover:bg-slate-100' : 'bg-slate-100'}`}>
+                   <div
                      className='block py-2 px-4 transition w-5/6 space-y-2'
-                     to={notification.notificationDetails.url}
                      onClick={async () => {
-                       setDropdownOpen(!dropdownOpen)
+                       handleOpenModal(notification)
                        if (!notification.status) {
                          await handleMarkAsRead(notification.id)
                        }
@@ -313,40 +321,33 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
                    >
                      <div className='flex justify-between'>
                        <div className='flex space-x-2 items-center'>
-                         <img className='rounded-full w-10 h-10 bg-black' src={AppImage17}></img>
+                         <img className='w-10 h-10' src={AppImage17}></img>
                          <span className="block font-bold text-black mb-2">{notification.notificationDetails.title}</span>
                        </div>
                      </div>
-                     <span className="block text-sm mb-2">
-                       📣{' '}
-                       {notification.notificationDetails.message.split(' ').map((word: {} | null | undefined, index: React.Key | null | undefined) => (
-                         word === 'Congratulations!' || word === 'completed!'
-                           ? (
-                             <span key={index} className="font-medium text-slate-800">{word}</span>
-                             )
-                           : (
-                             <span key={index} className="font-bold text-slate-800"> {word} </span>
-                             )
-                       ))}
-                     </span>
+                     <span className="block text-sm mb-2 truncate">🪴 {notification.notificationDetails.message}</span>
                      {selectedLanguage === 'en'
                        ? <span className="block text-xs font-medium text-slate-400">
                          {new Date(notification.createdAt).toLocaleDateString('en-US', {
                            year: 'numeric',
                            month: 'short',
-                           day: 'numeric'
+                           day: 'numeric',
+                           hour: '2-digit',
+                           minute: '2-digit'
                          })}
                        </span>
                        : <span className="block text-xs font-medium text-slate-400">
                          {new Date(notification.createdAt).toLocaleDateString('vi-VN', {
                            year: 'numeric',
                            month: 'short',
-                           day: 'numeric'
+                           day: 'numeric',
+                           hour: '2-digit',
+                           minute: '2-digit'
                          })}
                        </span>
                      }
 
-                   </Link>
+                   </div>
                    {notification.status ? <div></div> : <LensIcon className='text-blue-300' fontSize='small' />}
                    {notification.status ? <div></div> : <div className='rounded-full bg-teal-300'></div>}
                    <div className="relative">
@@ -410,6 +411,69 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
              )}
            </div>
          </Transition>
+        {isModalOpen && selectedNotification && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="relative bg-white rounded-lg shadow-xl w-full max-w-2xl p-6">
+              {/* Close Button */}
+              <button
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl focus:outline-none"
+                onClick={() => setIsModalOpen(false)}
+                aria-label="Close"
+              >
+                &times;
+              </button>
+
+              {/* Email Header */}
+              <div className="mb-4 border-b pb-2">
+                <h2 className="text-xl font-semibold text-gray-800">{t('notification.modal.notification_details')}</h2>
+                <p className="text-sm text-gray-500">
+                  {selectedNotification.notificationDetails.title}
+                </p>
+              </div>
+
+              {/* Email Body */}
+              <div className="mb-6">
+                <p className="text-md text-gray-700 leading-relaxed">
+                  {selectedNotification.notificationDetails.message}
+                </p>
+              </div>
+
+              {/* Email Footer */}
+              <div className="flex justify-between items-center">
+                <span className="text-xs text-gray-500">
+                  {new Date(selectedNotification.notificationDetails.notifyAt).toLocaleString(
+                    selectedLanguage === 'en' ? 'en-US' : 'vi-VN',
+                    {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    }
+                  )}
+                </span>
+                <div className="flex space-x-2">
+                  {selectedNotification.notificationDetails.url && (
+                    <a
+                      href={selectedNotification.notificationDetails.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 text-white bg-blue-500 hover:bg-blue-600 rounded shadow"
+                    >
+                    {t('notification.modal.view')}
+                    </a>
+                  )}
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="px-4 py-2 text-gray-700 bg-gray-200 hover:bg-gray-300 rounded"
+                  >
+                   {t('notification.modal.close')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
        </div>
   )
 }

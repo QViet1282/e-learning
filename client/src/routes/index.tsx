@@ -101,8 +101,14 @@ const StatisticsManager = loadable(async () => await import('pages/management/st
 const UserManager = loadable(async () => await import('pages/management/user'), {
   fallback: <Loading />
 })
-
 const PayoutManager = loadable(async () => await import('pages/management/payout'), {
+  fallback: <Loading />
+})
+
+const DashboardReport = loadable(async () => await import('pages/dashboardReport'), {
+  fallback: <Loading />
+})
+const AnalysisSummary = loadable(async () => await import('pages/dashboardReport/analysisSummary'), {
   fallback: <Loading />
 })
 /**
@@ -156,6 +162,8 @@ const routes: RouteObject[] = [
       { path: ROUTES.cart, element: <Cart /> },
       { path: ROUTES.contact, element: <Contact /> },
       { path: ROUTES.myCourse, element: <MyCourse /> },
+      { path: ROUTES.dashboardReport, element: <DashboardReport /> },
+      { path: ROUTES.analysisSummary, element: <AnalysisSummary /> },
       {
         path: ROUTES.detailCourse,
         element: (

@@ -3,26 +3,55 @@ const { models } = require('../models')
 const { isAuthenticated } = require('../middlewares/authentication')
 const router = express.Router()
 const { Op } = require('sequelize')
+const moment = require('moment-timezone')
 
 router.get('/getNotiByUserId', isAuthenticated, async (req, res) => {
   const userId = req.user.id
   const limit = parseInt(req.query.limit, 10) || 5
   const offset = parseInt(req.query.offset, 10) || 0
 
+  // Lấy thời gian hiện tại (theo múi giờ Việt Nam)
+  const now = moment().tz('Asia/Ho_Chi_Minh').toDate()
+
   try {
-    const { rows } = await models.NotificationRecipient.findAndCountAll({
+    // Lấy danh sách thông báo với điều kiện notifyAt <= now
+    const notificationsData = await models.NotificationRecipient.findAndCountAll({
       where: { userId },
       include: [{
         model: models.Notification,
         as: 'Notification',
-        required: true
+        required: true,
+        where: { notifyAt: { [Op.lte]: now } } // Điều kiện notifyAt <= now
       }],
       limit,
       offset,
-      order: [['createdAt', 'DESC']]
+      order: [[{ model: models.Notification, as: 'Notification' }, 'notifyAt', 'DESC']] // Sắp xếp theo notifyAt giảm dần
     })
-    const countUnread = await models.NotificationRecipient.count({ where: { userId, status: 0 } })
-    res.json({ total: countUnread, notifications: rows })
+
+    // Biến đổi kết quả để trích xuất notifyAt
+    const notifications = notificationsData.rows.map(notification => {
+      return {
+        ...notification.get(), // Lấy tất cả các thuộc tính từ NotificationRecipient
+        notifyAt: notification.Notification.notifyAt // Lấy notifyAt từ bảng Notification
+      }
+    })
+
+    // Đếm số thông báo chưa đọc (status = 0)
+    const countUnread = await models.NotificationRecipient.count({
+      where: { userId, status: 0 },
+      include: [{
+        model: models.Notification,
+        as: 'Notification',
+        required: true,
+        where: { notifyAt: { [Op.lte]: now } } // Điều kiện notifyAt <= now
+      }]
+    })
+
+    // Trả về kết quả với notifyAt được xử lý và sắp xếp
+    res.json({
+      total: countUnread, // Tổng số thông báo chưa đọc
+      notifications // Danh sách thông báo kèm notifyAt
+    })
   } catch (err) {
     console.error(err)
     res.status(500).json({ message: 'Internal server error' })

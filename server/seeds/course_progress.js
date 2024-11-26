@@ -33,7 +33,7 @@ const generateCourseProgress = async () => {
       courseProgress.push({
         enrollmentId,
         studyItemId,
-        completionAt: faker.datatype.boolean(),
+        completionAt: faker.date.recent(),
         createdAt: faker.date.past(),
         updatedAt: faker.date.recent()
       })

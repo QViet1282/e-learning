@@ -15,7 +15,7 @@ const CourseProgress = sequelize.define(
       allowNull: false
     },
     completionAt: {
-      type: DataTypes.BOOLEAN
+      type: DataTypes.DATE
     }
   },
   {

@@ -776,11 +776,18 @@ router.get('/getNewCourse', async (req, res) => {
     const limit = parseInt(size)
     const offset = (parseInt(page) - 1) * limit
 
-    const listCourses = await models.Course.findAll({
+    const searchConditions = {
+      where: {
+        status: {
+          [Op.in]: [2, 3] // Chỉ lấy các khóa học có status là 2 hoặc 3
+        }
+      },
       offset,
       limit,
       order: [['createdAt', 'DESC']]
-    })
+    }
+
+    const listCourses = await models.Course.findAll(searchConditions)
 
     const listUsers = await models.User.findAll()
     const categoryCourse = await getCourseCategory()
@@ -817,25 +824,58 @@ router.get('/getNewCourse', async (req, res) => {
       return obj
     }, {})
 
-    const dataFromDatabase = listCourses.map((course) => ({
-      id: course.id,
-      name: course.name,
-      summary: course.summary,
-      assignedBy: listUsers?.find((e) => course.assignedBy === e.id)?.username ?? null,
-      durationInMinute: course.durationInMinute,
-      startDate: course.startDate,
-      endDate: course.endDate,
-      description: course.description,
-      price: course.price,
-      prepare: course.prepare,
-      locationPath: course.locationPath,
-      categoryCourseName: categoryCourse?.find((e) => course.categoryCourseId === e.id)?.name ?? null,
-      enrollmentCount: enrollmentCountsObject[course.id] || 0,
-      lessonCount: lessonCountsObject[course.id] || 0,
-      createdAt: course.createdAt
-    }))
+    // Lấy rating trung bình của mỗi khóa học từ bảng Enrollment
+    const ratings = await models.Enrollment.findAll({
+      attributes: [
+        'courseId',
+        [sequelize.fn('AVG', sequelize.col('rating')), 'averageRating']
+      ],
+      where: {
+        rating: {
+          [Op.ne]: null // Chỉ lấy các bản ghi có rating khác null
+        },
+        status: 1 // Check status of enrollment // Fix_1001
+      },
+      group: ['courseId']
+    })
 
-    const totalRecords = await models.Course.count() // total number of courses in the database
+    // Chuyển đổi kết quả thành đối tượng dễ tìm kiếm
+    const ratingsObject = ratings.reduce((acc, curr) => {
+      const courseId = curr.getDataValue('courseId') // Lấy courseId
+      const averageRating = parseFloat(curr.getDataValue('averageRating')) // Lấy averageRating
+      acc[courseId] = averageRating || 0 // Gán giá trị averageRating vào đối tượng
+      return acc
+    }, {})
+
+    const dataFromDatabase = listCourses.map((course) => {
+      const rating = ratingsObject[course.id] || 0 // Lấy rating từ ratingsObject
+      return {
+        id: course.id,
+        name: course.name,
+        summary: course.summary,
+        assignedBy: listUsers?.find((e) => course.assignedBy === e.id)?.username ?? null,
+        durationInMinute: course.durationInMinute,
+        startDate: course.startDate,
+        endDate: course.endDate,
+        description: course.description,
+        price: course.price,
+        prepare: course.prepare,
+        locationPath: course.locationPath,
+        categoryCourseName: categoryCourse?.find((e) => course.categoryCourseId === e.id)?.name ?? null,
+        enrollmentCount: enrollmentCountsObject[course.id] || 0,
+        lessonCount: lessonCountsObject[course.id] || 0,
+        averageRating: rating, // Gán giá trị averageRating
+        createdAt: course.createdAt
+      }
+    })
+
+    const totalRecords = await models.Course.count({
+      where: {
+        status: {
+          [Op.in]: [2, 3] // Chỉ lấy các khóa học có status là 2 hoặc 3
+        }
+      }
+    }) // total number of courses in the database
 
     res.json({
       page: Number(page),
@@ -856,25 +896,115 @@ router.get('/', async (req, res) => {
       page = '1',
       size = '8',
       search: searchCondition,
-      startDate = '1970-01-01',
-      endDate = '9999-12-31',
+      startDate,
+      endDate,
       category: categoryCondition
     } = req.query
+    console.log('Query:', req.query)
     const offset = (Number(page) - 1) * Number(size)
 
+    // Điều kiện lọc cơ bản
     const searchConditions = {
-      where: {}
-    }
-    if (searchCondition) {
-      searchConditions.where.name = {
-        [Op.like]: `%${searchCondition}%`
+      where: {
+        [Op.or]: [
+          // Status = 2: Public courses (không bị ảnh hưởng bởi ngày)
+          { status: 2 },
+          // Status = 3: Time-based courses (phải kiểm tra đã public)
+          // {
+          //   status: 3,
+          //   startDate: {
+          //     [Op.lte]: new Date() // Khóa học đã public
+          //   },
+          //   endDate: {
+          //     [Op.gte]: new Date() // Chưa hết hạn
+          //   }
+          // }
+          {
+            status: 3, // Private courses, cần kiểm tra thời gian
+            startDate: { [Op.lte]: new Date() }, // Khóa học đã public
+            [Op.or]: [
+              { endDate: { [Op.gte]: new Date() } }, // Chưa hết hạn
+              { endDate: null } // Không có thời hạn kết thúc
+            ]
+          }
+        ]
       }
     }
+
+    // Lọc theo khoảng thời gian nếu có cả startDate và endDate
     if (startDate && endDate) {
-      searchConditions.where.startDate = {
-        [Op.between]: [new Date(startDate), new Date(endDate)]
+      searchConditions.where[Op.or][1] = {
+        ...searchConditions.where[Op.or][1], // Áp dụng chỉ cho status = 3
+        startDate: {
+          [Op.and]: [
+            { [Op.gte]: new Date(startDate) }, // Người dùng lọc startDate
+            { [Op.lte]: new Date() } // Khóa học phải đã public
+          ]
+        },
+        // endDate: {
+        //   [Op.and]: [
+        //     { [Op.lte]: new Date(endDate) }, // Kết thúc trước endDate
+        //     { [Op.gte]: new Date() } // Chưa hết hạn
+        //   ]
+        // }
+        [Op.or]: [
+          {
+            endDate: {
+              [Op.and]: [
+                { [Op.lte]: new Date(endDate) },
+                { [Op.gte]: new Date() }
+              ]
+            }
+          },
+          { endDate: null } // Thêm điều kiện này
+        ]
       }
     }
+
+    // Lọc chỉ theo startDate
+    if (startDate && !endDate) {
+      searchConditions.where[Op.or][1] = {
+        ...searchConditions.where[Op.or][1],
+        startDate: {
+          [Op.and]: [
+            { [Op.gte]: new Date(startDate) }, // Người dùng lọc startDate
+            { [Op.lte]: new Date() } // Khóa học phải đã public
+          ]
+        }
+      }
+    }
+
+    // Lọc chỉ theo endDate
+    // if (endDate && !startDate) {
+    //   searchConditions.where[Op.or][1] = {
+    //     ...searchConditions.where[Op.or][1],
+    //     endDate: {
+    //       [Op.and]: [
+    //         { [Op.lte]: new Date(endDate) }, // Kết thúc trước endDate
+    //         { [Op.gte]: new Date() } // Chưa hết hạn
+    //       ]
+    //     }
+    //   }
+    // }
+    // Lọc chỉ theo endDate
+    if (endDate && !startDate) {
+      searchConditions.where[Op.or][1] = {
+        ...searchConditions.where[Op.or][1],
+        [Op.or]: [
+          {
+            endDate: {
+              [Op.and]: [
+                { [Op.lte]: new Date(endDate) },
+                { [Op.gte]: new Date() }
+              ]
+            }
+          },
+          { endDate: null } // Thêm điều kiện này
+        ]
+      }
+    }
+
+    // Lọc theo danh mục
     if (categoryCondition && categoryCondition !== 'all') {
       searchConditions.where.categoryCourseId = categoryCondition
     }
@@ -963,30 +1093,25 @@ router.get('/', async (req, res) => {
         createdAt: course.createdAt
       }
     })
-      .sort((a, b) => {
-        if (b.enrollmentCount - a.enrollmentCount !== 0) {
-          return b.enrollmentCount - a.enrollmentCount
-        } else {
-          return new Date(b.createdAt) - new Date(a.createdAt)
-        }
-      })
-    console.log(dataFromDatabase.length, 'dataFromDatabase')
-    const dataAfterNameSearch = applyNameSearch(searchCondition, dataFromDatabase)
-    console.log(dataAfterNameSearch.length, 'dataAfterNameSearch')
-    const dataAfterNameAndDateSearch = applyDateRangeSearch(startDate, endDate, dataAfterNameSearch)
-    console.log(dataAfterNameAndDateSearch.length, 'dataAfterNameAndDateSearch')
-    const dataAfterSearch = applyCourseCategoryNameSearch(categoryCondition, dataAfterNameAndDateSearch)
-    console.log(dataAfterSearch.length, 'dataAfterSearch')
-    console.log(totalRecords, 'totalRecords')
+
+    // Sắp xếp theo số lượng học viên hoặc thời gian tạo
+    const sortedData = dataFromDatabase.sort((a, b) => {
+      if (b.enrollmentCount - a.enrollmentCount !== 0) {
+        return b.enrollmentCount - a.enrollmentCount
+      } else {
+        return new Date(b.createdAt) - new Date(a.createdAt)
+      }
+    })
+
     res.json({
       page: Number(page),
       size: Number(size),
       totalRecords,
-      data: dataAfterSearch
+      data: sortedData
     })
   } catch (error) {
     console.log(error)
-    res.status(500).json({ message: jsonError })
+    res.status(500).json({ message: 'Internal Server Error' })
   }
 })
 
@@ -1010,20 +1135,51 @@ router.get('/course-category', async (req, res) => {
 })
 
 // trang course detail
+// router.get('/:id', async (req, res) => {
+//   try {
+//     const { id } = req.params
+//     const course = await models.Course.findByPk(id)
+//     if (!course) {
+//       return res.status(404).json({ message: 'Course not found' })
+//     }
+//     const categoryCourse = await getCourseCategory()
+//     const response = {
+//       ...course.toJSON(),
+//       categoryCourseName: categoryCourse?.find((e) => course.categoryCourseId === e.id)?.name ?? null
+//     }
+//     res.json(response)
+//   } catch (error) {
+//     console.error('Error fetching course:', error)
+//     res.status(500).json({ message: 'Failed to fetch course', error: error.message })
+//   }
+// })
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params
-    const course = await models.Course.findByPk(id)
-    const categoryCourse = await getCourseCategory()
-    const response = {
-      ...course.toJSON(),
-      categoryCourseName: categoryCourse?.find((e) => course.categoryCourseId === e.id)?.name ?? null
-    }
+    const course = await models.Course.findByPk(id, {
+      include: [
+        {
+          model: models.User,
+          attributes: ['avatar', 'username']
+        }
+      ]
+    })
+
     if (!course) {
       return res.status(404).json({ message: 'Course not found' })
     }
+
+    const categoryCourse = await getCourseCategory()
+    const response = {
+      ...course.toJSON(),
+      categoryCourseName:
+        categoryCourse?.find((e) => course.categoryCourseId === e.id)?.name ?? null,
+      assignedUserAvatar: course.User?.avatar ?? null // Truy cập avatar từ User
+    }
+
     res.json(response)
   } catch (error) {
+    console.error('Error fetching course:', error)
     res.status(500).json({ message: 'Failed to fetch course', error: error.message })
   }
 })
@@ -1337,5 +1493,124 @@ router.get('/get/:courseId', isAuthenticated, async (req, res) => {
     res.status(200).json(categories)
   } catch (error) {
     res.status(500).json({ error: jsonError })
+  }
+})
+
+// router.get('/:id/validate', async (req, res) => {
+//   const { id } = req.params
+//   const userId = req.query.userId || null // Lấy userId từ query hoặc null nếu không có
+
+//   try {
+//     const course = await models.Course.findByPk(id, {
+//       attributes: ['id', 'name', 'status', 'startDate', 'endDate']
+//     })
+
+//     if (!course) {
+//       return res.status(404).json({ valid: false, message: 'Khóa học không tồn tại.' })
+//     }
+
+//     // Nếu có userId, kiểm tra xem người dùng đã đăng ký chưa
+//     if (userId) {
+//       const enrollment = await models.Enrollment.findOne({
+//         include: [
+//           {
+//             model: models.Order,
+//             where: { userId } // Kiểm tra người dùng thông qua bảng orders
+//           }
+//         ],
+//         where: { courseId: id }
+//       })
+
+//       if (enrollment) {
+//         return res.status(200).json({ valid: true, message: 'Người dùng đã đăng ký khóa học.' })
+//       }
+//     }
+
+//     const now = new Date()
+
+//     // Kiểm tra tính hợp lệ của khóa học
+//     if (
+//       course.status === 0 || // Trạng thái chưa xuất bản
+//       course.status === 1 || // Trạng thái chờ duyệt
+//       course.status === 4 || // Trạng thái riêng tư
+//       course.status === 5 || // Trạng thái đã ẩn
+//       (course.status === 3 && (now < new Date(course.startDate) || now > new Date(course.endDate))) // Ngoài thời hạn đăng ký
+//     ) {
+//       return res.status(200).json({ valid: false, message: 'Khóa học không khả dụng.' })
+//     }
+
+//     // Khóa học hợp lệ
+//     return res.status(200).json({ valid: true, message: 'Khóa học hợp lệ.' })
+//   } catch (error) {
+//     console.error('Error validating course:', error)
+//     res.status(500).json({ valid: false, message: 'Lỗi kiểm tra khóa học.' })
+//   }
+// })
+router.get('/:id/validate', async (req, res) => {
+  const { id } = req.params
+  const userId = req.query.userId || null // Lấy userId từ query hoặc null nếu không có
+
+  try {
+    const course = await models.Course.findByPk(id, {
+      attributes: ['id', 'name', 'status', 'startDate', 'endDate']
+    })
+
+    if (!course) {
+      return res.status(404).json({ valid: false, message: 'Khóa học không tồn tại.' })
+    }
+
+    // Nếu có userId, kiểm tra xem người dùng đã đăng ký chưa
+    if (userId) {
+      const enrollment = await models.Enrollment.findOne({
+        include: [
+          {
+            model: models.Order,
+            where: { userId } // Kiểm tra người dùng thông qua bảng orders
+          }
+        ],
+        where: {
+          courseId: id,
+          status: 1 // Chỉ kiểm tra những bản ghi có status = 1
+        }
+      })
+
+      if (enrollment) {
+        return res.status(200).json({
+          valid: true,
+          message: 'Người dùng đã đăng ký khóa học.'
+        })
+      }
+    }
+
+    const now = new Date()
+    const startDate = course.startDate ? new Date(course.startDate) : null
+    const endDate = course.endDate ? new Date(course.endDate) : null
+
+    // Kiểm tra tính hợp lệ của khóa học
+    if (
+      course.status === 0 || // Chưa xuất bản
+      course.status === 1 || // Chờ duyệt
+      course.status === 4 || // Riêng tư (không hợp lệ mặc định)
+      course.status === 5 || // Đã ẩn
+      (course.status === 3 && // Trạng thái riêng tư với giới hạn thời gian
+        ((startDate && now < startDate) || (endDate && now > endDate))) // Ngoài thời gian đăng ký
+    ) {
+      return res.status(200).json({
+        valid: false,
+        message: 'Khóa học không khả dụng do trạng thái hoặc thời hạn đăng ký.'
+      })
+    }
+
+    // Khóa học hợp lệ
+    return res.status(200).json({
+      valid: true,
+      message: 'Khóa học hợp lệ và có thể đăng ký.'
+    })
+  } catch (error) {
+    console.error('Error validating course:', error)
+    return res.status(500).json({
+      valid: false,
+      message: 'Lỗi kiểm tra khóa học.'
+    })
   }
 })

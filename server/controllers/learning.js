@@ -460,7 +460,7 @@ router.post('/addProgress', isAuthenticated, async (req, res) => {
     const newProgress = await models.CourseProgress.create({
       enrollmentId,
       studyItemId: lessionId, // Map lessionId với studyItemId
-      completionAt: null
+      completionAt: new Date() // Đặt completionAt là thời gian hiện tại
     })
 
     if (!newProgress) {

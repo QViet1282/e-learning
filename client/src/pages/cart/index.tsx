@@ -10,7 +10,7 @@
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-redeclare */
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { ClipLoader } from 'react-spinners'
@@ -21,11 +21,12 @@ import {
   removeCourseFromCart,
   processPayment
 } from '../../redux/cart/cartSlice'
-import { checkCancellationInfor } from '../../api/post/post.api'
+import { checkCancellationInfor, validateCarta } from '../../api/post/post.api'
 import { AppDispatch, RootState } from '../../redux/store'
 import { getFromLocalStorage } from 'utils/functions'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'react-toastify'
 
 const CartPage: React.FC = () => {
   const navigate = useNavigate()
@@ -74,6 +75,28 @@ const CartPage: React.FC = () => {
     }
   }
 
+  const [invalidCourses, setInvalidCourses] = useState<number[]>([])
+
+  useEffect(() => {
+    const validateCart = async () => {
+      try {
+        const response = await validateCarta(userId)
+        const result = response.data // Truy cập dữ liệu từ AxiosResponse
+
+        if (!result.valid) {
+          setInvalidCourses(result.invalidCourses.map((course: { id: any }) => course.id))
+        } else {
+          setInvalidCourses([])
+        }
+      } catch (error) {
+        console.error('Error validating cart:', error)
+      }
+    }
+
+    validateCart()
+    dispatch(fetchCart({ userId, forceReload: true }))
+  }, [dispatch, userId])
+
   const handleRemove = async (courseId: number) => {
     try {
       await dispatch(removeCourseFromCart({ userId, courseId })).unwrap()
@@ -84,6 +107,11 @@ const CartPage: React.FC = () => {
   }
 
   const handleCheckout = async () => {
+    if (invalidCourses.length > 0) {
+      toast.warn(t('cart.unable_to_checkout_remove_invalid_courses'))
+      return
+    }
+
     try {
       const checkoutUrl = await dispatch(processPayment({ userId, amount: totalPrice })).unwrap()
       window.location.href = checkoutUrl
@@ -147,7 +175,7 @@ const CartPage: React.FC = () => {
                 {t('cart.empty_cart_message')}
               </p>
               <button
-                onClick={() => window.location.href = '/'}
+                onClick={() => navigate('/')}
                 className="px-6 py-2 bg-teal-400 text-white rounded-md hover:bg-teal-500"
               >
                 {t('cart.continue_shopping')}
@@ -158,8 +186,11 @@ const CartPage: React.FC = () => {
               <div className="border-b-2 mb-4"></div>
               <ul className="space-y-4">
                 {cartItems.map(item => (
-                  <li key={item.id} className="flex justify-between items-center border-b pb-4">
-                    <div className="flex items-center space-x-4">
+                  <li
+                    key={item.id}
+                    className="flex justify-between items-center border-b pb-4"
+                  >
+                    <div className={`flex items-center space-x-4 ${invalidCourses.includes(item.id) ? 'opacity-50' : ''}`}>
                       <img
                         src={item.locationPath ? item.locationPath : 'https://picsum.photos/200/300'}
                         alt={item.name}
@@ -170,6 +201,11 @@ const CartPage: React.FC = () => {
                         <span className="block text-gray-500">
                           {t('cart.by')} {item.assignedByName}
                         </span>
+                        {invalidCourses.includes(item.id) && (
+                          <span className="block text-red-500 text-sm">
+                            {t('cart.invalid_course')}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="flex flex-col items-end">
@@ -178,7 +214,8 @@ const CartPage: React.FC = () => {
                       </span>
                       <button
                         onClick={async () => await handleRemove(item.id)}
-                        disabled={isRemoving.includes(item.id)} // Hiển thị trạng thái xóa cho từng khóa học
+                        className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md"
+                        disabled={isRemoving.includes(item.id)}
                       >
                         {isRemoving.includes(item.id) ? t('cart.removing') : t('cart.remove')}
                       </button>
