@@ -18,7 +18,7 @@ const generateUsers = async () => {
     lastName: faker.person.lastName(),
     description: faker.person.jobDescriptor(),
     email: faker.internet.email(),
-    gender: faker.datatype.boolean(),
+    gender: faker.helpers.arrayElement(['Male', 'Female', 'Other']),
     age: faker.number.int({ min: 18, max: 60 }),
     password: faker.internet.password(),
     username: faker.internet.userName(),

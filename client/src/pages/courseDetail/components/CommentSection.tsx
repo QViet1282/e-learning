@@ -331,7 +331,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ courseId }) => {
                   </div>
                 </div>
                 <div className="mt-2">
-                  {editCommentId === comment.id && comment.user.id === userId
+                  {editCommentId === comment.id && comment.user.id === Number(userId)
                     ? (
                       <div key={`edit-${comment.id ?? index}`} className="space-y-3">
                         <textarea
@@ -383,7 +383,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ courseId }) => {
                         <p className="text-gray-400 text-xs">
                           {t('commentSection.date')}: {new Date(comment.ratingDate).toLocaleDateString()}
                         </p>
-                        {comment.user.id === userId && (
+                        {comment.user.id === Number(userId) && (
                           <Menu as="div" className="absolute -top-12 right-0">
                             <Menu.Button className="text-gray-400 hover:text-gray-600 p-1">
                               <FaEllipsisV />

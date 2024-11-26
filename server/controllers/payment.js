@@ -277,7 +277,7 @@ router.post('/payos-webhook', async (req, res) => {
 
       // Kích hoạt các khóa học liên quan
       await models.Enrollment.update(
-        { status: 1 },
+        { status: 1, enrollmentDate: new Date() }, // Kích hoạt khóa học sau khi thanh toán thành công
         { where: { orderId: order.id } }
       )
 

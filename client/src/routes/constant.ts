@@ -29,7 +29,9 @@ const ROUTES = {
   purchaseHistory: '/purchase-history',
   teachingPage: '/teaching',
   onboardingPage: '/onboarding',
-  contact: '/contact'
+  contact: '/contact',
+  dashboardReport: '/dashboard-report',
+  analysisSummary: '/analysis-summary/:courseId'
 }
 
 export default ROUTES

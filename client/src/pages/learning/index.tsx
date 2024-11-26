@@ -1267,9 +1267,9 @@ const Learning = () => {
                   />
                   <div className='ml-2'>{courseData?.name}</div>
                 </div>
-                <div className='ml-5 flex items-center border-b-2 p-1'>
-                  <div className='font-bold w-1/4'>{completedLessonsCount}/{totalCourses} {t('learning.lession')}</div>
-                  <div className='w-1/5 h-14 ml-5'>
+                <div className='ml-5 flex items-center justify-center border-b-2 p-1'>
+                  <div className='font-bold text-center'>{completedLessonsCount}/{totalCourses} {t('learning.lession')}</div>
+                  <div className='h-14 ml-5 flex justify-center items-center'>
                     <CircularProgressbar
                       className='w-14 h-14'
                       value={percentage}
@@ -1285,14 +1285,14 @@ const Learning = () => {
                       })}
                     />
                   </div>
-                  <div className={`w-1/4 font-bold ml-5 cursor-pointer transition-colors duration-200 ${theme === 'dark' ? 'text-white hover:text-gray-300' : 'text-gray-600 hover:text-black'}`}>
+                  {/* <div className={`w-1/4 font-bold ml-5 cursor-pointer transition-colors duration-200 ${theme === 'dark' ? 'text-white hover:text-gray-300' : 'text-gray-600 hover:text-black'}`}>
                     <NoteAltIcon className={`mr-2 ${theme === 'dark' ? 'text-white' : 'text-gray-400'}`} />
                     {t('learning.note')}
                   </div>
                   <div className={`w-1/4 font-bold ml-5 cursor-pointer transition-colors duration-200 ${theme === 'dark' ? 'text-white hover:text-gray-300' : 'text-gray-600 hover:text-black'}`}>
                     <HelpIcon className={`mr-2 ${theme === 'dark' ? 'text-white' : 'text-gray-400'}`} />
                     {t('learning.help')}
-                  </div>
+                  </div> */}
                 </div>
                 <div className='font-bold ml-5 py-3'>{t('course_detail.course_content')}</div>
               </div>

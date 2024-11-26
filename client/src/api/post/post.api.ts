@@ -363,3 +363,39 @@ export const requestPayout = async (payload: any): Promise<AxiosResponse<any>> =
     }
   })
 }
+
+// -----------------------------------------------trang evaluate----------------------------
+export const getUserOverview = async (): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>('/dashboard-report/userOverview')
+}
+export const getLearningProgress = async (page: number, limit: number): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>(`/dashboard-report/learningProgress?page=${page}&limit=${limit}`)
+}
+export const getUserExamScores = async (courseId: number): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>(`/dashboard-report/userExamScores?courseId=${courseId}`)
+}
+export const getUserExamResults = async (courseId: number): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>(`/dashboard-report/userExamResults?courseId=${courseId}`)
+}
+export const getUserLessonResults = async (courseId: number): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>(`/dashboard-report/userLessonResults?courseId=${courseId}`)
+}
+export const getUserDailyProgress = async (date: string): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>(`/dashboard-report/userDailyProgress?date=${date}`)
+}
+export const getUserMonthlyProgress = async (month: number, year: number): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.get<any>(`/dashboard-report/userMonthlyProgress?month=${month}&year=${year}`)
+}
+
+export const validateCarta = async (userId: string): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.post<any>('/cart/cart/validate', { userId })
+}
+
+export const validateCourseApi = async (
+  courseId: string,
+  userId: string | null
+): Promise<AxiosResponse> => {
+  return await requestWithoutJwt.get(`/courses/${courseId}/validate`, {
+    params: { userId } // Gửi userId qua query params nếu có
+  })
+}

@@ -21,7 +21,7 @@ import BatteryChargingFullTwoToneIcon from '@mui/icons-material/BatteryChargingF
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams, useLocation } from 'react-router-dom'
 import { getFromLocalStorage } from 'utils/functions'
-import { getCourseDetail, getCategoryLessionsByCourse, getLessionByCategory, addEnrollments, getEnrollmentByUserId } from 'api/post/post.api'
+import { getCourseDetail, getCategoryLessionsByCourse, getLessionByCategory, addEnrollments, getEnrollmentByUserId, validateCourseApi } from 'api/post/post.api'
 import bannerLight from '../../assets/images/courseDetail/inner-banner.jpg'
 import bannerDark from '../../assets/images/courseDetail/inner-banner2.jpg'
 import TimerIcon from '@mui/icons-material/Timer'
@@ -56,6 +56,8 @@ import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit'
 import { set } from 'react-hook-form'
 import CommentSection from './components/CommentSection'
+import { ClipLoader } from 'react-spinners'
+import { toast } from 'react-toastify'
 
 interface Course {
   id: number
@@ -84,6 +86,10 @@ export interface IDetail {
   itemType?: string // đã fix
   averageRating?: number
   assignedByName?: string
+  User?: {
+    avatar: string
+    username: string
+  }
 }
 export enum ModalType {
   SUBMIT = 'submit',
@@ -96,6 +102,7 @@ export interface Lesson {
 const CourseDetail = () => {
   const { theme } = useTheme()
   const location = useLocation()
+  const navigate = useNavigate()
   // Kiểm tra nếu người dùng đã đăng nhập dựa trên token trong localStorage
   const isAuthenticated = !!getFromLocalStorage<any>('tokens')?.accessToken
   const assignedBy = location.state?.assignedBy
@@ -124,6 +131,32 @@ const CourseDetail = () => {
   const [modalOpen, setModalOpen] = useState(false)
   const [isLoading2, setIsLoading2] = useState(false)
   const [isLoading3, setIsLoading3] = useState(false)
+  const [isValid, setIsValid] = useState<boolean | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  useEffect(() => {
+    const validateCourse = async () => {
+      try {
+        const response = await validateCourseApi(params?.id as string, userId)
+        const result = await response.data
+
+        if (result.valid) {
+          setIsValid(true)
+        } else {
+          setIsValid(false)
+          navigate('/', { replace: true })
+          toast.warn(t('course_detail.course_not_exist'))
+        }
+      } catch (error) {
+        navigate('/', { replace: true })
+        toast.warn(t('course_detail.course_not_exist'))
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    validateCourse()
+  }, [params?.id, userId, navigate])
+
   useEffect(() => {
     if (userId) {
       dispatch(fetchCart({ userId, forceReload: true }))
@@ -192,8 +225,6 @@ const CourseDetail = () => {
     }
     return t('homepage.free')
   }, [data.price])
-
-  const navigate = useNavigate()
 
   const handleOkModal = useCallback(() => {
     if (modalType === ModalType.FAIL) {
@@ -269,6 +300,7 @@ const CourseDetail = () => {
       try {
         const courseData = await getCourseDetail({ id }) // lấy thông tin khóa học
         if (courseData) {
+          console.log(courseData.data)
           setData(courseData.data)
         } else {
           navigate('/error', {
@@ -439,6 +471,10 @@ const CourseDetail = () => {
     }
     navigate('/login', { state: { from: location } })
   }
+
+  if (!isValid) {
+    return null // Tránh render bất kỳ nội dung nào nếu không hợp lệ
+  }
   return (
     <div className='overflow-x-hidden pb-14'>
       <div className='h-14 flex items-center lg:mx-40 mx-8 w-11/12 py-2 text-lg'>
@@ -452,9 +488,9 @@ const CourseDetail = () => {
           <div className='lg:ml-40 sm:ml-20 ml-10'>
             <div className='flex items-center space-x-5'>
               <div className='flex items-center'>
-                <img src="https://picsum.photos/200/300" alt='avt' className='w-14 h-14 object-cover rounded-full'></img>
+                <img src={data.User?.avatar ?? 'https://picsum.photos/200/300'} alt='avt' className='w-14 h-14 object-cover rounded-full'></img>
                 <div className={`ml-5 flex items-center font-bold ${theme === 'light' ? 'text-gray-800' : 'text-white'} hover:text-red-400 cursor-pointer transition-colors`}>
-                  {assignedBy}
+                  {data.User?.username ?? 'Account'}
                 </div>
               </div>
               <div className='bg-orange-500 p-2 rounded-xl text-white hover:bg-orange-600 cursor-text flex items-center justify-center w-1/3 sm:w-1/5 md:w-1/6 lg:w-48'>{data.categoryCourseName}</div>
