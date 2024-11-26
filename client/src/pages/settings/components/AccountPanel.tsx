@@ -439,9 +439,8 @@ function AccountPanel () {
          </div>
 
          <div className='p-5'>
-         <div className="my-16 bg-white border border-gray-200 rounded-lg shadow p-5">
+         <div className="my-16 bg-white p-5">
            <div>
-             <h2 className="text-2xl text-slate-800 font-bold mb-6">{t('profile.myProfile')}</h2>
              <div className="grid gap-5 md:grid-cols-4">
                <div>
                  {/* Start */}
@@ -532,21 +531,15 @@ function AccountPanel () {
              <div className="grid gap-5 md:grid-cols-2 mt-5">
                {/* Start */}
                <div>
-                 <label className={`block text-sm font-medium mb-1 ${isEditing ? '' : 'text-neutral-400'}`} htmlFor="email">
-                   {t('profile.email')}
-                 </label>
-                 <input id="email"
-                   className={objCheckInput.isValidEmail ? `form-input w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-1 focus:ring-teal-400 ${isEditing ? '' : 'disabled:opacity-50 cursor-not-allowed'}` : 'form-input w-full border p-2 rounded-md focus:outline-none border-red-500'}
-                   type="email"
-                   required
-                   value={user?.email ?? ''}
-                   onChange={(e) => {
-                     setUser({ ...user, email: e.target.value })
-                     setObjCheckInput({ ...objCheckInput, isValidEmail: true })
-                   }}
-                   disabled={!isEditing}
-                 />
-               </div>
+                <label className={`block text-sm font-medium mb-1 ${isEditing ? '' : 'text-neutral-400'}`}>
+                  {t('profile.email')}
+                </label>
+                <input
+                  className='form-input w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-1 focus:ring-teal-400 disabled:opacity-50 cursor-not-allowed'
+                  value={user?.email ?? ''}
+                  disabled={true}
+                />
+              </div>
                {/* End */}
              </div>
              <div className="grid gap-5 md:grid-cols-1 mt-5">

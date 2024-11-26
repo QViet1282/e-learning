@@ -18,11 +18,10 @@
     "dropdown": {
       "darkTheme": "Chế độ tối",
       "lightTheme": "Chế độ sáng",
-      "setting": "Cài đặt",
+      "dashboard-report": "Báo Cáo Học Tập",
       "profile": "Hồ sơ",
       "userDashboard": "Thống kê",
       "mycourse": "Hồ sơ học",
-      "blog": "Blog",
       "logout": "Đăng xuất",
       "gottoadmin": "Trang quản trị",
       "purchase-history": "Lịch sử mua hàng"
@@ -117,13 +116,14 @@
     },
     "footer": {
       "about_us": "Về Chúng Tôi",
-      "about_us_text": "Chúng tôi là một công ty cam kết cung cấp các dịch vụ tốt nhất.",
+      "about_us_text": "Chúng tôi cam kết cải thiện cuộc sống thông qua việc học. Hãy tìm hiểu nghiên cứu ban đầu của chúng tôi để tìm hiểu về các lực lượng đang định hình nơi làm việc hiện đại.",
       "quick_links": "Liên Kết Nhanh",
       "services": "Dịch Vụ",
       "contact": "Liên Hệ",
       "privacy_policy": "Chính Sách Bảo Mật",
       "follow_us": "Theo Dõi Chúng Tôi",
-      "rights_reserved": "Đã đăng ký bản quyền."
+      "rights_reserved": "Đã đăng ký bản quyền.",
+      "coming_soon": "Tính năng này sắp ra mắt!"
     },
     "sidebar": {
       "pages": "Trang",
@@ -146,10 +146,10 @@
       "pleaseLoginAgain": "Vui lòng đăng nhập lại để tiếp tục."
     },
     "homepage": {
-      "filter_title": "Danh sách bài thi",
+      "filter_title": "Danh sách bài kiểm tra",
       "filter_label": "Mục: ",
       "filter": {
-        "all": "Tất cả bài thi",
+        "all": "Tất cả bài kiểm tra",
         "pending": "Chưa thực hiện",
         "tested": "Đã thực hiện"
       },
@@ -162,10 +162,10 @@
       "freeCourse": "Khóa học miễn phí",
       "findByCourseName": "Tìm theo tên khóa học",
       "all_courses": "Tất cả khóa học",
-      "filter_title_course": "Danh Mục Khóa Học",
-      "empty_data": "Không có bài thi nào",
+      "filter_title_course": "Lĩnh vực phổ biến",
+      "empty_data": "Không có bài kiểm tra nào",
       "empty_data_course": "Không có khóa học nào",
-      "filter_placeholder_search": "Tên bài thi",
+      "filter_placeholder_search": "Tên bài kiểm tra",
       "view": "Xem kết quả",
       "test": "Làm bài",
       "scoreLabel": "Số điểm",
@@ -178,12 +178,12 @@
       "course_not_done": "Chưa học xong",
       "progress": "Tiến trình",
       "status": "Trạng thái",
-      "modal_test_title": "Làm bài thi",
-      "modal_test_description": "Chắc chắn làm bài thi?",
+      "modal_test_title": "Làm bài kiểm tra",
+      "modal_test_description": "Chắc chắn làm bài kiểm tra?",
       "start": "Bắt đầu",
       "another_time": "Lúc khác",
-      "from_label": "Từ ngày",
-      "to_label": "Đến ngày",
+      "from_label": "Mở đăng ký",
+      "to_label": "Kết thúc đăng ký",
       "getStarted": "Bắt đầu học ngay hôm nay",
       "welcome": "Chọn lộ trình học tập tối ưu dành cho bạn",
       "description": "Với lộ trình học được thiết kế kỹ lưỡng, đây là lựa chọn hoàn hảo để bạn tiếp cận những kiến thức mới mẻ và hữu ích. Nội dung khóa học đa dạng, từ cơ bản đến nâng cao, phù hợp cho mọi đối tượng học viên. Khám phá và chinh phục những thử thách để nâng tầm bản thân mỗi ngày!",
@@ -229,7 +229,8 @@
       "active_installations": "người đăng ký",
       "continue": "Tiếp tục học",
       "enrollNow": "Tham gia ngay",
-      "createdAt": "Ngày tạo"
+      "createdAt": "Ngày tạo",
+      "remainingDays": "Còn {{days}} ngày để đăng ký"
     },
     "course_detail": {
       "overview": "Tổng quan",
@@ -261,7 +262,8 @@
       "no_video": "Khóa học này không có video.",
       "adding": "Đang thêm...",
       "enrolling": "Đang ghi danh...",
-      "go_to_cart": "Đi đến Giỏ Hàng"
+      "go_to_cart": "Đi đến Giỏ Hàng",
+      "course_not_exist" : "Khóa học không tồn tại hoặc đã bị xóa"
     },
     "learning": {
       "updated_at": "Cập nhật vào",
@@ -302,10 +304,10 @@
     },
     "history": {
       "homepage": "Trang chủ",
-      "exam_name": "Tên bài thi",
+      "exam_name": "Tên bài kiểm tra",
       "number_of_times_done": "Số lần đã thực hiện",
       "review": "Xem lại",
-      "exam_id": "Mã bài thi",
+      "exam_id": "Mã bài kiểm tra",
       "attempt": "Lần thực hiện",
       "over_all_score": "Tổng điểm",
       "updated_at": "Thời gian thực hiện",
@@ -318,9 +320,9 @@
       "missing_text": "Từ còn thiếu",
       "submit": "Nộp bài",
       "retest": "Làm lại",
-      "modal_test_title": "Nộp bài thi",
+      "modal_test_title": "Nộp bài kiểm tra",
       "not_enough_field": "Bạn chưa điền đủ tất cả các câu hỏi",
-      "modal_test_description": "Chắc chắn nộp bài thi?",
+      "modal_test_description": "Chắc chắn nộp bài kiểm tra?",
       "score": "Điểm thi: ",
       "attempt": "Kết quả lần thi: ",
       "back": "Quay lại",
@@ -385,7 +387,9 @@
       "removing": "Đang xóa...",
       "remove": "Xóa",
       "total": "Tổng",
-      "checkout": "Thanh toán"
+      "checkout": "Thanh toán",
+      "unable_to_checkout_remove_invalid_courses": "Không thể thanh toán. Vui lòng loại bỏ các khóa học không khả dụng khỏi giỏ hàng.",
+      "invalid_course": "Khóa học này hiện tại không còn khả dụng"
     },
     "purchaseHistory": {
       "title": "Lịch sử mua hàng",
@@ -538,6 +542,90 @@
       "title": "Xác nhận xóa",
       "yes": "Xóa",
       "no": "Hủy"
+    },
+    "dashboard-report": {
+      "title": "Tổng Quan Học Tập"
+    },
+    "userOverview": {
+      "loading": "Đang tải...",
+      "totalCourses": "Tổng số khóa học",
+      "completedCourses": "Khóa học đã hoàn thành",
+      "totalLessons": "Tổng số bài học",
+      "totalExams": "Tổng số bài kiểm tra"
+    },
+    "monthlyProgressChart": {
+      "monthlyProgress": "Tiến độ hàng tháng",
+      "completedLessons": "Bài học đã hoàn thành",
+      "completedExams": "Bài kiểm tra đã hoàn thành"
+    },
+    "learningProgress": {
+      "learningProgress": "Tiến độ học tập",
+      "lessons": "Bài học",
+      "exams": "Bài kiểm tra",
+      "completed": "đã hoàn thành",
+      "viewDetails": "Xem chi tiết"
+    },
+    "courseDetails": {
+      "overview": "Đánh Giá Tiến Độ và Kết Quả Học Tập Cá Nhân",
+      "incompleteWarning": "Bạn chưa hoàn thành tất cả các bài kiểm tra hoặc bài học. Hãy hoàn thành để cải thiện đánh giá tổng quan!",
+      "examCompletionRate": "Phần trăm bài kiểm tra đạt",
+      "averageExamScore": "Phần trăm thành tích trung bình",
+      "examsAttemptedPercentage": "Phần trăm bài kiểm tra đã thực hiện",
+      "lessonCompletionRate": "Phần trăm bài học đã hoàn thành",
+      "overallAssessment": "Đánh giá chung",
+      "viewScoreChart": "Xem biểu đồ điểm số",
+      "noExams": "Không có bài kiểm tra nào trong khóa học này.",
+      "attempt": "Lần làm bài",
+      "score": "Điểm",
+      "change": "Thay đổi",
+      "noAttempts": "Chưa có lần làm bài nào.",
+      "exams": "Bài kiểm tra",
+      "lessons": "Bài học",
+      "examResults": "Kết quả bài kiểm tra",
+      "lessonProgress": "Tiến độ bài học",
+      "status": "Trạng thái",
+      "completed": "Đã hoàn thành",
+      "notCompleted": "Chưa hoàn thành",
+      "excellent": "Xuất sắc",
+      "good": "Tốt",
+      "average": "Trung bình",
+      "needsImprovement": "Cần cải thiện",
+      "pass": "Đạt",
+      "fail": "Không đạt",
+      "notAttempted": "Chưa làm",
+      "examScoresOverAttempts": "Điểm số qua các lần làm bài",
+      "selectExam": "Chọn bài kiểm tra để xem biểu đồ điểm số",
+      "examResultsSummary": "Kết quả các bài kiểm tra",
+      "lessonProgressSummary": "Tiến độ bài học",
+      "noLessons": "Không có bài học nào trong khóa học này.",
+      "improveOverallAssessment": "Cải thiện đánh giá tổng quan",
+      "unattempted": "Chưa làm",
+      "noChange": "Không đổi",
+      "increase": "Tăng",
+      "decrease": "Giảm",
+      "generalEvaluation": "Tổng Quan Kết Quả Học Tập",
+      "highestScore": "Điểm cao nhất của bạn",
+      "passingScore": "Điểm cần đạt",
+      "result": "Kết quả"
+    },
+    "notification": {
+      "notifications": "Thông báo",
+      "mark_all_as_read": "Đánh dấu tất cả là đã đọc",
+      "mark_all_as_unread": "Đánh dấu tất cả là chưa đọc",
+      "removed_all_notifications": "Xóa tất cả thông báo",
+      "mark_as_read": "Đánh dấu là đã đọc",
+      "mark_as_unread": "Đánh dấu là chưa đọc",
+      "removed_notification": "Xóa thông báo này",
+      "modal": {
+        "notification_details": "Chi tiết Thông báo",
+        "view": "Chuyển đến",
+        "close": "Đóng"
+      }
+    },
+    "notFound": {
+      "title": "404",
+      "subtitle": "Không Tìm Thấy Trang",
+      "description": "Trang bạn tìm kiếm có thể đã bị xóa, tên đã được thay đổi, hoặc tạm thời không khả dụng."
     }
   }
 }

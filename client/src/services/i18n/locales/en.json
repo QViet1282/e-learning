@@ -18,11 +18,10 @@
     "dropdown": {
       "darkTheme": "Dark Mode",
       "lightTheme": "Light Mode",
-      "setting": "Setting",
+      "dashboard-report": "Learning Report",
       "profile": "Profile",
       "userDashboard": "Dashboard",
       "mycourse": "My courses",
-      "blog": "Blog",
       "logout": "Log out",
       "gottoadmin": "Go to Admin",
       "purchase-history": "Purchase history"
@@ -117,13 +116,14 @@
     },
     "footer": {
       "about_us": "About Us",
-      "about_us_text": "We are a company dedicated to providing the best services.",
+      "about_us_text": "We are committed to improving lives through learning. Explore our original research to learn about the forces shaping the modern workplace.",
       "quick_links": "Quick Links",
       "services": "Services",
       "contact": "Contact",
       "privacy_policy": "Privacy Policy",
       "follow_us": "Follow Us",
-      "rights_reserved": "All rights reserved."
+      "rights_reserved": "All rights reserved.",
+      "coming_soon":"This feature is coming soon!"
     },
     "sidebar": {
       "pages": "Pages",
@@ -162,7 +162,7 @@
       "freeCourse": "Free Course",
       "findByCourseName": "Find by course name",
       "all_courses": "All courses",
-      "filter_title_course": "Course Category",
+      "filter_title_course": "Popular field",
       "empty_data": "Empty data",
       "empty_data_course": "Empty data",
       "filter_placeholder_search": "Test's name",
@@ -182,8 +182,8 @@
       "progress": "Progress",
       "status": "Status",
       "another_time": "Another time",
-      "from_label": "From",
-      "to_label": "To",
+      "from_label": "Start Registration",
+      "to_label": "End Registration",
       "getStarted": "Start learning today",
       "welcome": "Choose the optimal learning path for you",
       "description": "With a carefully designed learning path, this is the perfect choice for you to access new and useful knowledge. The course content is diverse, from basic to advanced, suitable for all learners. Explore and conquer challenges to elevate yourself every day!",
@@ -229,7 +229,8 @@
       "active_installations": "active installations",
       "continue": "Continue learning",
       "enrollNow": "Enroll Now",
-      "createdAt": "Created At"
+      "createdAt": "Created At",
+       "remainingDays": "{{days}} days left to register"
     },
     "course_detail": {
       "overview": "Overview",
@@ -261,7 +262,8 @@
       "adding": "Adding...",
       "enrolling": "Enrolling...",
       "go_to_cart": "Go to Cart",
-      "requirements": "Requirements"
+      "requirements": "Requirements",
+      "course_not_exist": "The course does not exist or has been deleted"
     },
     "learning": {
       "updated_at": "Updated at",
@@ -385,7 +387,9 @@
       "removing": "Removing...",
       "remove": "Remove",
       "total": "Total",
-      "checkout": "Checkout"
+      "checkout": "Checkout",
+      "unable_to_checkout_remove_invalid_courses": "Unable to checkout. Please remove unavailable courses from the cart.",
+      "invalid_course": "This course is no longer available"
     },
     "purchaseHistory": {
       "title": "Purchase History",
@@ -538,6 +542,90 @@
       "title": "Confirm deletion",
       "yes": "Delete",
       "no": "Cancel"
+    },
+    "dashboard-report": {
+      "title": "Learning Overview"
+    },
+    "userOverview": {
+      "loading": "Loading...",
+      "totalCourses": "Total Courses",
+      "completedCourses": "Completed Courses",
+      "totalLessons": "Total Lessons",
+      "totalExams": "Total Exams"
+    },
+    "monthlyProgressChart": {
+      "monthlyProgress": "Monthly Progress",
+      "completedLessons": "Completed Lessons",
+      "completedExams": "Completed Exams"
+    },
+    "learningProgress": {
+      "learningProgress": "Learning Progress",
+      "lessons": "Lessons",
+      "exams": "Exams",
+      "completed": "completed",
+      "viewDetails": "View Details"
+    },
+    "courseDetails": {
+      "overview": "Overview of Progress and Personal Learning Outcomes",
+      "incompleteWarning": "You have not completed all tests or lessons. Complete them to improve your overall assessment!",
+      "examCompletionRate": "Exam completion rate",
+      "averageExamScore": "Average exam score",
+      "examsAttemptedPercentage": "Exams attempted percentage",
+      "lessonCompletionRate": "Lesson completion rate",
+      "overallAssessment": "Overall Assessment",
+      "viewScoreChart": "View Score Chart",
+      "noExams": "There are no exams in this course.",
+      "attempt": "Attempt",
+      "score": "Score",
+      "change": "Change",
+      "noAttempts": "No attempts yet.",
+      "exams": "Exams",
+      "lessons": "Lessons",
+      "examResults": "Exam Results",
+      "lessonProgress": "Lesson Progress",
+      "status": "Status",
+      "completed": "Completed",
+      "notCompleted": "Not Completed",
+      "excellent": "Excellent",
+      "good": "Good",
+      "average": "Average",
+      "needsImprovement": "Needs Improvement",
+      "pass": "Pass",
+      "fail": "Fail",
+      "notAttempted": "Not Attempted",
+      "examScoresOverAttempts": "Exam Scores Over Attempts",
+      "selectExam": "Select an exam to view score chart",
+      "examResultsSummary": "Exam Results Summary",
+      "lessonProgressSummary": "Lesson Progress Summary",
+      "noLessons": "There are no lessons in this course.",
+      "improveOverallAssessment": "Improve Overall Assessment",
+      "unattempted": "Unattempted",
+      "noChange": "No Change",
+      "increase": "Increase",
+      "decrease": "Decrease",
+      "generalEvaluation": "Overall Study Results",
+      "highestScore": "Your highest score",
+      "passingScore": "Passing Score",
+      "result": "Result"
+    },
+    "notification": {
+      "notifications": "Notifications",
+      "mark_all_as_read": "Mark all as read",
+      "mark_all_as_unread": "Mark all as unread",
+      "removed_all_notifications": "Remove all notifications",
+      "mark_as_read": "Mark as read",
+      "mark_as_unread": "Mark as unread",
+      "removed_notification": "Remove this notification",
+      "modal": {
+        "notification_details": "Notification Details",
+        "view": "Go to",
+        "close": "Close"
+      }
+    },
+    "notFound": {
+      "title": "404",
+      "subtitle": "Page Not Found",
+      "description": "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable."
     }
   }
 }

@@ -64,16 +64,18 @@ function UnevenSetsInfinite () {
   const settings = {
     dots: true,
     infinite: true,
-    speed: 500,
-
-    slidesToScroll: 2,
+    speed: 7000,
+    slidesToScroll: 1,
     slidesToShow: 4,
+    autoplay: true,
+    autoplaySpeed: 0,
+    cssEase: 'linear',
     responsive: [
       {
         breakpoint: 1024,
         settings: {
           slidesToShow: 3,
-          slidesToScroll: 2
+          slidesToScroll: 1
         }
       },
       {
@@ -82,7 +84,6 @@ function UnevenSetsInfinite () {
           slidesToShow: 1,
           slidesToScroll: 1,
           dots: false
-          // arrows: true
         }
       },
       {
@@ -111,7 +112,7 @@ function UnevenSetsInfinite () {
           <div className='flex items-center justify-center w-full h-96 rounded-3x'>
           <div className={`flex flex-col items-center justify-center w-10/12 h-72 rounded-3xl border-2 ${theme === 'light' ? 'border-gray-300' : 'border-gray-300'} hover:bg-cyan-950 transition-colors duration-500 hover:text-white`}>
           <img src={icon2} className='w-2/5 h-32' />
-              <div className='font-bold text-center mt-4 w-1/3'>NodeJS Frontend</div>
+              <div className='font-bold text-center mt-4 w-1/3'>NodeJS</div>
             </div>
           </div>
         </div>

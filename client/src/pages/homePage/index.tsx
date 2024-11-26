@@ -33,6 +33,26 @@ import { ShowButtonTopContext, DivRefContext } from '../../containers/layouts/de
 import { useTheme } from 'services/styled-themes'
 import imgHome from '../../assets/images/homePage/imgHome.png'
 import Footer from 'pages/homePage/components/Footer'
+import styled2 from '@emotion/styled'
+import { keyframes } from '@emotion/react'
+
+// Define the keyframes for color change
+const colorChange = keyframes`
+  0% { background-color: #FF5733; }   /* Vibrant Orange */
+  25% { background-color: #C70039; }  /* Bold Red */
+  50% { background-color: #900C3F; }  /* Deep Maroon */
+  75% { background-color: #581845; }  /* Rich Purple */
+  100% { background-color: #FF5733; }
+`
+const shake = keyframes`
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+`
+const AnimatedButton = styled2.button`
+animation: ${colorChange} 1s infinite, ${shake} 3s infinite;
+`
 
 interface ParamsList extends ListCourseParams {
 }
@@ -105,9 +125,7 @@ const HomePage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isLoadingCourse, setIsLoadingCourse] = useState<boolean>(false)
   const [currentTab, setCurrentTab] = useState(0)
-  const defaultStartDate = new Date('1970-01-01')
   const [startDate, setStartDate] = useState<Date | null>(null)
-  const defaultEndDate = new Date('9999-12-31')
   const [endDate, setEndDate] = useState<Date | null>(null)
   const [dataCategory, setDataCategory] = useState<any>(null)
   const [categorySearch, setCategorySearch] = useState('all')
@@ -115,9 +133,9 @@ const HomePage = () => {
   const [page, setPage] = useState<number>(1)
   const [isPressed, setIsPressed] = useState(false)
 
-  const [dataStateNew, setDataStateNew] = useState<DataListCourse | undefined>(
-    undefined
-  )
+  // const [dataStateNew, setDataStateNew] = useState<DataListCourse | undefined>(
+  //   undefined
+  // )
   const [pageNew, setPageNew] = useState<number>(1)
 
   const [dataState, setDataState] = useState<DataListCourse | undefined>(
@@ -159,19 +177,51 @@ const HomePage = () => {
     event.preventDefault()
     setIsPressed(false)
     setIsLoading(true)
-    if (currentTab === 0) {
-      getDataCourse({ page: 1, search, startDate: startDate ?? defaultStartDate, endDate: endDate ?? defaultEndDate, category: categorySearch })
+
+    const requestParams: any = {
+      page: 1,
+      search,
+      category: categorySearch
     }
+
+    // Chỉ thêm startDate nếu có giá trị
+    if (startDate) {
+      requestParams.startDate = startDate.toISOString()
+    }
+
+    // Chỉ thêm endDate nếu có giá trị
+    if (endDate) {
+      requestParams.endDate = endDate.toISOString()
+    }
+
+    // Gọi API với các giá trị đã được kiểm tra
+    getDataCourse(requestParams)
 
     setDisplayGrid(false)
     setTimeout(() => {
       setIsLoading(false)
     }, 1500)
   }
+
   useEffect(() => {
-    getDataCourse({ page: 1, search, startDate: startDate ?? defaultStartDate, endDate: endDate ?? defaultEndDate, category: categorySearch })
-    // getDataFreeCourse({ page: 1, search, startDate: startDate ?? defaultStartDate, endDate: endDate ?? defaultEndDate, category: categorySearch })
-    // getDataProCourse({ page: 1, search, startDate: startDate ?? defaultStartDate, endDate: endDate ?? defaultEndDate, category: categorySearch })
+    const requestParams: any = {
+      page: 1,
+      search,
+      category: categorySearch
+    }
+
+    // Chỉ thêm startDate nếu có giá trị
+    if (startDate) {
+      requestParams.startDate = startDate.toISOString()
+    }
+
+    // Chỉ thêm endDate nếu có giá trị
+    if (endDate) {
+      requestParams.endDate = endDate.toISOString()
+    }
+
+    // Gọi API với các giá trị đã được kiểm tra
+    getDataCourse(requestParams)
   }, [currentTab])
 
   // const getDataProCourse = async (params?: ParamsList) => {
@@ -239,22 +289,23 @@ const HomePage = () => {
   // }, [])
 
   // KHONG DUNG LS
-  const getDataNewCourse = async (params?: ParamsList) => {
-    try {
-      const listCourseResponse = await getListNewCourses({ params })
-      if (!listCourseResponse.data) {
-        setDataStateNew(undefined)
-      } else {
-        setDataStateNew(listCourseResponse?.data)
-        setPageNew(params?.page ?? 1)
-      }
-    } catch (e) {
-      console.error('Không thể lấy dữ liệu khoá học mới:', e)
-    }
-  }
-  useEffect(() => {
-    getDataNewCourse({ page: 1 })
-  }, [])
+  // const getDataNewCourse = async (params?: ParamsList) => {
+  //   try {
+  //     const listCourseResponse = await getListNewCourses({ params })
+  //     if (!listCourseResponse.data) {
+  //       setDataStateNew(undefined)
+  //     } else {
+  //       setDataStateNew(listCourseResponse?.data)
+  //       setPageNew(params?.page ?? 1)
+  //     }
+  //   } catch (e) {
+  //     console.error('Không thể lấy dữ liệu khoá học mới:', e)
+  //   }
+  // }
+  // useEffect(() => {
+  //   getDataNewCourse({ page: 1 })
+  // }, [])
+
   // KHONG DUNG LOCAL STORAGE
   const getDataCourse = async (params?: ParamsList) => {
     setIsLoadingCourse(true)
@@ -357,7 +408,24 @@ const HomePage = () => {
   // }, [dataStateFree])
 
   const handleChangePagination = (value: number) => {
-    getDataCourse({ page: value, search, startDate: startDate ?? defaultStartDate, endDate: endDate ?? defaultEndDate, category: categorySearch })
+    const requestParams: any = {
+      page: value,
+      search,
+      category: categorySearch
+    }
+
+    // Chỉ thêm startDate nếu có giá trị
+    if (startDate) {
+      requestParams.startDate = startDate.toISOString()
+    }
+
+    // Chỉ thêm endDate nếu có giá trị
+    if (endDate) {
+      requestParams.endDate = endDate.toISOString()
+    }
+
+    // Gọi API với các giá trị đã được kiểm tra
+    getDataCourse(requestParams)
   }
 
   const totalPage = useMemo(() => {
@@ -462,20 +530,24 @@ const HomePage = () => {
                   </div>
                 </div>
                 <div className='flex flex-col sm:flex-row items-center justify-between space-x-0 sm:space-x-4 space-y-2 sm:space-y-0 w-full sm:w-7/12 md:w-1/2 px-2'>
-                  <div className='flex items-center space-x-4 w-full sm:w-1/4 xl:w-1/3 justify-between'>
-                    <div className='font-bold w-1/5 text-end justify-end flex sm:hidden md:flex'>{t('homepage.from_label')}</div>
+                  <div className='flex items-center space-x-4 w-full sm:w-1/4 xl:w-1/3 justify-center'>
+                    <div className='font-bold w-1/5 text-end justify-end flex sm:hidden md:flex whitespace-nowrap'>
+                      {t('homepage.from_label')}
+                    </div>
                     <input
                       type='date'
-                      className='w-full text-gray-700 border rounded-md p-2 bg-white'
+                      className='w-auto text-gray-700 border rounded-md p-2 bg-white'
                       value={startDate ? startDate.toISOString().substring(0, 10) : ''}
                       onChange={handleStartDateChange}
                     />
                   </div>
-                  <div className='flex items-center space-x-4 w-full sm:w-1/4 xl:w-1/3 justify-between'>
-                    <div className='font-bold w-1/5 text-end justify-end flex sm:hidden md:flex'>{t('homepage.to_label')}</div>
+                  <div className='flex items-center space-x-4 w-full sm:w-1/4 xl:w-1/3 justify-center'>
+                    <div className='font-bold w-1/5 text-end justify-end flex sm:hidden md:flex whitespace-nowrap'>
+                      {t('homepage.to_label')}
+                    </div>
                     <input
                       type='date'
-                      className='w-full text-gray-700 border rounded-md p-2 bg-white'
+                      className='w-auto text-gray-700 border rounded-md p-2 bg-white'
                       value={endDate ? endDate.toISOString().substring(0, 10) : ''}
                       onChange={handleEndDateChange}
                     />
@@ -509,12 +581,12 @@ const HomePage = () => {
                 </div>
                 <div className='flex justify-center mt-5'>
                   <div className='flex justify-center w-full sm:w-4/5 md:w-3/5 lg:w-1/2 xl:w-2/5'>
-                    <button
-                      className='bg-green-500 hover:bg-green-700 font-bold text-white shadow-xl rounded-3xl py-2 px-3 transition duration-200'
-                      onClick={scrollToTargetDiv}
-                    >
-                      {t('homepage.getStarted')}
-                    </button>
+                  <AnimatedButton
+                    className={`font-bold text-white shadow-xl rounded-3xl py-2 px-3 transition duration-200 ${theme === 'dark' ? 'text-black' : 'text-white'}`}
+                    onClick={scrollToTargetDiv}
+                  >
+                    {t('homepage.getStarted')}
+                  </AnimatedButton>
                   </div>
                 </div>
               </div>
@@ -557,7 +629,7 @@ const HomePage = () => {
                 </TabList>
                 <hr className={`my-4 border-t -mx-5 ${theme === 'dark' ? 'border-line-dark' : 'border-gray-300'}`} />
                 <TabPanel className="flex flex-col justify-between">
-                  <div className='grid grid-cols-12 gap-6 mt-4' ref={targetDivRef}>
+                  <div className='grid grid-cols-12 gap-6 mt-4 scroll-mt-32' ref={targetDivRef}>
                   {isLoadingCourse ? (
                   <div className="flex justify-center items-center w-full h-full col-span-12">
                         <ClipLoader color="#5EEAD4" loading={isLoadingCourse} size={50} />

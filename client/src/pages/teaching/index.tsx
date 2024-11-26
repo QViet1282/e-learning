@@ -23,6 +23,28 @@ import GettingStartedTabs from './components/GettingStartedTabs'
 import TestimonialSlider from './components/TestimonialSlider'
 import SupportSection from './components/SupportSection'
 import JoinTodaySection from './components/JoinTodaySection'
+import styled from '@emotion/styled'
+import { keyframes } from '@emotion/react'
+
+// Define the keyframes for color change
+const colorChange = keyframes`
+  0% { background-color: #1E90FF; }
+  25% { background-color: #00BFFF; }
+  50% { background-color: #87CEFA; }
+  75% { background-color: #4682B4; }
+  100% { background-color: #1E90FF; }
+`
+
+const shake = keyframes`
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+`
+
+const AnimatedButton = styled.button`
+  animation: ${colorChange} 1s infinite, ${shake} 3s infinite;
+`
 const TeachingPage = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -58,12 +80,12 @@ const TeachingPage = () => {
                 </div>
                 <div className='flex justify-center mt-5'>
                   <div className='flex justify-center w-full sm:w-4/5 md:w-3/5 lg:w-1/2 xl:w-2/5'>
-                    <button
-                      className='bg-green-500 hover:bg-green-700 font-bold text-white shadow-xl rounded-3xl py-2 px-3 transition duration-200'
+                    <AnimatedButton
+                      className='bg-green-500 hover:bg-green-700 font-bold text-white shadow-lg rounded-3xl py-2 px-8 transition duration-200'
                       onClick={handleStart}
                     >
                       {t('teachingPage.getStarted')}
-                    </button>
+                    </AnimatedButton>
                   </div>
                 </div>
               </div>

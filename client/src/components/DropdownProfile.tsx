@@ -236,21 +236,11 @@ function DropdownProfile ({ align }: DropdownProfileProps) {
                <li>
                  <Link
                    className="font-medium text-sm text-gray-500 hover:text-teal-600 flex items-center py-1 px-6"
-                   to="/blog"
-                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                 >
-                   <NewspaperIcon className="mr-2" />
-                   {t('dropdown.blog')}
-                 </Link>
-               </li>
-               <li>
-                 <Link
-                   className="font-medium text-sm text-gray-500 hover:text-teal-600 flex items-center py-1 px-6"
-                   to="/settings"
+                   to="/dashboard-report"
                    onClick={() => setDropdownOpen(!dropdownOpen)}
                  >
                    <SettingsIcon className="mr-2" />
-                   {t('dropdown.setting')}
+                   {t('dropdown.dashboard-report')}
                  </Link>
                </li>
                <li>
