@@ -10,7 +10,7 @@ const roles = [
   },
   {
     name: 'R2',
-    description: 'MANAGER',
+    description: 'TEACHER',
     createdAt: faker.date.past(),
     updatedAt: faker.date.recent()
   },

@@ -1,0 +1,168 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
+/* PAGE: COURSEPAGE
+   ========================================================================== */
+import React, { useEffect, useState } from 'react'
+import { Accordion, AccordionSummary, AccordionDetails, Box } from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import { useLocation } from 'react-router-dom'
+import Curriculum from './Curriculum'
+import CourseOverview from './Overview'
+import { Course } from 'api/get/get.interface'
+import { getCourseById } from 'api/get/get.api'
+import PricingAndPublishing from './PricingAndPublishing'
+import StudentList from './StudentList'
+import DoExamList from './DoExamList'
+import TargetStudents from './TargetStudents'
+import Notification from './Notification'
+import Statistics from './Statistics'
+
+export default function CourseDetailPage (): JSX.Element {
+  const location = useLocation()
+  const { courseId } = location.state || {}
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [selectedContent, setSelectedContent] = useState<string>('Tổng quan khóa học')
+  const [course, setCourse] = useState<Course | null>(null)
+  const [isManagement, setIsManagement] = useState<boolean>(false)
+
+  useEffect(() => {
+    void fetchCourse()
+  }, [courseId])
+
+  const fetchCourse = async (): Promise<void> => {
+    try {
+      const response = await getCourseById(courseId)
+      setCourse(response.data)
+      setIsManagement(course?.status !== 0 && course?.status !== 1)
+    } catch (error) {
+      console.error('Error fetching course:', error)
+    }
+  }
+  const renderContent = (content: string | null): JSX.Element | null => {
+    switch (content) {
+      case 'Học viên mục tiêu':
+        return <TargetStudents courseId={course?.id} description={course?.description} fetchCourse={fetchCourse} prepare={course?.prepare} />
+      case 'Tổng quan khóa học':
+        return <CourseOverview
+          courseId={course?.id}
+          categoryCourseId={course?.categoryCourseId}
+          name={course?.name}
+          summary={course?.summary}
+          locationPath={course?.locationPath}
+          videoLocationPath={course?.videoLocationPath}
+          fetchCourse={fetchCourse}
+        />
+      case 'Chương trình giảng dạy':
+        return <Curriculum courseId={courseId} courseStatus={course?.status ?? 0} />
+      case 'Định giá & Xuất bản':
+        return <PricingAndPublishing
+          courseId={course?.id}
+          status={course?.status}
+          price={course?.price}
+          startDateRegister={course?.startDate}
+          endDateRegister={course?.endDate}
+          assignedBy={course?.assignedBy}
+          fetchCourse={fetchCourse}
+        />
+      case 'Danh sách học viên':
+        return <StudentList courseId={course?.id} />
+      case 'Kết quả các bài trắc nghiệm':
+        return <DoExamList courseId={courseId} />
+      case 'Thông báo':
+        return <Notification courseId={courseId} />
+      case 'Thống kê':
+        return <Statistics courseId={courseId} />
+      default:
+        return <CourseOverview
+          courseId={course?.id}
+          categoryCourseId={course?.categoryCourseId}
+          name={course?.name}
+          summary={course?.summary}
+          locationPath={course?.locationPath}
+          fetchCourse={fetchCourse}
+        />
+    }
+  }
+
+  console.log('courseId(DetailPage)', courseId)
+  return (
+    <div className='grid md:grid-cols-5 grid-cols-1 gap-6 p-4 bg-white border-x-2'>
+      <Box className='col-span-1 '>
+        <Accordion defaultExpanded sx={{ backgroundColor: 'rgb(241, 245, 249)' }} className='shadow-xl'>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <div className='font-bold text-lg'>Nội dung khóa học</div>
+          </AccordionSummary>
+          <AccordionDetails>
+            <div className='flex flex-col gap-4'>
+              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => setSelectedContent('Tổng quan khóa học')}>
+                Tổng quan khóa học
+              </button>
+              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => setSelectedContent('Học viên mục tiêu')}>
+                Học viên mục tiêu
+              </button>
+
+              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => setSelectedContent('Chương trình giảng dạy')}>
+                Chương trình giảng dạy
+              </button>
+
+              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => setSelectedContent('Định giá & Xuất bản')}>
+                Định giá & Xuất bản
+              </button>
+
+            </div>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion defaultExpanded sx={{ backgroundColor: 'rgb(241, 245, 249)' }} className='shadow-xl'>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <div className='font-bold text-lg'>Quản lý khóa học</div>
+          </AccordionSummary>
+          <AccordionDetails >
+            <Box display="flex" flexDirection="column" gap={2} >
+              <button
+                disabled={!isManagement}
+                className={`rounded py-2 w-full shadow focus:outline-none 
+    ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
+                onClick={() => setSelectedContent('Danh sách học viên')}
+              >
+                Danh sách học viên
+              </button>
+              <button
+                disabled={!isManagement}
+                className={`rounded py-2 w-full shadow focus:outline-none 
+    ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
+                onClick={() => setSelectedContent('Kết quả các bài trắc nghiệm')}
+              >
+                Kết quả các bài trắc nghiệm
+              </button>
+              <button
+                disabled={!isManagement}
+                className={`rounded py-2 w-full shadow focus:outline-none 
+    ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
+                onClick={() => setSelectedContent('Thông báo')}
+              >
+                Thông báo
+              </button>
+              <button
+                disabled={!isManagement}
+                className={`rounded py-2 w-full shadow focus:outline-none 
+    ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
+                onClick={() => setSelectedContent('Thống kê')}
+              >
+                Thống kê
+              </button>
+            </Box>
+          </AccordionDetails>
+        </Accordion>
+      </Box>
+      <Box className='md:col-span-4 col-span-1'>
+        {/* <Button variant="contained" color="primary" className='mt-4'>
+          Gửi đi để xem xét
+        </Button> */}
+        {selectedContent && (
+          <Box mt={0.7}>
+            {renderContent(selectedContent)}
+          </Box>
+        )}
+      </Box>
+    </div>
+  )
+}

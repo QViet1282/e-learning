@@ -11,6 +11,7 @@ const generateNotifications = async () => {
       .join(' '),
     message: faker.lorem.sentence(),
     url: urls[Math.floor(Math.random() * urls.length)],
+    notifyAt: faker.date.recent(),
     createdAt: faker.date.past(),
     updatedAt: faker.date.recent()
   })))

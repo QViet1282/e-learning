@@ -5,34 +5,567 @@ const { sequelize } = require('../models')
 const { isAuthenticated } = require('../middlewares/authentication')
 const jsonError = 'Internal server error'
 const router = express.Router()
-const { infoLogger, errorLogger } = require('../logs/logger')
-const { Op } = require('sequelize')
+// const { INTEGER } = require('sequelize')
+const { Op, fn, col } = require('sequelize')
 const CategoryCourse = require('../models/category_course')
 const StudyItem = require('../models/study_item')
+const { duration } = require('moment-timezone')
 
-function logError (req, error) {
-  const request = req.body.data ? req.body.data : (req.params ? req.params : req.query)
-  errorLogger.error({
-    message: `Error ${req.path}`,
-    method: req.method,
-    endpoint: req.path,
-    request,
-    error: error.message,
-    user: req.user.id
-  })
+/*****************************
+ * ROUTES FOR COURSE
+ *****************************/
+
+router.get('/getAllCourseInfo', isAuthenticated, async (req, res) => {
+  const page = parseInt(req.query.page) || 1
+  const limit = parseInt(req.query.limit) || 10
+  const offset = (page - 1) * limit
+
+  const { categoryCourseId, status, priceMin, priceMax, durationMin, durationMax, name } = req.query
+
+  const whereConditions = {}
+
+  if (categoryCourseId) {
+    whereConditions.categoryCourseId = categoryCourseId
+  }
+
+  if (status) {
+    if ([5, 6, 7].includes(Number(status))) {
+      whereConditions.status = { [Op.in]: [5, 6, 7] }
+    } else if (status) {
+      whereConditions.status = status
+    }
+  }
+
+  if (priceMin || priceMax) {
+    whereConditions.price = {}
+    if (priceMin) {
+      whereConditions.price[Op.gte] = priceMin
+    }
+    if (priceMax) {
+      whereConditions.price[Op.lte] = priceMax
+    }
+  }
+
+  if (durationMin || durationMax) {
+    whereConditions.durationInMinute = {}
+    if (durationMin) {
+      whereConditions.durationInMinute[Op.gte] = durationMin
+    }
+    if (durationMax) {
+      whereConditions.durationInMinute[Op.lte] = durationMax
+    }
+  }
+
+  if (name) {
+    whereConditions.name = {
+      [Op.and]: [
+        { [Op.like]: `%${name}%` },
+        { [Op.not]: null }
+      ]
+    }
+  }
+  console.log('Where Conditions:', whereConditions)
+
+  try {
+    const { count, rows } = await models.Course.findAndCountAll({
+      where: whereConditions,
+      limit,
+      offset,
+      attributes: ['id', 'categoryCourseId', 'name', 'durationInMinute', 'locationPath', 'price', 'status']
+    })
+
+    const totalPages = Math.ceil(count / limit)
+
+    res.status(200).json({
+      totalItems: count,
+      totalPages: count !== 0 ? totalPages : 1,
+      currentPage: page,
+      courses: rows
+    })
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: jsonError })
+  }
+})
+
+router.get('/getAllCourseByTeacher', isAuthenticated, async (req, res) => {
+  const { teacherId } = req.query
+  const teacherIdToUse = teacherId || req.user.id
+
+  try {
+    const courses = await models.Course.findAll({
+      where: { assignedBy: teacherIdToUse },
+      attributes: ['id', 'categoryCourseId', 'name', 'durationInMinute', 'locationPath', 'price', 'status']
+    })
+
+    res.status(200).json(courses)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Lỗi khi lấy dữ liệu giáo viên và khóa học' })
+  }
+})
+
+router.get('/getCourseById/:courseId', isAuthenticated, async (req, res) => {
+  try {
+    const { courseId } = req.params
+
+    if (!courseId) {
+      return res.status(400).json({ message: 'Thiếu id của khóa học' })
+    }
+
+    const course = await models.Course.findOne({
+      where: { id: courseId }
+    })
+
+    if (!course) {
+      return res.status(404).json({ message: 'Không tìm thấy khóa học' })
+    }
+
+    res.status(200).json(course)
+  } catch (err) {
+    console.error(err)
+    res.status(500).json({ message: 'Lỗi hệ thống, vui lòng thử lại sau.' })
+  }
+})
+
+router.post('/createNewCourse', isAuthenticated, async (req, res) => {
+  try {
+    const {
+      categoryCourseId,
+      name
+    } = req.body
+
+    console.log('Request Body:', req.body)
+    if (!name) {
+      return res.status(400).json({ error: 'Required fields are missing' })
+    }
+
+    const newCourse = await models.Course.create({
+      categoryCourseId,
+      name,
+      assignedBy: req.user.id,
+      description: '',
+      summary: '',
+      prepare: ''
+    })
+    res.status(201).json(newCourse)
+  } catch (error) {
+    res.status(500).json({ error: jsonError })
+  }
+})
+
+// Sửa thông tin course
+router.put('/editCourse/:courseId', isAuthenticated, async (req, res) => {
+  const { courseId } = req.params
+  const {
+    categoryCourseId,
+    name,
+    summary,
+    startDate,
+    endDate,
+    description,
+    locationPath,
+    videoLocationPath,
+    prepare,
+    price,
+    status
+  } = req.body
+
+  console.log('Request Body:', req.body)
+
+  try {
+    const course = await models.Course.findByPk(courseId)
+
+    if (!course) {
+      return res.status(404).json({ error: 'Course not found' })
+    }
+
+    await course.update({
+      categoryCourseId,
+      name,
+      summary,
+      startDate,
+      endDate,
+      description,
+      locationPath,
+      videoLocationPath,
+      prepare,
+      price,
+      status
+    })
+
+    res.status(200).json(course)
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Thay đổi status khóa học cho admin
+router.put('/acceptOrDeclineCourseStatus/:courseId', isAuthenticated, async (req, res) => {
+  const { courseId } = req.params
+  const { status, resuft } = req.body
+
+  const transaction = await sequelize.transaction()
+  try {
+    // Tính thời lương tổng các video
+    const totalDuration = await calculateTotalCourseDuration(courseId)
+    console.log(`Tổng thời gian khóa học ${courseId}: ${totalDuration} giây`)
+    let course
+    if (resuft) {
+      await models.Course.update({ status, durationInMinute: totalDuration }, {
+        where: {
+          id: courseId
+        },
+        transaction
+      })
+
+      course = await models.Course.findByPk(courseId, {
+        attributes: ['id', 'status'],
+        include: [
+          {
+            model: models.CategoryLession,
+            attributes: ['id'],
+            include: [
+              {
+                model: models.StudyItem,
+                attributes: ['id', 'status']
+              }
+            ]
+          }
+        ],
+        transaction
+      })
+
+      if (!course) {
+        return res.status(404).json({ error: 'Course not found' })
+      }
+
+      // Cập nhật status các StudyItems
+      if (course.CategoryLessions && Array.isArray(course.CategoryLessions)) {
+        const studyItemsToUpdate = []
+
+        course.CategoryLessions.forEach(category => {
+          if (category.StudyItems && Array.isArray(category.StudyItems)) {
+            category.StudyItems.forEach(studyItem => {
+              studyItemsToUpdate.push(studyItem.id)
+            })
+          }
+        })
+
+        if (studyItemsToUpdate.length > 0) {
+          await models.StudyItem.update(
+            { status: 1 },
+            {
+              where: {
+                id: studyItemsToUpdate
+              },
+              transaction
+            }
+          )
+        }
+      } else {
+        console.log('No LessonCategories found for this course.')
+      }
+    } else {
+      course = await models.Course.update({ status }, {
+        where: { id: courseId }
+      })
+    }
+
+    await transaction.commit()
+    res.status(200).json({ message: 'Status updated successfully', course })
+  } catch (error) {
+    await transaction.rollback()
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Thay doi status course
+router.put('/updateCourseStatus/:courseId', isAuthenticated, async (req, res) => {
+  const { courseId } = req.params
+  const { status, endDate } = req.body
+
+  try {
+    if (!courseId) {
+      return res.status(400).json({ error: 'Course ID is required' })
+    }
+    if (typeof status === 'undefined') {
+      return res.status(400).json({ error: 'Status is required' })
+    }
+
+    try {
+      // Kiểm tra các giá trị đặc biệt của status
+      if ([1, 5, 6, 7].includes(status)) {
+        const isValid = await isCourseValidForStatus(courseId)
+        if (!isValid) {
+          return res.status(400).json({ error: 'Course does not meet the required conditions for this status' })
+        }
+      }
+
+      await models.Course.update({ status, endDate }, {
+        where: { id: courseId }
+      })
+
+      res.status(200).json({
+        message: 'Status updated successfully',
+        data: {
+          courseId,
+          status,
+          endDate,
+          updatedAt: new Date()
+        }
+      })
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error during transaction' })
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+async function calculateTotalCourseDuration (courseId) {
+  try {
+    const sql = `
+          SELECT SUM(L.durationInSecond) AS totalDuration
+          FROM courses AS C
+          LEFT JOIN category_lession AS CL ON C.id = CL.courseId
+          LEFT JOIN study_items AS SI ON CL.id = SI.lessionCategoryId
+          LEFT JOIN lessions AS L ON SI.id = L.studyItemId
+          WHERE C.id = :courseId
+          GROUP BY C.id
+      `
+
+    const [results] = await sequelize.query(sql, {
+      replacements: { courseId },
+      type: sequelize.QueryTypes.SELECT
+    })
+
+    return results.totalDuration
+  } catch (error) {
+    console.error('Error calculating total course duration:', error)
+    return 0 // Trả về 0 nếu có lỗi
+  }
 }
 
-function logInfo (req, response) {
-  const request = req.body.data ? req.body.data : (req.params ? req.params : req.query)
-  infoLogger.info({
-    message: `Accessed ${req.path}`,
-    method: req.method,
-    endpoint: req.path,
-    request,
-    response,
-    user: req.user.id
+// Lấy tất cả categoryLession theo khóa học
+router.get('/getCategoryLessionByCourse/:courseId', isAuthenticated, async (req, res) => {
+  try {
+    const { courseId } = req.params
+    const categories = await models.CategoryLession.findAll({
+      where: { courseId },
+      order: [['order', 'ASC']]
+    })
+
+    res.status(200).json(categories)
+  } catch (error) {
+    res.status(500).json({ error: jsonError })
+  }
+})
+
+// Tạo categorylession
+router.post('/createCategoryLession', isAuthenticated, async (req, res) => {
+  try {
+    const { courseId, name, order, status } = req.body
+    console.log('Request body:', req.body)
+
+    if (!courseId || !name || typeof order === 'undefined') {
+      return res.status(400).json({ error: 'Missing required fields: courseId, name, or order' })
+    }
+
+    const newCategoryLession = await models.CategoryLession.create({
+      courseId,
+      name,
+      order,
+      status: typeof status !== 'undefined' ? status : 0
+    })
+
+    return res.status(201).json(newCategoryLession)
+  } catch (error) {
+    return res.status(500).json({ error: jsonError })
+  }
+})
+
+// Sửa categorylession
+router.post('/updateCategoryLession', isAuthenticated, async (req, res) => {
+  try {
+    const { categoryLession } = req.body
+
+    if (!categoryLession || !categoryLession.id) {
+      return res.status(400).json({ error: 'CategoryLession data or ID is missing' })
+    }
+
+    const [updated] = await models.CategoryLession.update(categoryLession, {
+      where: { id: categoryLession.id }
+    })
+
+    if (updated === 0) {
+      return res.status(404).json({ error: 'CategoryLession not found' })
+    }
+
+    res.status(200).json(categoryLession)
+  } catch (error) {
+    res.status(500).json({ error: jsonError })
+  }
+})
+
+// Thay đổi thứ tự category lession
+router.put('/updateCategoryLessionOrder', isAuthenticated, async (req, res) => {
+  const oldOrder = Number(req.body.oldOrder)
+  const newOrder = Number(req.body.newOrder)
+  const lessionCategoryId = Number(req.body.lessionCategoryId)
+  const courseId = Number(req.body.courseId)
+  const updatedAt = req.body.updatedAt
+
+  console.log(lessionCategoryId, oldOrder, newOrder, courseId)
+  if (lessionCategoryId == null || oldOrder == null || newOrder == null || courseId == null) {
+    return res.status(400).json({ error: 'Missing or null input' })
+  }
+  const catagoryLession = await models.CategoryLession.findOne({
+    where: { id: lessionCategoryId, courseId }
   })
-}
+
+  if (!catagoryLession) {
+    return res.status(404).json({ error: 'Study item not found' })
+  }
+
+  if (catagoryLession.updatedAt.getTime() !== new Date(updatedAt).getTime()) {
+    return res.status(409).json({ error: 'Conflict: The item has been modified by another user.' })
+  }
+  const transaction = await sequelize.transaction()
+
+  try {
+    // Nếu newOrder nhỏ hơn oldOrder => Các mục giữa oldOrder và newOrder sẽ được tăng lên 1
+    if (newOrder < oldOrder) {
+      await models.CategoryLession.increment('order', {
+        by: 1,
+        where: {
+          order: { [Op.between]: [newOrder, oldOrder - 1] },
+          courseId
+        },
+        transaction
+      })
+    } else if (newOrder > oldOrder) {
+      // Nếu newOrder lớn hơn oldOrder => Các mục giữa oldOrder và newOrder sẽ được giảm đi 1
+      await models.CategoryLession.decrement('order', {
+        by: 1,
+        where: {
+          order: { [Op.between]: [oldOrder + 1, newOrder] },
+          courseId
+        },
+        transaction
+      })
+    }
+
+    await models.CategoryLession.update(
+      { order: newOrder },
+      {
+        where: { id: lessionCategoryId },
+        transaction
+      }
+    )
+
+    await transaction.commit()
+    res.status(200).json({ message: 'Study item order updated successfully' })
+  } catch (error) {
+    await transaction.rollback()
+    res.status(500).json({ error: 'An error occurred while updating study item order' })
+  }
+})
+
+// Lấy studyItem theo categoryLession
+router.get('/getStudyItemByCategoryLessionId/:lessionCategoryId', isAuthenticated, async (req, res) => {
+  try {
+    const { lessionCategoryId } = req.params
+    const studyItemDetails = await models.StudyItem.findAll({
+      where: { lessionCategoryId },
+      order: [['order', 'ASC']],
+      include: [
+        {
+          model: models.Exam,
+          where: { studyItemId: sequelize.col('StudyItem.id') },
+          required: false
+        },
+        {
+          model: models.Lession,
+          where: { studyItemId: sequelize.col('StudyItem.id') },
+          required: false
+        }
+      ]
+    })
+
+    if (!studyItemDetails) {
+      return res.status(404).json({ error: 'StudyItem not found' })
+    }
+
+    res.status(200).json(studyItemDetails)
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while fetching study item details' })
+  }
+})
+
+router.put('/updateStudyItemOrder', isAuthenticated, async (req, res) => {
+  const oldOrder = Number(req.body.oldOrder)
+  const newOrder = Number(req.body.newOrder)
+  const studyItemId = Number(req.body.studyItemId)
+  const lessionCategoryId = Number(req.body.lessionCategoryId)
+  const updatedAt = req.body.updatedAt
+
+  console.log(studyItemId, oldOrder, newOrder, lessionCategoryId)
+  if (studyItemId == null || oldOrder == null || newOrder == null || lessionCategoryId == null | updatedAt == null) {
+    return res.status(400).json({ error: 'Missing or null input' })
+  }
+
+  const transaction = await sequelize.transaction()
+
+  try {
+    const studyItem = await models.StudyItem.findOne({
+      where: { id: studyItemId, lessionCategoryId }
+    })
+
+    if (!studyItem) {
+      return res.status(404).json({ error: 'Study item not found' })
+    }
+
+    if (studyItem.updatedAt.getTime() !== new Date(updatedAt).getTime()) {
+      return res.status(409).json({ error: 'Conflict: The item has been modified by another user.' })
+    }
+    // Nếu newOrder nhỏ hơn oldOrder => Các mục giữa oldOrder và newOrder sẽ được tăng lên 1
+    if (newOrder < oldOrder) {
+      await models.StudyItem.increment('order', {
+        by: 1,
+        where: {
+          order: { [Op.between]: [newOrder, oldOrder - 1] },
+          lessionCategoryId
+        },
+        transaction
+      })
+    } else if (newOrder > oldOrder) {
+      // Nếu newOrder lớn hơn oldOrder => Các mục giữa oldOrder và newOrder sẽ được giảm đi 1
+      await models.StudyItem.decrement('order', {
+        by: 1,
+        where: {
+          order: { [Op.between]: [oldOrder + 1, newOrder] },
+          lessionCategoryId
+        },
+        transaction
+      })
+    }
+
+    await models.StudyItem.update(
+      { order: newOrder },
+      {
+        where: { id: studyItemId },
+        transaction
+      }
+    )
+
+    await transaction.commit()
+    res.status(200).json({ message: 'Study item order updated successfully' })
+  } catch (error) {
+    await transaction.rollback()
+    res.status(500).json({ error: 'An error occurred while updating study item order' })
+  }
+})
 
 // -----------------------------------------------trang my course ----------------------------
 router.get('/myCoursesDone', isAuthenticated, async (req, res) => {
@@ -51,18 +584,18 @@ router.get('/myCoursesDone', isAuthenticated, async (req, res) => {
     const [allCourses, allUsers, orders, categoryCourse, enrollmentCounts, lessonCounts] = await Promise.all([
       models.Course.findAll(),
       models.User.findAll(),
-      models.Order.findAll({ where: { userId: loginedUserId }, attributes: ['id'] }),
+      models.Order.findAll({ where: { userId: loginedUserId, status: 1 }, attributes: ['id'] }), // Fix_1001
       getCourseCategory(),
-      models.Enrollment.count({ group: ['courseId'] }),
+      models.Enrollment.count({ where: { status: 1 }, group: ['courseId'] }), // Đếm số lượng Enrollment với status là 1 // Fix_1001
       fetchLessonCounts()
     ])
 
     // Lấy danh sách orderId từ orders
     const orderIds = orders.map(order => order.id)
 
-    // Truy vấn tất cả các Enrollment bằng orderIds
+    // Truy vấn tất cả các Enrollment bằng orderIds và kiểm tra status // Fix_1001
     const enrollments = await models.Enrollment.findAll({
-      where: { orderId: orderIds },
+      where: { orderId: orderIds, status: 1 },
       order: [['id', 'DESC']]
     })
 
@@ -76,7 +609,8 @@ router.get('/myCoursesDone', isAuthenticated, async (req, res) => {
     const userEnrollments = await models.Enrollment.findAll({
       where: {
         orderId: orderIds,
-        courseId: filteredCourses.map(course => course.id)
+        courseId: filteredCourses.map(course => course.id),
+        status: 1
       }
     })
 
@@ -87,7 +621,6 @@ router.get('/myCoursesDone', isAuthenticated, async (req, res) => {
     const dataAfterSearch = applyFilters(dataFromDatabase, searchCondition, startDate, endDate, categoryCondition)
     const dataOfCurrentWindow = paginateData(dataAfterSearch, size, page)
 
-    logInfo(req, dataOfCurrentWindow)
     res.json({
       page: Number(page),
       size: Number(size),
@@ -95,7 +628,6 @@ router.get('/myCoursesDone', isAuthenticated, async (req, res) => {
       data: dataOfCurrentWindow
     })
   } catch (error) {
-    logError(req, error)
     console.log(error)
     res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách khóa học.' })
   }
@@ -117,18 +649,18 @@ router.get('/myCoursesActive', isAuthenticated, async (req, res) => {
     const [allCourses, allUsers, orders, categoryCourse, enrollmentCounts, lessonCounts] = await Promise.all([
       models.Course.findAll(),
       models.User.findAll(),
-      models.Order.findAll({ where: { userId: loginedUserId }, attributes: ['id'] }),
+      models.Order.findAll({ where: { userId: loginedUserId, status: 1 }, attributes: ['id'] }), // Fix_1001
       getCourseCategory(),
-      models.Enrollment.count({ group: ['courseId'] }),
+      models.Enrollment.count({ where: { status: 1 }, group: ['courseId'] }), // Đếm số lượng Enrollment với status là 1 // Fix_1001
       fetchLessonCounts()
     ])
 
     // Lấy danh sách orderId từ orders
     const orderIds = orders.map(order => order.id)
 
-    // Truy vấn tất cả các Enrollment bằng orderIds
+    // Truy vấn tất cả các Enrollment bằng orderIds và kiểm tra status // Fix_1001
     const enrollments = await models.Enrollment.findAll({
-      where: { orderId: orderIds },
+      where: { orderId: orderIds, status: 1 }, // Fix_1001
       order: [['id', 'DESC']]
     })
 
@@ -142,7 +674,8 @@ router.get('/myCoursesActive', isAuthenticated, async (req, res) => {
     const userEnrollments = await models.Enrollment.findAll({
       where: {
         orderId: orderIds,
-        courseId: filteredCourses.map(course => course.id)
+        courseId: filteredCourses.map(course => course.id),
+        status: 1
       }
     })
 
@@ -153,7 +686,6 @@ router.get('/myCoursesActive', isAuthenticated, async (req, res) => {
     const dataAfterSearch = applyFilters(dataFromDatabase, searchCondition, startDate, endDate, categoryCondition)
     const dataOfCurrentWindow = paginateData(dataAfterSearch, size, page)
 
-    logInfo(req, dataOfCurrentWindow)
     res.json({
       page: Number(page),
       size: Number(size),
@@ -161,7 +693,6 @@ router.get('/myCoursesActive', isAuthenticated, async (req, res) => {
       data: dataOfCurrentWindow
     })
   } catch (error) {
-    logError(req, error)
     console.log(error)
     res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách khóa học.' })
   }
@@ -183,18 +714,18 @@ router.get('/myCourses', isAuthenticated, async (req, res) => {
     const [allCourses, allUsers, orders, categoryCourse, enrollmentCounts, lessonCounts] = await Promise.all([
       models.Course.findAll(),
       models.User.findAll(),
-      models.Order.findAll({ where: { userId: loginedUserId }, attributes: ['id'] }),
+      models.Order.findAll({ where: { userId: loginedUserId, status: 1 }, attributes: ['id'] }), // Fix_1001
       getCourseCategory(),
-      models.Enrollment.count({ group: ['courseId'] }),
+      models.Enrollment.count({ where: { status: 1 }, group: ['courseId'] }), // Đếm số lượng Enrollment với status là 1 // Fix_1001
       fetchLessonCounts()
     ])
 
     // Lấy danh sách orderId từ orders
     const orderIds = orders.map(order => order.id)
 
-    // Truy vấn tất cả các Enrollment bằng orderIds
+    // Truy vấn tất cả các Enrollment bằng orderIds và kiểm tra status
     const enrollments = await models.Enrollment.findAll({
-      where: { orderId: orderIds },
+      where: { orderId: orderIds, status: 1 },
       order: [['id', 'DESC']]
     })
 
@@ -208,18 +739,18 @@ router.get('/myCourses', isAuthenticated, async (req, res) => {
     const userEnrollments = await models.Enrollment.findAll({
       where: {
         orderId: orderIds,
-        courseId: filteredCourses.map(course => course.id)
+        courseId: filteredCourses.map(course => course.id), // Fix_1001
+        status: 1 // Fix_1001
       }
     })
 
     const courseProgressCountsObject = await fetchCourseProgressCounts(userEnrollments)
-
+    // chỗ này sẽ quyết định status là true hay false dựa vào việc đếm số bài học đã hoàn thành và số bài học trong khóa học chứ không dựa vào cột status trong bảng Enrollment // Fix_1001
     const dataFromDatabase = transformCourseData(filteredCourses, allUsers, categoryCourse, enrollmentCountsObject, lessonCountsObject, courseProgressCountsObject)
 
     const dataAfterSearch = applyFilters(dataFromDatabase, searchCondition, startDate, endDate, categoryCondition)
     const dataOfCurrentWindow = paginateData(dataAfterSearch, size, page)
 
-    logInfo(req, dataOfCurrentWindow)
     res.json({
       page: Number(page),
       size: Number(size),
@@ -227,7 +758,6 @@ router.get('/myCourses', isAuthenticated, async (req, res) => {
       data: dataOfCurrentWindow
     })
   } catch (error) {
-    logError(req, error)
     console.log(error)
     res.status(500).json({ message: 'Đã xảy ra lỗi khi lấy danh sách khóa học.' })
   }
@@ -236,7 +766,7 @@ router.get('/myCourses', isAuthenticated, async (req, res) => {
 
 // trang home page
 // đã fix
-router.get('/getNewCourse', isAuthenticated, async (req, res) => {
+router.get('/getNewCourse', async (req, res) => {
   try {
     const {
       page = '1',
@@ -255,7 +785,8 @@ router.get('/getNewCourse', isAuthenticated, async (req, res) => {
     const listUsers = await models.User.findAll()
     const categoryCourse = await getCourseCategory()
     const enrollmentCounts = await models.Enrollment.count({
-      group: ['courseId']
+      group: ['courseId'], // Fix_1001
+      where: { status: 1 } // Check status of enrollment // Fix_1001
     })
 
     const enrollmentCountsObject = enrollmentCounts.reduce((obj, count) => {
@@ -304,16 +835,6 @@ router.get('/getNewCourse', isAuthenticated, async (req, res) => {
       createdAt: course.createdAt
     }))
 
-    // Logging and response
-    infoLogger.info({
-      message: `Accessed ${req.path}`,
-      method: req.method,
-      endpoint: req.path,
-      request: req.query,
-      response: dataFromDatabase,
-      user: req.user.id
-    })
-
     const totalRecords = await models.Course.count() // total number of courses in the database
 
     res.json({
@@ -324,13 +845,12 @@ router.get('/getNewCourse', isAuthenticated, async (req, res) => {
     })
   } catch (error) {
     console.log(error)
-    logError(req, error)
     res.status(500).json({ message: jsonError })
   }
 })
 
 // đã fix - v2 fix
-router.get('/', isAuthenticated, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const {
       page = '1',
@@ -358,6 +878,7 @@ router.get('/', isAuthenticated, async (req, res) => {
     if (categoryCondition && categoryCondition !== 'all') {
       searchConditions.where.categoryCourseId = categoryCondition
     }
+
     // Fetch the total count of courses with filtering conditions
     const totalRecords = await models.Course.count(searchConditions)
 
@@ -377,7 +898,8 @@ router.get('/', isAuthenticated, async (req, res) => {
       where: {
         rating: {
           [Op.ne]: null // Chỉ lấy các bản ghi có rating khác null
-        }
+        },
+        status: 1 // Check status of enrollment // Fix_1001
       },
       group: ['courseId']
     })
@@ -393,7 +915,8 @@ router.get('/', isAuthenticated, async (req, res) => {
     const listUsers = await models.User.findAll()
     const categoryCourse = await getCourseCategory()
     const enrollmentCounts = await models.Enrollment.count({
-      group: ['courseId']
+      group: ['courseId'],
+      where: { status: 1 } // Check status of enrollment // Fix_1001
     })
     const enrollmentCountsObject = enrollmentCounts.reduce((obj, count) => {
       obj[count.courseId] = count.count
@@ -455,14 +978,6 @@ router.get('/', isAuthenticated, async (req, res) => {
     const dataAfterSearch = applyCourseCategoryNameSearch(categoryCondition, dataAfterNameAndDateSearch)
     console.log(dataAfterSearch.length, 'dataAfterSearch')
     console.log(totalRecords, 'totalRecords')
-    infoLogger.info({
-      message: `Accessed ${req.path}`,
-      method: req.method,
-      endpoint: req.path,
-      request: req.query,
-      response: dataAfterSearch,
-      user: req.user.id
-    })
     res.json({
       page: Number(page),
       size: Number(size),
@@ -471,7 +986,6 @@ router.get('/', isAuthenticated, async (req, res) => {
     })
   } catch (error) {
     console.log(error)
-    logError(req, error)
     res.status(500).json({ message: jsonError })
   }
 })
@@ -485,27 +999,18 @@ function applyDateRangeSearch (startDate, endDate, inputData) {
 }
 
 // đã check - không cần fix
-router.get('/course-category', isAuthenticated, async (req, res) => {
+router.get('/course-category', async (req, res) => {
   try {
     const courseCategory = await getCourseCategory()
-    infoLogger.info({
-      message: `Accessed ${req.path}`,
-      method: req.method,
-      endpoint: req.path,
-      request: req.query,
-      response: courseCategory,
-      user: req.user.id
-    })
     res.json(courseCategory)
   } catch (error) {
-    logError(req, error)
     console.log(error)
     res.status(500).json({ message: jsonError })
   }
 })
 
 // trang course detail
-router.get('/:id', isAuthenticated, async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params
     const course = await models.Course.findByPk(id)
@@ -517,17 +1022,8 @@ router.get('/:id', isAuthenticated, async (req, res) => {
     if (!course) {
       return res.status(404).json({ message: 'Course not found' })
     }
-    infoLogger.info({
-      message: `Accessed ${req.path}`,
-      method: req.method,
-      endpoint: req.path,
-      request: req.params,
-      response: course,
-      user: req.user.id
-    })
     res.json(response)
   } catch (error) {
-    logError(req, error)
     res.status(500).json({ message: 'Failed to fetch course', error: error.message })
   }
 })
@@ -572,16 +1068,17 @@ async function getCourseCategory () {
 
 // -----------------------------------------------trang my course ----------------------------
 async function getEnrollmentByUserId (userId) {
-  // Lấy danh sách các order của người dùng
+  // Lấy danh sách các order của người dùng và kiểm tra status
   const orders = await models.Order.findAll({
-    where: { userId },
+    where: { userId, status: 1 }, // Fix_1001
     attributes: ['id']
   })
 
-  // Lấy danh sách enrollment từ các order của người dùng
+  // Lấy danh sách enrollment từ các order của người dùng và kiểm tra status
   return await models.Enrollment.findAll({
     where: {
-      orderId: orders.map(order => order.id)
+      orderId: orders.map(order => order.id), // Fix_1001
+      status: 1 // Fix_1001
     },
     order: [['id', 'DESC']]
   })
@@ -639,7 +1136,7 @@ async function fetchCourseProgressCounts (enrollments) {
     return obj
   }, {})
 }
-
+// chỗ này sẽ quyết định status là true hay false dựa vào việc đếm số bài học đã hoàn thành và số bài học trong khóa học chứ không dựa vào cột status trong bảng Enrollment // Fix_1000
 function transformCourseData (courses, users, categories, enrollmentCounts, lessonCounts, progressCounts) {
   return courses.map((course) => {
     const lessonCount = lessonCounts[course.id] || 0
@@ -663,7 +1160,7 @@ function transformCourseData (courses, users, categories, enrollmentCounts, less
       lessonCount,
       createdAt: course.createdAt,
       doneCount,
-      status: doneCount === lessonCount,
+      status: doneCount === lessonCount, // Kiểm tra xem số bài học đã hoàn thành có bằng số bài học trong khóa học không // Fix_1000
       lastUpdate
     }
   })
@@ -742,4 +1239,103 @@ function paginateData (data, size, page) {
   return data.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
 }
 
+// Kiem tra gia tri trươc khi yeu cau public
+async function isCourseValidForStatus (courseId) {
+  try {
+    const course = await models.Course.findByPk(Number(courseId), {
+      attributes: ['id', 'price', 'videoLocationPath', 'locationPath', 'prepare', 'description'],
+      include: [
+        {
+          model: models.CategoryLession,
+          attributes: ['id']
+        }
+      ]
+    })
+
+    if (!course) {
+      return false
+    }
+
+    if (!course.price || !course.videoLocationPath || !course.locationPath) {
+      return false
+    }
+    console.log('Step 1')
+
+    if (
+      !course.prepare ||
+      typeof course.prepare !== 'string' || course.prepare.trim() === '' ||
+      !course.description || typeof course.description !== 'string' || course.description.trim() === ''
+    ) {
+      return false
+    }
+    console.log('Step 2')
+
+    const categoryLessions = course.CategoryLessions || []
+    if (categoryLessions.length === 0) {
+      return false
+    }
+    console.log('Step 3')
+
+    for (const category of categoryLessions) {
+      const studyItems = await models.StudyItem.findAll({
+        where: { lessionCategoryId: category.id },
+        include: [
+          {
+            model: models.Exam,
+            where: { studyItemId: sequelize.col('StudyItem.id') },
+            required: false
+          },
+          {
+            model: models.Lession,
+            where: { studyItemId: sequelize.col('StudyItem.id') },
+            required: false
+          }
+        ]
+      })
+
+      if (studyItems.length === 0) {
+        return false
+      }
+      console.log('Step 4')
+
+      for (const studyItem of studyItems) {
+        if (studyItem.Lession && !studyItem.Lession.locationPath) {
+          return false
+        }
+        console.log('Step 5')
+
+        if (studyItem.Exam) {
+          const questionCount = await models.Question.count({
+            where: { examId: studyItem.id }
+          })
+
+          if (questionCount === 0) {
+            return false
+          }
+          console.log('Step 6')
+        }
+      }
+    }
+
+    return true
+  } catch (error) {
+    console.error('Validation error:', error)
+    return false
+  }
+}
+
 module.exports = router
+
+router.get('/get/:courseId', isAuthenticated, async (req, res) => {
+  try {
+    const { courseId } = req.params
+    const categories = await models.StudyItem.findAll({
+      where: { courseId },
+      order: [['order', 'ASC']]
+    })
+
+    res.status(200).json(categories)
+  } catch (error) {
+    res.status(500).json({ error: jsonError })
+  }
+})

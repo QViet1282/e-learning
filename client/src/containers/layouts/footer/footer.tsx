@@ -51,7 +51,7 @@ const Footer = () => {
 
          </div>
          <div className="text-center mt-8 border-t border-gray-700 pt-4">
-           &copy; 2024 Your Company Name. {t('footer.rights_reserved')}
+           &copy; 2024 VietCode. {t('footer.rights_reserved')}
          </div>
        </footer>
   )
