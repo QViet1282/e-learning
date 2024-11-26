@@ -212,13 +212,6 @@ router.put('/acceptOrDeclineCourseStatus/:courseId', isAuthenticated, async (req
     console.log(`Tổng thời gian khóa học ${courseId}: ${totalDuration} giây`)
     let course
     if (resuft) {
-      await models.Course.update({ status, durationInMinute: totalDuration }, {
-        where: {
-          id: courseId
-        },
-        transaction
-      })
-
       course = await models.Course.findByPk(courseId, {
         attributes: ['id', 'status'],
         include: [
@@ -239,6 +232,15 @@ router.put('/acceptOrDeclineCourseStatus/:courseId', isAuthenticated, async (req
       if (!course) {
         return res.status(404).json({ error: 'Course not found' })
       }
+
+      const startDate = course.status === 1 ? Date.now() : null
+
+      await models.Course.update({ status, durationInMinute: totalDuration, startDate }, {
+        where: {
+          id: courseId
+        },
+        transaction
+      })
 
       // Cập nhật status các StudyItems
       if (course.CategoryLessions && Array.isArray(course.CategoryLessions)) {

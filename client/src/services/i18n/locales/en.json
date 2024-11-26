@@ -517,7 +517,7 @@
         "DELETE_ERROR": "Delete message failed, please try again!",
         "SERVER_ERROR": "An error occurred, please try again later",
         "NO_NOTIFICATION_ERROR": "No notification found to delete!",
-        "TITLE_AND_CONTENT_REQUIRED": "Title and content cannot be blank!"
+        "TITLE_AND_CONTENT_REQUIRED": "Title and message cannot be blank!"
       },
       "createModal": {
         "title": "Create New Notification",
