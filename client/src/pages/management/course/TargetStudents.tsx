@@ -7,6 +7,7 @@ import { IconButton } from '@mui/material'
 import { Add, Delete, DragIndicator } from '@mui/icons-material'
 import { editCourseItem } from 'api/put/put.interface'
 import { editCourse } from 'api/put/put.api'
+import { toast } from 'react-toastify'
 
 interface TargetStudentsProps {
   courseId?: number
@@ -27,7 +28,6 @@ const TargetStudents: React.FC<TargetStudentsProps> = ({
   const [preparations, setPreparations] = useState<string[]>(prepare.split('.').filter(Boolean))
 
   useEffect(() => {
-    // Tách các chuỗi và loại bỏ các dòng trống
     const updatedDescriptions = description.split('.').filter(filterValidLines)
     const updatedPreparations = prepare.split('.').filter(filterValidLines)
 
@@ -42,7 +42,7 @@ const TargetStudents: React.FC<TargetStudentsProps> = ({
   const handleAddItemAt = (index: number, setState: React.Dispatch<React.SetStateAction<string[]>>) => {
     setState((prev) => {
       const newState = [...prev]
-      newState.splice(index + 1, 0, '') // Thêm dòng trống mới sau dòng hiện tại
+      newState.splice(index + 1, 0, '')
       return newState
     })
   }
@@ -113,7 +113,7 @@ const TargetStudents: React.FC<TargetStudentsProps> = ({
             <input
               readOnly
               value="+ Thêm mục mới"
-              className="w-full h-9 px-2 text-sm text-gray-500 border-2 border-dashed border-gray-300 cursor-pointer"
+              className="w-full h-9 px-2 text-sm text-gray-500 border-2 border-dashed border-gray-300 cursor-pointer focus:outline-none"
               onClick={() => handleAddItemAt(items.length - 1, setState)}
             />
           </div>
@@ -127,7 +127,11 @@ const TargetStudents: React.FC<TargetStudentsProps> = ({
     const validPreparations = preparations.filter(filterValidLines).join('.')
     console.log('Saved Descriptions:', validDescriptions)
     console.log('Saved Preparations:', validPreparations)
-    await editCourse(courseId, { ...updatedCourse, description: validDescriptions, prepare: validPreparations })
+    await editCourse(courseId, { ...updatedCourse, description: validDescriptions, prepare: validPreparations }).then(() => {
+      toast.success('Cập nhật thông tin khóa học thành công!')
+    }).catch(() => {
+      toast.error('Cập nhật thông tin khóa học thất bại. Vui lòng thử lại!')
+    })
     void fetchCourse()
   }
 
@@ -137,7 +141,7 @@ const TargetStudents: React.FC<TargetStudentsProps> = ({
         <div className="text-3xl font-bold p-2">Học viên mục tiêu</div>
       </div>
 
-      <div className="w-full shadow-2xl mt-6 bg-slate-100 px-8 py-4 rounded-lg">
+      <div className="w-full shadow-2xl mt-6 bg-gradient-to-r from-gray-50 to-gray-100 md:px-8 px-4 py-4 rounded-lg">
         <div className="text-lg font-light font-sans my-6">Các mô tả sau sẽ hiển thị công khai trên Trang tổng quan khóa học của bạn và sẽ tác động trực tiếp việc một học viên quyết định khóa học đó có phù hợp với họ hay không.</div>
         <div className="text-xl font-semibold mb-4">Học viên sẽ học được gì trong khóa học của bạn?</div>
         <DragDropContext onDragEnd={(result) => handleDragEnd(result, descriptions, setDescriptions)}>
@@ -151,9 +155,9 @@ const TargetStudents: React.FC<TargetStudentsProps> = ({
 
         <button
           onClick={handleSave}
-          className="mt-8 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+          className="hover:bg-teal-400 bg-teal-500 text-white px-4 py-2 rounded-md flex items-center gap-2 mt-4"
         >
-          Lưu
+          Lưu cập nhật
         </button>
       </div>
     </div>

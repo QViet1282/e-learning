@@ -115,7 +115,7 @@ const ExamDetail: React.FC<DetailProps> = ({ studyItem, load, userId }): JSX.Ele
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        className="flex items-center group w-full justify-between hover:border-teal-600 hover:border-2 hover:p-1"
+                        className="flex items-center group w-full justify-between hover:p-1"
                       >
                         <div className="flex items-center flex-wrap">
                           <div className='font-medium text-sm w-auto'>
@@ -189,7 +189,7 @@ const ExamDetail: React.FC<DetailProps> = ({ studyItem, load, userId }): JSX.Ele
           </div>
         ) : (
           <div
-            className="cursor-pointer flex justify-center text-white bg-teal-500 w-32 p-1 mt-2"
+            className="cursor-pointer flex justify-center text-white bg-teal-500 w-32 py-1.5 mt-2 rounded-md active:scale-95"
             onClick={() => setIsAddingQuestion(true)}
           >
             Thêm câu hỏi

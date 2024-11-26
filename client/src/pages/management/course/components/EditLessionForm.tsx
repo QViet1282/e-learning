@@ -17,6 +17,7 @@ import { editLession } from 'api/put/put.interface'
 import { editStudyItemAndLession } from 'api/put/put.api'
 import { Document, Page } from 'react-pdf'
 import { QuillEditor } from './QuillEditor'
+import { toast } from 'react-toastify'
 
 interface EditExamFormProps {
   userId: number
@@ -109,21 +110,25 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
   }
 
   const handleUpdateLesson = async (): Promise<void> => {
-    try {
-      const payload: editLession = {
-        name: lesson.name,
-        description: lesson.description,
-        uploadedBy: userId,
-        type: lesson.Lession?.type !== '' ? lesson.Lession?.type : undefined,
-        locationPath: lesson.Lession?.locationPath
-      }
-      const response = await editStudyItemAndLession(studyItem.id, payload)
-      await fetchStudyItems() // Lấy lại danh sách bài học
-      console.log('Kết quả cập nhật bài học', response.status)
-    } catch (error) {
-      console.error('Error updating lesson:', error)
+    if (lesson.name.trim() === '') {
+      toast.error('Vui lòng nhập tên bài học hợp lệ!')
+      return
     }
-    setIsEditingLession(false) // Đóng form chỉnh sửa
+
+    const payload: editLession = {
+      name: lesson.name,
+      description: lesson.description,
+      uploadedBy: userId,
+      type: lesson.Lession?.type !== '' ? lesson.Lession?.type : undefined,
+      locationPath: lesson.Lession?.locationPath
+    }
+    await editStudyItemAndLession(studyItem.id, payload).then(async () => {
+      toast.success('Lưu thành công')
+      await fetchStudyItems()
+      setIsEditingLession(false)
+    }).catch(() => {
+      toast.error('Lỗi trong quá trình tạo. Xin hãy thử lại!')
+    })
   }
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }): void => {
@@ -159,39 +164,39 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
           theme='snow'
           value={lesson.description}
           onChange={(value) => setLesson({ ...lesson, description: value })}
-          // modules={modules}
-          // className='w-full pb-0 md:h-auto'
+        // modules={modules}
+        // className='w-full pb-0 md:h-auto'
         />
       </div>
 
       <p className='mx-2'>Nội dung chính</p>
       <div className="p-2 border-2 rounded">
-      {!isUploadedUrlValid(uploadedUrl) && (
-                    <div className='flex flex-wrap gap-2'>
-                        <div className='w-28 border-2 bg-teal-500 rounded-md p-2 items-center text-center hover:bg-teal-400'>
-                            <label className="cursor-pointer text-white">
-                                Thêm video
-                                <input
-                                    type="file"
-                                    accept="video/*"
-                                    className="hidden"
-                                    onChange={handleFileChange}
-                                />
-                            </label>
-                        </div>
-                        <div className='w-28 border-2 bg-teal-500 rounded-md p-2 items-center text-center hover:bg-teal-400'>
-                            <label className="cursor-pointer text-white">
-                                Thêm PDF
-                                <input
-                                    type="file"
-                                    accept="application/pdf"
-                                    className="hidden"
-                                    onChange={handleFileChange}
-                                />
-                            </label>
-                        </div>
-                    </div>
-      )}
+        {!isUploadedUrlValid(uploadedUrl) && (
+          <div className='flex flex-wrap gap-2'>
+            <div className='w-28 border-2 bg-teal-500 rounded-md p-2 items-center text-center hover:bg-teal-400'>
+              <label className="cursor-pointer text-white">
+                Thêm video
+                <input
+                  type="file"
+                  accept="video/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
+            </div>
+            <div className='w-28 border-2 bg-teal-500 rounded-md p-2 items-center text-center hover:bg-teal-400'>
+              <label className="cursor-pointer text-white">
+                Thêm PDF
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+              </label>
+            </div>
+          </div>
+        )}
 
         {(uploadedUrl.length > 0) && (
           <div className='flex flex-1 flex-wrap gap-2'>
@@ -246,10 +251,12 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
           </div>
         )}
       </div>
-
-      <div className='p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500' onClick={handleUpdateLesson}>
-        Lưu bài học
+      <div className='w-full space-x-2 justify-end flex'>
+        <div className='p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95' onClick={handleUpdateLesson}>
+          Lưu bài học
+        </div>
       </div>
+
     </div>
   )
 }

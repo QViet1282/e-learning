@@ -61,7 +61,6 @@ router.post('/createStudyItemAndLession', isAuthenticated, async (req, res) => {
       })
     }
 
-    // Tìm StudyItem có order lớn nhất
     const maxOrderItem = await models.StudyItem.findOne({
       where: { lessionCategoryId },
       order: [['order', 'DESC']],
@@ -70,7 +69,6 @@ router.post('/createStudyItemAndLession', isAuthenticated, async (req, res) => {
 
     const newOrder = maxOrderItem ? maxOrderItem.order + 1 : 1
 
-    // Tạo StudyItem mới
     const newStudyItem = await models.StudyItem.create({
       lessionCategoryId,
       name,
@@ -80,7 +78,6 @@ router.post('/createStudyItemAndLession', isAuthenticated, async (req, res) => {
       status: 0
     }, { transaction })
 
-    // Tạo Lession mới
     const newLession = await models.Lession.create({
       studyItemId: newStudyItem.id,
       type: type || null,
@@ -89,13 +86,11 @@ router.post('/createStudyItemAndLession', isAuthenticated, async (req, res) => {
       durationInSecond
     }, { transaction })
 
-    // Ghi log và commit transaction
     logInfo(req, { newStudyItem, newLession })
     await transaction.commit()
 
     return res.status(201).json({ newStudyItem, newLession })
   } catch (error) {
-    // Rollback transaction nếu có lỗi
     await transaction.rollback()
     logError(req, error)
     return res.status(500).json({ error: 'Internal server error' })
@@ -119,7 +114,6 @@ router.post('/createStudyItemAndExam', isAuthenticated, async (req, res) => {
 
     console.log('Request body:', req.body)
 
-    // Kiểm tra dữ liệu đầu vào
     if (!lessionCategoryId || !name || !itemType) {
       return res.status(400).json({
         error: 'Missing required fields: lessionCategoryId, name, or itemType'
@@ -132,7 +126,6 @@ router.post('/createStudyItemAndExam', isAuthenticated, async (req, res) => {
       })
     }
 
-    // Tìm StudyItem có order lớn nhất trong category
     const maxOrderItem = await models.StudyItem.findOne({
       where: { lessionCategoryId },
       order: [['order', 'DESC']],
@@ -141,7 +134,6 @@ router.post('/createStudyItemAndExam', isAuthenticated, async (req, res) => {
 
     const newOrder = maxOrderItem ? maxOrderItem.order + 1 : 1
 
-    // Tạo StudyItem mới
     const newStudyItem = await models.StudyItem.create({
       lessionCategoryId,
       name,
@@ -151,7 +143,6 @@ router.post('/createStudyItemAndExam', isAuthenticated, async (req, res) => {
       status: 0
     }, { transaction })
 
-    // Tạo Exam mới
     const newExam = await models.Exam.create({
       studyItemId: newStudyItem.id,
       durationInMinute: durationInMinute || 60,
@@ -160,13 +151,11 @@ router.post('/createStudyItemAndExam', isAuthenticated, async (req, res) => {
       createrId
     }, { transaction })
 
-    // Ghi log và commit transaction
     logInfo(req, { newStudyItem, newExam })
     await transaction.commit()
 
     return res.status(201).json({ newStudyItem, newExam })
   } catch (error) {
-    // Rollback transaction nếu có lỗi xảy ra
     await transaction.rollback()
     logError(req, error)
     return res.status(500).json({ error: 'Internal server error' })
@@ -302,9 +291,8 @@ router.delete('/deleteStudyItem/:id', isAuthenticated, async (req, res) => {
 router.get('/user-answer-history/:courseId', async (req, res) => {
   try {
     const { courseId } = req.params
-    const { page = 1, limit = 10, search = '' } = req.query // Lấy giá trị page, limit và search từ query params
+    const { page = 1, limit = 10, search = '' } = req.query
 
-    // Lấy danh sách examId theo courseId
     const examIds = await getExamIdsByCourseId(courseId)
 
     if (!examIds || examIds.length === 0) {
@@ -313,13 +301,10 @@ router.get('/user-answer-history/:courseId', async (req, res) => {
 
     const examIdList = examIds
 
-    // Tính toán offset cho phân trang
     const offset = (page - 1) * limit
 
-    // Tách từ khóa tìm kiếm
     const searchTerms = search.split(' ').filter(term => term.trim() !== '')
 
-    // Tạo điều kiện tìm kiếm
     const searchConditions = searchTerms.length > 0
       ? `AND (${searchTerms.map((term, index) => `
           e.name LIKE :search${index} OR 
@@ -330,7 +315,6 @@ router.get('/user-answer-history/:courseId', async (req, res) => {
         `).join(' OR ')})`
       : ''
 
-    // Bước 3: Lấy dữ liệu UserAnswerHistory với JOIN bảng Users và StudyItems
     const groupedData = await sequelize.query(
       `
       SELECT 
@@ -342,12 +326,12 @@ router.get('/user-answer-history/:courseId', async (req, res) => {
         u.firstName, 
         u.lastName, 
         COUNT(uah.questionId) AS questionCount,
-        COUNT(*) OVER() AS totalCount -- Tính tổng số bản ghi trong cùng một truy vấn
+        COUNT(*) OVER() AS totalCount
       FROM users_answer_history uah
       JOIN users u ON u.id = uah.userId
       JOIN study_items e ON e.id = uah.examId 
       WHERE uah.examId IN (:examIdList)
-      ${searchConditions} -- Thêm điều kiện tìm kiếm
+      ${searchConditions}
       GROUP BY 
         uah.examId, 
         e.name, 
@@ -364,7 +348,7 @@ router.get('/user-answer-history/:courseId', async (req, res) => {
           limit: parseInt(limit),
           offset: parseInt(offset),
           ...searchTerms.reduce((acc, term, index) => {
-            acc[`search${index}`] = `%${term}%` // Thêm các từ khóa vào replacements
+            acc[`search${index}`] = `%${term}%`
             return acc
           }, {})
         },
@@ -372,11 +356,9 @@ router.get('/user-answer-history/:courseId', async (req, res) => {
       }
     )
 
-    // Bước 4: Tính tổng số bản ghi và tổng số trang
-    const totalCount = groupedData.length > 0 ? groupedData[0].totalCount : 0 // Lấy tổng số bản ghi từ kết quả
-    const totalPages = Math.ceil(totalCount / limit) // Tính tổng số trang
+    const totalCount = groupedData.length > 0 ? groupedData[0].totalCount : 0
+    const totalPages = Math.ceil(totalCount / limit)
 
-    // Bước 5: Tạo kết quả trả về với dữ liệu đã lấy được
     const result = groupedData.map((item) => ({
       examName: item.examName,
       attempt: item.attempt,
@@ -386,10 +368,10 @@ router.get('/user-answer-history/:courseId', async (req, res) => {
     }))
 
     res.json({
-      totalPages, // Trả về tổng số trang
-      currentPage: page, // Trả về trang hiện tại
-      totalItems: totalCount, // Trả về tổng số bản ghi
-      items: result // Trả về danh sách dữ liệu
+      totalPages,
+      currentPage: page,
+      totalItems: totalCount,
+      items: result
     })
   } catch (error) {
     console.error('Error fetching grouped data:', error)
@@ -401,7 +383,7 @@ const getExamIdsByCourseId = async (courseId) => {
   try {
     const examIds = await models.Exam.findAll({
       attributes: [
-        'studyItemId', // Đảm bảo rằng đây là cột bạn muốn lấy
+        'studyItemId',
         [sequelize.fn('COUNT', sequelize.col('studyItemId')), 'examCount']
       ],
       where: {
@@ -415,14 +397,14 @@ const getExamIdsByCourseId = async (courseId) => {
           )`)
         }
       },
-      group: ['studyItemId'] // Nhóm theo studyItemId
+      group: ['studyItemId']
     })
 
-    const examIdList = examIds.map(exam => exam.studyItemId) // Thay đổi ở đây nếu cần
-    return examIdList // Trả về mảng exam ID
+    const examIdList = examIds.map(exam => exam.studyItemId)
+    return examIdList
   } catch (error) {
     console.error('Error fetching exam IDs:', error)
-    throw error // Ném lại lỗi để xử lý ở nơi gọi hàm
+    throw error
   }
 }
 

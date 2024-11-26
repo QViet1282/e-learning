@@ -16,6 +16,7 @@ import KeyboardReturnOutlinedIcon from '@mui/icons-material/KeyboardReturnOutlin
 import logoImg from '../assets/images/navbar/logo.png'
 import notiImg from '../assets/images/sidebar/notification.png'
 import userImg from '../assets/images/sidebar/group.png'
+import payoutImg from '../assets/images/sidebar/payout.png'
 import courseImg from '../assets/images/sidebar/catalogue.png'
 import statisticalImg from '../assets/images/sidebar/statistics.png'
 import settingImg from '../assets/images/sidebar/settings.png'
@@ -113,7 +114,7 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
   const isAdmin = data?.toUpperCase() === 'ADMIN'
   const isTeacher = data?.toUpperCase() === 'TEACHER'
 
-  const pathsToHide = ['/management', '/management/course', '/management/notification', '/management/statistical', '/management/user', '/management/detail-course', '/settings/profile', 'dashboard/lectuter']
+  const pathsToHide = ['/management', '/management/course', '/management/notification', '/management/statistical', '/management/user', '/management/payout', '/management/detail-course', '/settings/profile', 'dashboard/lectuter']
   const shouldShowDefaultLinks = !pathsToHide.some(path => pathname.includes(path))
   const isUser = data?.toUpperCase() === 'USER'
   const isOnProfilePage = pathname === '/settings/profile'
@@ -508,6 +509,22 @@ const Sidebar: React.FC<SidebarProps> = ({ sidebarOpen, setSidebarOpen }) => {
                             <img src={userImg} alt="user" className="w-6 h-6" />
                              <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
                                {t('sidebar.management_user')}
+                             </span>
+                           </div>
+                         </NavLink>
+                       </li>
+                       {/* /management/payout */}
+                       <li className={`px-3 py-2 rounded-sm mb-0.5 last:mb-0 ${pathname.includes('management/payout') && 'bg-teal-300 text-blue-500'}`}>
+                         <NavLink
+                           end
+                           to="/management/payout"
+                           className={`block ${pathname.includes('management/payout') ? 'text-white' : 'text-gray-500'} hover:text-neutral-400 truncate transition duration-150 ${pathname.includes('management/payout') && 'hover:text-slate-200'}`}
+                           onClick={() => handleLinkClick('/management/payout')}
+                         >
+                           <div className="flex items-center">
+                            <img src={payoutImg} alt="user" className="w-6 h-6" />
+                             <span className="text-sm font-medium ml-3 lg:opacity-0 lg:sidebar-expanded:opacity-100 2xl:opacity-100 duration-200">
+                               {t('sidebar.management_payout')}
                              </span>
                            </div>
                          </NavLink>

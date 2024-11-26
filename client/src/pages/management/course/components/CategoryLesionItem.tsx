@@ -32,6 +32,9 @@ import AddLessionForm from './AddLessionForm'
 import EditLessionForm from './EditLessionForm'
 import EditExamForm from './EditExamForm'
 import { deleteCategoryLession, deleteStudyItem } from 'api/delete/delete.api'
+import { useTranslation } from 'react-i18next'
+import DeleteModal from 'pages/management/component/DeleteModal'
+import { toast } from 'react-toastify'
 
 Quill.register('modules/imageUploader', ImageUploader)
 Quill.register('modules/resize', QuillResizeImage)
@@ -52,6 +55,7 @@ interface CategoryItemProps {
 }
 
 const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, userId, name, order, courseStatus, dragHandleProps, fetchCategories }) => {
+  const { t } = useTranslation()
   const [openLessonIds, setOpenLessonIds] = useState<number[]>([])
   const [openLoadIds, setOpenLoadIds] = useState<number[]>([])
   const [studyItems, setStudyItems] = useState<StudyItem[]>([])
@@ -63,9 +67,21 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
   const [openModalDeleteLessionCategory, setOpenModalDeleteLessionCategory] = useState(false)
   const [newNameCategory, setNewNameCategory] = useState<string>(name)
   const [nameCategory, setNameCategory] = useState<string>(name)
+  const isPublic = courseStatus !== 0
+  const [isSomeZero, setIsSomeZero] = useState(false)
+  const [isAllZero, setIsAllZero] = useState(false)
+
   useEffect(() => {
     void fetchStudyItems()
   }, [lessionCategoryId])
+
+  useEffect(() => {
+    const someZero = studyItems.some(item => item.status === 0)
+    const allZero = studyItems.every(item => item.status === 0)
+
+    setIsSomeZero(someZero)
+    setIsAllZero(allZero)
+  }, [studyItems])
 
   const fetchStudyItems = async (): Promise<void> => {
     try {
@@ -120,20 +136,22 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
   }
 
   const handleSaveCategoryLession = async (): Promise<void> => {
+    if (newNameCategory.trim() === '') {
+      toast.error('Tên danh mục không được để trống')
+      return
+    }
+
     const payload = {
       name: newNameCategory,
       order: null
     }
-    try {
-      const response = await editCategoryLession(lessionCategoryId, payload)
-      if (response.status === 200) {
-        setOpenModalEditCategoryLession(false)
-        setNameCategory(newNameCategory)
-      }
-    } catch (error) {
-      setNewNameCategory(nameCategory)
-      console.error('Error edit category:', error)
-    }
+    await editCategoryLession(lessionCategoryId, payload).then(() => {
+      toast.success('Tạo thành công')
+      setOpenModalEditCategoryLession(false)
+      setNameCategory(newNameCategory)
+    }).catch(() => {
+      toast.error('Lỗi trong quá trình tạo. Xin hãy thử lại!')
+    })
   }
 
   // Xoa categorylession
@@ -204,7 +222,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
   console.log(studyItems)
 
   return (
-    <div key={lessionCategoryId} className="px-4 py-2 my-1 flex flex-col bg-slate-100 shadow-2xl rounded-lg">
+    <div key={lessionCategoryId} className="px-4 py-2 my-1 flex flex-col bg-gradient-to-r from-gray-50 to-gray-100 shadow-lg rounded-lg">
       <div className="flex items-center justify-between group">
         <div className="flex items-center w-4/5">
           <div className="text-xl font-medium leading-6 tracking-wide mr-2 whitespace-nowrap overflow-hidden break-words text-ellipsis max-w-full">
@@ -214,40 +232,31 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
             <IconButton onClick={() => setOpenModalEditCategoryLession(true)}>
               <EditTwoTone fontSize='small' className='text-teal-600' />
             </IconButton>
-            <IconButton onClick={() => setOpenModalDeleteLessionCategory(true)}>
+            {!isPublic && <IconButton onClick={() => setOpenModalDeleteLessionCategory(true)}>
               <DeleteOutline fontSize='small' className='text-teal-600' />
-            </IconButton>
-            <Modal open={openModalDeleteLessionCategory} onClose={() => setOpenModalDeleteLessionCategory(false)} className='flex justify-center items-center'>
-              <div className="flex flex-col justify-center items-center p-6 bg-white rounded-lg shadow-lg max-w-md mx-auto">
-                <h2 className="text-2xl font-semibold mb-2 text-gray-800">Xác nhận xóa</h2>
-                <p className="text-gray-600 text-center mb-4">
-                  Bạn có chắc chắn muốn xóa chương trình giảng dạy này?
-                </p>
-                <div className="flex justify-between mt-4 w-full">
-                  <div
-                    className="p-2 flex-1 cursor-pointer flex justify-center items-center text-lg text-white bg-red-500 rounded-md hover:bg-red-600 transition duration-200"
-                    onClick={() => { void handleDeleteCategoryLession() }}
-                  >
-                    Xóa
-                  </div>
-                  <div
-                    className="p-2 flex-1 cursor-pointer flex justify-center items-center text-lg text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100 transition duration-200 ml-2"
-                    onClick={() => setOpenModalDeleteLessionCategory(false)}
-                  >
-                    Hủy
-                  </div>
-                </div>
-              </div>
-
-            </Modal>
+            </IconButton>}
+            <DeleteModal
+              isOpen={openModalDeleteLessionCategory}
+              onClose={() => setOpenModalDeleteLessionCategory(false)}
+              onDelete={async () => await handleDeleteCategoryLession()}
+              warningText={t('curriculum.warningText')}
+            />
           </div>
         </div>
         <div {...dragHandleProps} style={{ cursor: 'grab' }}>
-          <IconButton style={{ cursor: 'grab' }}>
+          {!isPublic && <IconButton style={{ cursor: 'grab' }}>
+            {/* <DragIndicatorIcon className={`text-teal-600 opacity-0 group-hover:${(isSomeZero && isAllZero) ? 'opacity-100' : (isSomeZero && !isAllZero) ? '' : (!isSomeZero && !isAllZero) ? '' : 'opacity-100'} `} /> */}
             <DragIndicatorIcon className='text-teal-600 opacity-0 group-hover:opacity-100' />
-          </IconButton>
+          </IconButton>}
+
+          {/* {([2, 3, 4, 5, 6, 7].includes(courseStatus)) && (isAllZero || isSomeZero) && (
+                                <IconButton>
+                                  <FiberNewOutlined className='text-teal-600' fontSize='medium' style={{ transform: 'scale(1.5)' }} />
+                                </IconButton>
+                              )} */}
+
           <Modal open={openModalEditCategoryLession} onClose={() => setOpenModalEditCategoryLession(false)} className='flex justify-center items-center'>
-            <div className='flex justify-center items-center md:w-4/12'>
+            <div className='flex justify-center items-center md:w-3/12'>
               <div className="flex flex-col flex-1 p-2 mb-4 relative border-4 gap-3 bg-white">
                 <div className="w-full flex justify-between items-center">
                   <p className='font-bold'>Chỉnh sửa tên chương học</p>
@@ -265,8 +274,10 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
                   style={{ borderWidth: '1px' }}
                   placeholder='Tên chương'
                 />
-                <div className="p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500" onClick={async () => await handleSaveCategoryLession()}>
-                  Lưu
+                <div className='flex justify-end space-x-3'>
+                  <div className="p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95" onClick={async () => await handleSaveCategoryLession()}>
+                    Lưu chương
+                  </div>
                 </div>
               </div>
             </div>
@@ -292,35 +303,20 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
                                 ? <p className='mr-2'>{(studyItem.Lession?.type === 'MP4') ? (<VideoLibraryRounded className='text-teal-600' />) : (studyItem.Lession?.type === 'PDF') ? (<PictureAsPdfRounded className='text-teal-600' />) : (<DisabledByDefaultRounded className='text-red-600' />)} {studyItem.order}. {studyItem.name}</p>
                                 : <p className='mr-2'><QuizRounded className='text-teal-600' /> {studyItem.order}. {studyItem.name}</p>}
                               <div className='flex opacity-0 group-hover:opacity-100'>
-                                <IconButton onClick={() => setSelectedStudyItem(studyItem)}>
-                                  <EditTwoTone className='text-teal-600' fontSize='small' />
-                                </IconButton>
-                                <IconButton onClick={() => setSeletedDeleteStudyItem(studyItem.id ?? null)}>
-                                  <DeleteOutline className='text-teal-600' fontSize='small' />
-                                </IconButton>
-                                <Modal open={seletedDeleteStudyItem === studyItem.id} onClose={() => setSeletedDeleteStudyItem(null)} className='flex justify-center items-center'>
-                                  <div className="flex flex-col justify-center items-center p-6 bg-white rounded-lg shadow-lg max-w-md mx-auto">
-                                    <h2 className="text-2xl font-semibold mb-2 text-gray-800">Xác nhận xóa</h2>
-                                    <p className="text-gray-600 text-center mb-4">
-                                      Bạn có chắc chắn muốn xóa chương trình giảng dạy này?
-                                    </p>
-                                    <div className="flex justify-between mt-4 w-full">
-                                      <div
-                                        className="p-2 flex-1 cursor-pointer flex justify-center items-center text-lg text-white bg-red-500 rounded-md hover:bg-red-600 transition duration-200"
-                                        onClick={() => { void handleDeleteStudyItem() }}
-                                      >
-                                        Xóa
-                                      </div>
-                                      <div
-                                        className="p-2 flex-1 cursor-pointer flex justify-center items-center text-lg text-gray-700 border border-gray-300 rounded-md hover:bg-gray-100 transition duration-200 ml-2"
-                                        onClick={() => setSeletedDeleteStudyItem(null)}
-                                      >
-                                        Hủy
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                </Modal>
+                                {studyItem.status === 0 &&
+                                  <IconButton onClick={() => setSelectedStudyItem(studyItem)}>
+                                    <EditTwoTone className='text-teal-600' fontSize='small' />
+                                  </IconButton>}
+                                {studyItem.status === 0 &&
+                                  <IconButton onClick={() => setSeletedDeleteStudyItem(studyItem.id ?? null)}>
+                                    <DeleteOutline className='text-teal-600' fontSize='small' />
+                                  </IconButton>}
+                                <DeleteModal
+                                  isOpen={seletedDeleteStudyItem === studyItem.id}
+                                  onClose={() => setSeletedDeleteStudyItem(null)}
+                                  onDelete={async () => await handleDeleteStudyItem()}
+                                  warningText={t('curriculum.warningText')}
+                                />
                               </div>
                             </div>
                             <div className='flex justify-end'>
@@ -353,26 +349,27 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
                               </Modal>
 
                               {/* Icon mở rộng bài học */}
-                              {(courseStatus === 2 || courseStatus === 3) && studyItem.status === 0 && (
+                              {([2, 3, 4, 5, 6, 7].includes(courseStatus)) && studyItem.status === 0 && (
                                 <IconButton>
-                                  <FiberNewOutlined className='text-teal-600' fontSize='medium' style={{ transform: 'scale(1.5)' }}/>
+                                  <FiberNewOutlined className='text-teal-600' fontSize='medium' style={{ transform: 'scale(1.5)' }} />
                                 </IconButton>
                               )}
+
+                              {/* Icon để kéo thả bài học */}
+                              {courseStatus === 0 && <IconButton {...provided.dragHandleProps} style={{ cursor: 'grab' }}>
+                                <DragIndicatorIcon className='w-1/2 text-teal-600 group-hover:opacity-100 opacity-0' />
+                              </IconButton>}
+
                               <IconButton onClick={() => handleToggle(studyItem.id ?? 0)}>
                                 {openLessonIds.includes(studyItem.id ?? 0)
                                   ? <ExpandMoreIcon className='w-1/2 text-teal-600' fontSize='medium' />
                                   : <ExpandMoreIcon style={{ transform: 'rotate(180deg)' }} fontSize='medium' className='text-teal-600' />}
                               </IconButton>
 
-                              {/* Icon để kéo thả bài học */}
-                              <IconButton {...provided.dragHandleProps} style={{ cursor: 'grab' }}>
-                                <DragIndicatorIcon className='w-1/2 text-teal-600 group-hover:opacity-100 opacity-0' />
-                              </IconButton>
-
                             </div>
                           </div>
                           {/* Nội dung mở rộng của bài học hoặc bài kiểm tra */}
-                          <Collapse in={openLessonIds.includes(studyItem.id ?? 0)}>
+                          <Collapse className='duration-400' in={openLessonIds.includes(studyItem.id ?? 0)}>
                             {studyItem.itemType === 'lession'
                               ? <LessionDetail studyItem={studyItem} load={openLoadIds.includes(studyItem.id ?? 0)} />
                               : <ExamDetail studyItem={studyItem} userId={userId} load={openLoadIds.includes(studyItem.id ?? 0)} />}
@@ -399,13 +396,13 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
           : isAddingExam ? (
             <AddExamForm userId={userId} lessionCategoryId={lessionCategoryId} setIsAddingExam={setIsAddingExam} fetchStudyItems={fetchStudyItems} />
           ) : (
-            <div className='mb-4 ml-20 flex gap-3'>
-              <div className='cursor-pointer flex justify-center text-white bg-teal-500 w-36 p-2' onClick={() => {
+            <div className='mb-4 md:ml-20 flex gap-3'>
+              <div className='cursor-pointer flex justify-center text-white bg-teal-500 w-36 p-2 rounded-md active:scale-95' onClick={() => {
                 setIsAddingLesson(true)
               }}>
                 Thêm bài học
               </div>
-              <div className='cursor-pointer flex justify-center text-white bg-teal-500 w-40 p-2' onClick={() => {
+              <div className='cursor-pointer flex justify-center text-white bg-teal-500 w-40 p-2 rounded-md active:scale-95' onClick={() => {
                 setIsAddingExam(true)
               }}>
                 Thêm trắc nghiệm

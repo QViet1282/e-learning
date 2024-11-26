@@ -20,48 +20,47 @@ router.get('/getAllCourseInfo', isAuthenticated, async (req, res) => {
   const limit = parseInt(req.query.limit) || 10
   const offset = (page - 1) * limit
 
-  // Lấy các tham số lọc từ query
   const { categoryCourseId, status, priceMin, priceMax, durationMin, durationMax, name } = req.query
 
-  // Tạo một đối tượng điều kiện để sử dụng trong truy vấn
   const whereConditions = {}
 
   if (categoryCourseId) {
-    whereConditions.categoryCourseId = categoryCourseId // Lọc theo categoryCourseId
+    whereConditions.categoryCourseId = categoryCourseId
   }
 
   if (status) {
-    whereConditions.status = status // Lọc theo status
+    if ([5, 6, 7].includes(Number(status))) {
+      whereConditions.status = { [Op.in]: [5, 6, 7] }
+    } else if (status) {
+      whereConditions.status = status
+    }
   }
 
-  // Lọc theo khoảng giá
   if (priceMin || priceMax) {
     whereConditions.price = {}
     if (priceMin) {
-      whereConditions.price[Op.gte] = priceMin // Giá lớn hơn hoặc bằng priceMin
+      whereConditions.price[Op.gte] = priceMin
     }
     if (priceMax) {
-      whereConditions.price[Op.lte] = priceMax // Giá nhỏ hơn hoặc bằng priceMax
+      whereConditions.price[Op.lte] = priceMax
     }
   }
 
-  // Lọc theo khoảng durationInMinute
   if (durationMin || durationMax) {
     whereConditions.durationInMinute = {}
     if (durationMin) {
-      whereConditions.durationInMinute[Op.gte] = durationMin // Thời gian lớn hơn hoặc bằng durationMin
+      whereConditions.durationInMinute[Op.gte] = durationMin
     }
     if (durationMax) {
-      whereConditions.durationInMinute[Op.lte] = durationMax // Thời gian nhỏ hơn hoặc bằng durationMax
+      whereConditions.durationInMinute[Op.lte] = durationMax
     }
   }
 
-  // Tìm kiếm theo tên (không phân biệt chữ hoa chữ thường)
   if (name) {
     whereConditions.name = {
       [Op.and]: [
-        { [Op.like]: `%${name}%` }, // Tìm kiếm với LIKE
-        { [Op.not]: null } // Đảm bảo trường không null
+        { [Op.like]: `%${name}%` },
+        { [Op.not]: null }
       ]
     }
   }
@@ -69,20 +68,19 @@ router.get('/getAllCourseInfo', isAuthenticated, async (req, res) => {
 
   try {
     const { count, rows } = await models.Course.findAndCountAll({
-      where: whereConditions, // Thêm điều kiện vào truy vấn
-      limit, // Giới hạn số bản ghi
-      offset, // Bỏ qua số bản ghi theo offset
+      where: whereConditions,
+      limit,
+      offset,
       attributes: ['id', 'categoryCourseId', 'name', 'durationInMinute', 'locationPath', 'price', 'status']
     })
 
-    const totalPages = Math.ceil(count / limit) // Tính toán tổng số trang
+    const totalPages = Math.ceil(count / limit)
 
-    // Trả về dữ liệu cùng với thông tin phân trang
     res.status(200).json({
       totalItems: count,
       totalPages: count !== 0 ? totalPages : 1,
       currentPage: page,
-      courses: rows // Trả về danh sách khóa học
+      courses: rows
     })
   } catch (err) {
     console.error(err)
@@ -102,7 +100,6 @@ router.get('/getAllCourseByTeacher', isAuthenticated, async (req, res) => {
 
     res.status(200).json(courses)
   } catch (err) {
-    logError(req, err)
     console.error(err)
     res.status(500).json({ message: 'Lỗi khi lấy dữ liệu giáo viên và khóa học' })
   }
@@ -149,8 +146,7 @@ router.post('/createNewCourse', isAuthenticated, async (req, res) => {
       assignedBy: req.user.id,
       description: '',
       summary: '',
-      prepare: '',
-      locationPath: 'https://res.cloudinary.com/dessdbtlz/image/upload/v1729450216/elearning/pte9tzf5b40ozaoqbjae.webp'
+      prepare: ''
     })
     res.status(201).json(newCourse)
   } catch (error) {
@@ -158,6 +154,7 @@ router.post('/createNewCourse', isAuthenticated, async (req, res) => {
   }
 })
 
+// Sửa thông tin course
 router.put('/editCourse/:courseId', isAuthenticated, async (req, res) => {
   const { courseId } = req.params
   const {
@@ -177,15 +174,12 @@ router.put('/editCourse/:courseId', isAuthenticated, async (req, res) => {
   console.log('Request Body:', req.body)
 
   try {
-    // Tìm khóa học theo ID
     const course = await models.Course.findByPk(courseId)
 
-    // Kiểm tra xem khóa học có tồn tại không
     if (!course) {
       return res.status(404).json({ error: 'Course not found' })
     }
 
-    // Cập nhật thông tin khóa học
     await course.update({
       categoryCourseId,
       name,
@@ -206,77 +200,125 @@ router.put('/editCourse/:courseId', isAuthenticated, async (req, res) => {
   }
 })
 
-router.put('/updateCourseStatus/:courseId', isAuthenticated, async (req, res) => {
+// Thay đổi status khóa học cho admin
+router.put('/acceptOrDeclineCourseStatus/:courseId', isAuthenticated, async (req, res) => {
   const { courseId } = req.params
-  const { status, startDate, endDate } = req.body
+  const { status, resuft } = req.body
 
   const transaction = await sequelize.transaction()
   try {
-  // Tìm khóa học và các bản ghi liên quan
-    const course = await models.Course.findByPk(courseId, {
-      attributes: ['id', 'status'], // Chỉ lấy các trường cần thiết của Course
-      include: [
-        {
-          model: models.CategoryLession,
-          attributes: ['id'], // Chỉ lấy các trường cần thiết của CategoryLession
-          include: [
-            {
-              model: models.StudyItem,
-              attributes: ['id', 'status'] // Chỉ lấy các trường cần thiết của StudyItem
-            }
-          ]
-        }
-      ],
-      transaction
-    })
-
-    if (!course) {
-      return res.status(404).json({ error: 'Course not found' })
-    }
-
+    // Tính thời lương tổng các video
     const totalDuration = await calculateTotalCourseDuration(courseId)
     console.log(`Tổng thời gian khóa học ${courseId}: ${totalDuration} giây`)
-
-    // Cập nhật trạng thái cho khóa học
-    await models.Course.update({ status, startDate, endDate, durationInMinute: totalDuration }, {
-      where: {
-        id: courseId
-      },
-      transaction
-    })
-    console.log('------------------------------------------------------------', course)
-    // Kiểm tra và cập nhật các StudyItems
-    if (course.CategoryLessions && Array.isArray(course.CategoryLessions)) {
-      const studyItemsToUpdate = []
-
-      course.CategoryLessions.forEach(category => {
-        if (category.StudyItems && Array.isArray(category.StudyItems)) {
-          category.StudyItems.forEach(studyItem => {
-            studyItemsToUpdate.push(studyItem.id)
-          })
-        }
+    let course
+    if (resuft) {
+      await models.Course.update({ status, durationInMinute: totalDuration }, {
+        where: {
+          id: courseId
+        },
+        transaction
       })
-      // Cập nhật trạng thái cho tất cả StudyItems
-      if (studyItemsToUpdate.length > 0) {
-        await models.StudyItem.update(
-          { status: 1 },
+
+      course = await models.Course.findByPk(courseId, {
+        attributes: ['id', 'status'],
+        include: [
           {
-            where: {
-              id: studyItemsToUpdate
-            },
-            transaction
+            model: models.CategoryLession,
+            attributes: ['id'],
+            include: [
+              {
+                model: models.StudyItem,
+                attributes: ['id', 'status']
+              }
+            ]
           }
-        )
+        ],
+        transaction
+      })
+
+      if (!course) {
+        return res.status(404).json({ error: 'Course not found' })
+      }
+
+      // Cập nhật status các StudyItems
+      if (course.CategoryLessions && Array.isArray(course.CategoryLessions)) {
+        const studyItemsToUpdate = []
+
+        course.CategoryLessions.forEach(category => {
+          if (category.StudyItems && Array.isArray(category.StudyItems)) {
+            category.StudyItems.forEach(studyItem => {
+              studyItemsToUpdate.push(studyItem.id)
+            })
+          }
+        })
+
+        if (studyItemsToUpdate.length > 0) {
+          await models.StudyItem.update(
+            { status: 1 },
+            {
+              where: {
+                id: studyItemsToUpdate
+              },
+              transaction
+            }
+          )
+        }
+      } else {
+        console.log('No LessonCategories found for this course.')
       }
     } else {
-    // Nếu không có LessonCategories
-      console.log('No LessonCategories found for this course.')
+      course = await models.Course.update({ status }, {
+        where: { id: courseId }
+      })
     }
 
-    await transaction.commit() // Cam kết các thay đổi
+    await transaction.commit()
     res.status(200).json({ message: 'Status updated successfully', course })
   } catch (error) {
-    await transaction.rollback() // Hoàn tác nếu có lỗi
+    await transaction.rollback()
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+// Thay doi status course
+router.put('/updateCourseStatus/:courseId', isAuthenticated, async (req, res) => {
+  const { courseId } = req.params
+  const { status, endDate } = req.body
+
+  try {
+    if (!courseId) {
+      return res.status(400).json({ error: 'Course ID is required' })
+    }
+    if (typeof status === 'undefined') {
+      return res.status(400).json({ error: 'Status is required' })
+    }
+
+    try {
+      // Kiểm tra các giá trị đặc biệt của status
+      if ([1, 5, 6, 7].includes(status)) {
+        const isValid = await isCourseValidForStatus(courseId)
+        if (!isValid) {
+          return res.status(400).json({ error: 'Course does not meet the required conditions for this status' })
+        }
+      }
+
+      await models.Course.update({ status, endDate }, {
+        where: { id: courseId }
+      })
+
+      res.status(200).json({
+        message: 'Status updated successfully',
+        data: {
+          courseId,
+          status,
+          endDate,
+          updatedAt: new Date()
+        }
+      })
+    } catch (error) {
+      res.status(500).json({ error: 'Internal server error during transaction' })
+    }
+  } catch (error) {
     res.status(500).json({ error: 'Internal server error' })
   }
 })
@@ -305,9 +347,7 @@ async function calculateTotalCourseDuration (courseId) {
   }
 }
 
-/*****************************
- * ROUTES FOR CATEGORY LESSONS
- *****************************/
+// Lấy tất cả categoryLession theo khóa học
 router.get('/getCategoryLessionByCourse/:courseId', isAuthenticated, async (req, res) => {
   try {
     const { courseId } = req.params
@@ -322,6 +362,7 @@ router.get('/getCategoryLessionByCourse/:courseId', isAuthenticated, async (req,
   }
 })
 
+// Tạo categorylession
 router.post('/createCategoryLession', isAuthenticated, async (req, res) => {
   try {
     const { courseId, name, order, status } = req.body
@@ -344,6 +385,7 @@ router.post('/createCategoryLession', isAuthenticated, async (req, res) => {
   }
 })
 
+// Sửa categorylession
 router.post('/updateCategoryLession', isAuthenticated, async (req, res) => {
   try {
     const { categoryLession } = req.body
@@ -366,6 +408,7 @@ router.post('/updateCategoryLession', isAuthenticated, async (req, res) => {
   }
 })
 
+// Thay đổi thứ tự category lession
 router.put('/updateCategoryLessionOrder', isAuthenticated, async (req, res) => {
   const oldOrder = Number(req.body.oldOrder)
   const newOrder = Number(req.body.newOrder)
@@ -429,10 +472,7 @@ router.put('/updateCategoryLessionOrder', isAuthenticated, async (req, res) => {
   }
 })
 
-/*****************************
- * ROUTES FOR StudyItem
- *****************************/
-
+// Lấy studyItem theo categoryLession
 router.get('/getStudyItemByCategoryLessionId/:lessionCategoryId', isAuthenticated, async (req, res) => {
   try {
     const { lessionCategoryId } = req.params
@@ -1197,6 +1237,91 @@ function paginateData (data, size, page) {
   const pageSize = parseInt(size, 10)
   const pageIndex = parseInt(page, 10) - 1
   return data.slice(pageIndex * pageSize, (pageIndex + 1) * pageSize)
+}
+
+// Kiem tra gia tri trươc khi yeu cau public
+async function isCourseValidForStatus (courseId) {
+  try {
+    const course = await models.Course.findByPk(Number(courseId), {
+      attributes: ['id', 'price', 'videoLocationPath', 'locationPath', 'prepare', 'description'],
+      include: [
+        {
+          model: models.CategoryLession,
+          attributes: ['id']
+        }
+      ]
+    })
+
+    if (!course) {
+      return false
+    }
+
+    if (!course.price || !course.videoLocationPath || !course.locationPath) {
+      return false
+    }
+    console.log('Step 1')
+
+    if (
+      !course.prepare ||
+      typeof course.prepare !== 'string' || course.prepare.trim() === '' ||
+      !course.description || typeof course.description !== 'string' || course.description.trim() === ''
+    ) {
+      return false
+    }
+    console.log('Step 2')
+
+    const categoryLessions = course.CategoryLessions || []
+    if (categoryLessions.length === 0) {
+      return false
+    }
+    console.log('Step 3')
+
+    for (const category of categoryLessions) {
+      const studyItems = await models.StudyItem.findAll({
+        where: { lessionCategoryId: category.id },
+        include: [
+          {
+            model: models.Exam,
+            where: { studyItemId: sequelize.col('StudyItem.id') },
+            required: false
+          },
+          {
+            model: models.Lession,
+            where: { studyItemId: sequelize.col('StudyItem.id') },
+            required: false
+          }
+        ]
+      })
+
+      if (studyItems.length === 0) {
+        return false
+      }
+      console.log('Step 4')
+
+      for (const studyItem of studyItems) {
+        if (studyItem.Lession && !studyItem.Lession.locationPath) {
+          return false
+        }
+        console.log('Step 5')
+
+        if (studyItem.Exam) {
+          const questionCount = await models.Question.count({
+            where: { examId: studyItem.id }
+          })
+
+          if (questionCount === 0) {
+            return false
+          }
+          console.log('Step 6')
+        }
+      }
+    }
+
+    return true
+  } catch (error) {
+    console.error('Validation error:', error)
+    return false
+  }
 }
 
 module.exports = router

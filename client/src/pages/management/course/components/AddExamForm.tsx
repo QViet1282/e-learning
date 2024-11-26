@@ -12,6 +12,7 @@ import { newStudyItemAndExam } from 'api/post/post.interface'
 import 'quill-image-uploader/dist/quill.imageUploader.min.css'
 import { createStudyItemAndExam } from 'api/post/post.api'
 import { QuillEditor } from './QuillEditor'
+import { toast } from 'react-toastify'
 
 interface AddExamFormProps {
   userId: number
@@ -73,25 +74,28 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
   }
 
   const handleAddExam = async (): Promise<void> => {
-    try {
-      const response = await createStudyItemAndExam(newExam)
-      await fetchStudyItems()
-      console.log('Ket qua them newCategory', response.status)
-    } catch (error) {
-      console.error('Error create new category:', error)
+    if (newExam.name.trim() === '') {
+      toast.error('Vui lòng nhập tên bài học hợp lệ!')
+      return
     }
-    console.log('New exam:', newExam)
-    setNewExam({
-      lessionCategoryId,
-      name: '',
-      description: '',
-      itemType: 'exam',
-      pointToPass: 50,
-      durationInMinute: 30,
-      numberOfAttempt: 1,
-      createrId: userId
+
+    await createStudyItemAndExam(newExam).then(async () => {
+      toast.success('Tạo thành công')
+      await fetchStudyItems()
+      setNewExam({
+        lessionCategoryId,
+        name: '',
+        description: '',
+        itemType: 'exam',
+        pointToPass: 50,
+        durationInMinute: 30,
+        numberOfAttempt: 1,
+        createrId: userId
+      })
+      setIsAddingExam(false)
+    }).catch(() => {
+      toast.error('Lỗi trong quá trình tạo. Xin hãy thử lại!')
     })
-    setIsAddingExam(false)
   }
 
   return (
@@ -234,16 +238,18 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
           theme="snow"
           value={newExam.description}
           onChange={(value) => setNewExam({ ...newExam, description: value })}
-          // modules={modules}
-          // className="w-full pb-0 md:h-auto"
+        // modules={modules}
+        // className="w-full pb-0 md:h-auto"
         />
       </div>
 
       {/* Nút lưu */}
-      <div
-        className="p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500 mt-4" onClick={handleAddExam}
-      >
-        Lưu bài kiểm tra
+      <div className='w-full space-x-2 justify-end flex'>
+        <div
+          className="p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95" onClick={handleAddExam}
+        >
+          Lưu bài kiểm tra
+        </div>
       </div>
     </div>
   )

@@ -11,6 +11,7 @@ import { createStudyItemAndLession } from 'api/post/post.api'
 import 'quill-image-uploader/dist/quill.imageUploader.min.css'
 import { Document, Page } from 'react-pdf'
 import { QuillEditor } from './QuillEditor'
+import { toast } from 'react-toastify'
 
 interface AddExamFormProps {
   userId: number
@@ -88,23 +89,32 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
   }
 
   const handleAddLesson = async (): Promise<void> => {
+    if (newLesson.name.trim() === '') {
+      toast.error('Vui lòng nhập tên bài học hợp lệ!')
+      return
+    }
+
     try {
-      const response = await createStudyItemAndLession(newLesson)
-      await fetchStudyItems()
-      console.log('Ket qua them newCategory', response.status)
+      await createStudyItemAndLession(newLesson).then(async () => {
+        toast.success('Tạo thành công')
+        await fetchStudyItems()
+        // Reset thông tin bài học mới
+        setNewLesson({
+          lessionCategoryId,
+          name: '',
+          description: '',
+          itemType: 'lession',
+          uploadedBy: userId,
+          type: null,
+          locationPath: null
+        })
+        setIsAddingLession(false)
+      }).catch(() => {
+        toast.error('Lỗi trong quá trình tạo. Xin hãy thử lại!')
+      })
     } catch (error) {
       console.error('Error create new category:', error)
     }
-    setNewLesson({
-      lessionCategoryId,
-      name: '',
-      description: '',
-      itemType: 'lession',
-      uploadedBy: userId,
-      type: null,
-      locationPath: null
-    })
-    setIsAddingLession(false)
   }
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }): void => {
@@ -148,8 +158,8 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
           theme='snow'
           value={newLesson.description}
           onChange={(value) => setNewLesson({ ...newLesson, description: value })}
-          // modules={modules}
-          // className='w-full pb-0 md:h-auto'
+        // modules={modules}
+        // className='w-full pb-0 md:h-auto'
         />
       </div>
 
@@ -235,10 +245,11 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
           </div>
         )}
       </div>
-
-        <div className='p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500' onClick={handleAddLesson}>
+      <div className='w-full space-x-2 justify-end flex'>
+        <div className='p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95' onClick={handleAddLesson}>
           Lưu bài học
         </div>
+      </div>
     </div>
   )
 }

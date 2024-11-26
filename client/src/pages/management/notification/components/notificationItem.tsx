@@ -2,28 +2,30 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import React, { FC, useMemo, useState } from 'react'
 import IconButton from '@mui/material/IconButton'
-import { DeleteOutline, ArrowForward } from '@mui/icons-material'
+import { AccessTime, DeleteOutline, Link } from '@mui/icons-material'
+import { Tooltip } from '@mui/material'
+import DeleteModal from 'pages/management/component/DeleteModal'
+import { useTranslation } from 'react-i18next'
 
-// NotificationItem.types.ts
 export interface Notification {
-  id?: number
+  id: number
   title: string
   message: string
-  url?: string // Cho phép url là optional
-  notifyAt: Date | null
+  url?: string
+  notifyAt: Date
 }
 
 interface NotificationItemProps {
   notification: Notification
-  handleDelete?: (notificationId?: number) => Promise<void>
+  handleDelete: (notificationId: number) => Promise<void>
 }
 
 const NotificationItem: FC<NotificationItemProps> = ({ notification, handleDelete }) => {
+  const { t } = useTranslation()
   const [isExpanded, setIsExpanded] = useState(false)
-
+  const [isModalDeleteOpen, setModaDeletelOpen] = useState(false)
   const toggleExpand = (): void => setIsExpanded((prev) => !prev)
-
-  // Kiểm tra xem có cần hiện nút "Xem thêm" hay không dựa trên độ dài của message
+  const now = new Date()
   const isLongMessage = notification.message.length > 100
 
   const displayedMessage = useMemo(() => {
@@ -32,20 +34,26 @@ const NotificationItem: FC<NotificationItemProps> = ({ notification, handleDelet
       : notification.message.slice(0, 100) + '...'
   }, [isExpanded, notification.message, isLongMessage])
 
-  // Chuyển đổi thời gian thành định dạng dễ đọc
-  const formattedDate = (notification.notifyAt != null) ? new Date(notification.notifyAt).toLocaleString() : 'Chưa có thời gian'
+  const formattedDate = (notification.notifyAt != null) ? new Date(notification.notifyAt).toLocaleString() : ''
+  const notifyAtTime = new Date(notification.notifyAt)
+  const isPast = notifyAtTime <= now
 
   return (
     <div key={notification.id} className="bg-white shadow-sm rounded-lg p-3 mb-2 hover:shadow-md transition-shadow duration-200 relative flex flex-col justify-between">
-      {/* Header with title and delete button */}
-      <div className="flex justify-between items-center mb-3">
-        <h2 className="text-lg font-semibold text-gray-800 truncate">{notification.title}</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold text-gray-800 truncate">
+          {!isPast && (<Tooltip title={'Đã lên lịch gửi'} arrow>
+            <AccessTime className="text-teal-400 mr-1" />
+          </Tooltip>)}
+          <Tooltip title={notification.title} arrow>
+            <span>{notification.title}</span>
+          </Tooltip>
+        </h2>
 
-        {/* Nút xóa thông báo với màu icon đẹp */}
         <IconButton
           onClick={() => {
             if (handleDelete != null) {
-              void handleDelete(notification.id)
+              setModaDeletelOpen(true)
             } else {
               console.error('handleDelete is undefined')
             }
@@ -57,20 +65,19 @@ const NotificationItem: FC<NotificationItemProps> = ({ notification, handleDelet
         </IconButton>
       </div>
 
-      {/* Notification message with expand option */}
       <p
         onClick={toggleExpand}
         className={`cursor-pointer text-gray-700 ${!isExpanded ? 'line-clamp-2' : ''} mb-2 text-sm`}
       >
+        <span className="mr-2 btext-lg text-yellow-500">
+          📣
+        </span>
         {displayedMessage}
       </p>
 
-      {/* Footer with time and arrow link */}
       <div className="flex justify-between items-center text-xs">
-        {/* Hiển thị thời gian thông báo */}
         <p className="text-gray-500">{formattedDate}</p>
 
-        {/* Link to open URL if exists */}
         {(notification.url != null) && (
           <a
             href={notification.url}
@@ -79,12 +86,18 @@ const NotificationItem: FC<NotificationItemProps> = ({ notification, handleDelet
             className="flex items-center text-blue-500 hover:text-blue-700 transition-colors duration-300"
             aria-label="Open link"
           >
-            <IconButton size="small">
-              <ArrowForward fontSize="small" />
+            <IconButton size="small" className="hover:text-blue-500">
+              <Link fontSize="small" />
             </IconButton>
           </a>
         )}
       </div>
+      <DeleteModal
+        isOpen={isModalDeleteOpen}
+        onClose={() => setModaDeletelOpen(false)}
+        onDelete={async () => await handleDelete(notification.id)}
+        warningText={t('notificationManagement.warningText')}
+      />
     </div>
   )
 }

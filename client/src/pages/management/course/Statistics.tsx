@@ -232,91 +232,91 @@ const Statistics = ({ courseId }: { courseId: number }) => {
   }
 
   return (
-        <div className="flex flex-col w-full max-w-6xl mx-auto">
-            <div className="w-full border-b-2 mb-4">
-                <div className="text-3xl font-bold p-2">Thống kê</div>
+    <div className="flex flex-col w-full max-w-6xl mx-auto">
+      <div className="w-full border-b-2 mb-4">
+        <div className="text-3xl font-bold p-2">Thống kê</div>
+      </div>
+      {/* Biểu đồ kết hợp */}
+      <div className="w-full bg-white md:p-6 p-4 rounded-lg shadow-lg">
+        {/* Thẻ hiển thị thông tin */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-blue-100 p-4 rounded-lg shadow-md flex items-center">
+            <GroupIcon className="text-blue-600 mr-4" fontSize="large" />
+            <div>
+              <div className="text-xl font-bold">{courseStats.totalStudents ?? 0}</div>
+              <div className="text-gray-600">Học Viên Đăng Kí</div>
             </div>
-            {/* Biểu đồ kết hợp */}
-            <div className="w-full bg-white p-6 rounded-lg shadow-lg">
-                {/* Thẻ hiển thị thông tin */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    <div className="bg-blue-100 p-4 rounded-lg shadow-md flex items-center">
-                        <GroupIcon className="text-blue-600 mr-4" fontSize="large" />
-                        <div>
-                            <div className="text-xl font-bold">{courseStats.totalStudents ?? 0}</div>
-                            <div className="text-gray-600">Học Viên Đăng Kí</div>
-                        </div>
-                    </div>
-                    <div className="bg-green-100 p-4 rounded-lg shadow-md flex items-center">
-                        <CheckCircleIcon className="text-green-600 mr-4" fontSize="large" />
-                        <div>
-                            <div className="text-xl font-bold">{courseStats.completedEnrollments ?? 0}</div>
-                            <div className="text-gray-600">Hoàn Thành khóa học</div>
-                        </div>
-                    </div>
-
-                    <div className="bg-yellow-100 p-4 rounded-lg shadow-md flex items-center">
-                        <StarIcon className="text-yellow-600 mr-4" fontSize="large" />
-                        <div>
-                            <div className="text-xl font-bold">{courseStats.averageRating ?? 'N/A'}</div>
-                            <div className="text-gray-600">Đánh Giá Trung Bình</div>
-                        </div>
-                    </div>
-
-                    <div className="bg-orange-100 p-4 rounded-lg shadow-md flex items-center">
-                        <AttachMoneyIcon className="text-orange-600 mr-4" fontSize="large" />
-                        <div>
-                            <div className="text-xl font-bold">{courseStats.totalRevenue?.toLocaleString('vi-VN') ?? 0}₫</div>
-                            <div className="text-gray-600">Tổng Doanh Thu</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex flex-wrap justify-between w-full">
-                    <div className="w-full md:w-8/12">
-                        <div className="flex justify-between items-center mb-4">
-                            <h3 className="text-xl font-semibold">Lượt đăng ký và Doanh thu</h3>
-                            <div className="flex items-center justify-center">
-      <label className="mr-4 font-semibold">Chọn năm:</label>
-      <select
-        value={selectedYear}
-        onChange={handleYearChange}
-        className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-      >
-        {[2024, 2023, 2022].map((year) => (
-          <option key={year} value={year}>
-            {year}
-          </option>
-        ))}
-      </select>
-      {selectedYear && (
-        <>
-          <label className="ml-6 mr-4 font-semibold">Tháng:</label>
-          <select
-            value={selectedMonth ?? undefined}
-            onChange={handleMonthChange}
-            className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
-          >
-            <option value={undefined}>Tháng 1-12</option>
-            {[...Array(12)].map((_, i) => (
-              <option key={i + 1} value={i + 1}>
-                Tháng {i + 1}
-              </option>
-            ))}
-          </select>
-        </>
-      )}
-    </div>
-                        </div>
-                        <Bar data={combinedData} options={chartOptions} />
-                    </div>
-                    <div className="w-full md:w-4/12 flex flex-col items-center justify-center">
-                        <h3 className="text-xl font-semibold mb-4 text-center">Phân tích đánh giá</h3>
-                        <Pie data={pieData} options={pieOptions}/>
-                    </div>
-                </div>
+          </div>
+          <div className="bg-green-100 p-4 rounded-lg shadow-md flex items-center">
+            <CheckCircleIcon className="text-green-600 mr-4" fontSize="large" />
+            <div>
+              <div className="text-xl font-bold">{courseStats.completedEnrollments ?? 0}</div>
+              <div className="text-gray-600">Hoàn Thành khóa học</div>
             </div>
+          </div>
+
+          <div className="bg-yellow-100 p-4 rounded-lg shadow-md flex items-center">
+            <StarIcon className="text-yellow-600 mr-4" fontSize="large" />
+            <div>
+              <div className="text-xl font-bold">{courseStats.averageRating ?? 'N/A'}</div>
+              <div className="text-gray-600">Đánh Giá Trung Bình</div>
+            </div>
+          </div>
+
+          <div className="bg-orange-100 p-4 rounded-lg shadow-md flex items-center">
+            <AttachMoneyIcon className="text-orange-600 mr-4" fontSize="large" />
+            <div>
+              <div className="text-xl font-bold">{courseStats.totalRevenue?.toLocaleString('vi-VN') ?? 0}₫</div>
+              <div className="text-gray-600">Tổng Doanh Thu</div>
+            </div>
+          </div>
         </div>
+
+        <div className="flex flex-wrap justify-between w-full">
+          <div className="w-full md:w-8/12">
+            <div className="flex justify-between items-center mb-4 flex-wrap">
+              <h3 className="text-xl font-semibold">Lượt đăng ký và Doanh thu</h3>
+              <div className="flex items-center justify-center">
+                <label className="mr-4 font-semibold">Chọn năm:</label>
+                <select
+                  value={selectedYear}
+                  onChange={handleYearChange}
+                  className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                >
+                  {[2024, 2023, 2022].map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+                {selectedYear && (
+                  <>
+                    <label className="ml-6 mr-4 font-semibold">Tháng:</label>
+                    <select
+                      value={selectedMonth ?? undefined}
+                      onChange={handleMonthChange}
+                      className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    >
+                      <option value={undefined}>Tháng 1-12</option>
+                      {[...Array(12)].map((_, i) => (
+                        <option key={i + 1} value={i + 1}>
+                          Tháng {i + 1}
+                        </option>
+                      ))}
+                    </select>
+                  </>
+                )}
+              </div>
+            </div>
+            <Bar data={combinedData} options={chartOptions} />
+          </div>
+          <div className="w-full md:w-4/12 flex flex-col items-center justify-center">
+            <h3 className="text-xl font-semibold mb-4 text-center">Phân tích đánh giá</h3>
+            <Pie data={pieData} options={pieOptions} />
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 

@@ -14,6 +14,7 @@ import { GridCloseIcon } from '@mui/x-data-grid'
 import { categoryLessionOrderItem } from 'api/put/put.interface'
 import { updateCategoryLessionOrder } from 'api/put/put.api'
 import { Category } from 'api/get/get.interface'
+import { toast } from 'react-toastify'
 
 interface DraggableCategory extends Category {
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement> | undefined
@@ -98,21 +99,30 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId, courseStatus }) => {
   }
 
   const handleSaveClick = async (): Promise<void> => {
+    if (newCategoryName.trim() === '') {
+      toast.error('Vui lòng nhập tên danh mục hợp lệ!')
+      return
+    }
+
     const newCategory: newCategory = {
       id: undefined,
       courseId,
       name: newCategoryName,
       order: categories.length + 1
     }
+
     try {
-      const response = await createCategoryLession(newCategory)
+      await createCategoryLession(newCategory).then(() => {
+        toast.success('Tạo thành công')
+      }).catch(() => {
+        toast.error('Lỗi trong quá trình tạo. Xin hãy thử lại!')
+      })
       fetchCategories()
-      console.log('Ket qua them newCategory', response.status)
+      setIsAddingCategory(false)
+      setNewCategoryName('')
     } catch (error) {
-      console.error('Error create new category:', error)
+      toast.error('Lỗi trong quá trình tạo. Xin hãy thử lại!')
     }
-    setIsAddingCategory(false)
-    setNewCategoryName('')
   }
 
   return (
@@ -155,14 +165,11 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId, courseStatus }) => {
         </Droppable>
       </DragDropContext>
 
-      {/* Nút mở modal thêm category */}
-
-      {/* Modal thêm category */}
       {isAddingCategory
         ? (
-          <div className="flex flex-col flex-1 p-2 md:w-1/3 relative border-4">
+          <div className="flex flex-col flex-1 p-2 md:w-1/3 relative border-4 bg-white">
             <div className="w-full flex justify-between items-center">
-              <p className='font-bold'>Thêm chương học mới</p>
+              <p className='font-bold py-2'>Thêm chương học mới</p>
               <GridCloseIcon onClick={handleCancelClick} />
             </div>
             <input
@@ -173,14 +180,16 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId, courseStatus }) => {
               style={{ borderWidth: '1px' }}
               placeholder='Tên chương'
             />
-            <div className=" mt-2 p-1 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500" onClick={handleSaveClick} >
-              Lưu
+            <div className='w-full space-x-2 justify-end flex'>
+              <div className="mt-2 py-1 px-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95" onClick={handleSaveClick} >
+                <p>Lưu chương</p>
+              </div>
             </div>
           </div>
           )
         : (
-          <div className='text-center border-2 w-56'>
-            <div className='cursor-pointer flex justify-center text-white bg-teal-500 w-full p-2' onClick={handleAddClick}>Add new category lesson</div>
+          <div className='w-56'>
+            <div className='cursor-pointer flex justify-center text-white bg-teal-500 w-full p-2 rounded-md active:scale-95' onClick={handleAddClick}>Add new category lesson</div>
           </div>
 
           )}

@@ -101,6 +101,10 @@ const StatisticsManager = loadable(async () => await import('pages/management/st
 const UserManager = loadable(async () => await import('pages/management/user'), {
   fallback: <Loading />
 })
+
+const PayoutManager = loadable(async () => await import('pages/management/payout'), {
+  fallback: <Loading />
+})
 /**
     * Use <AuthRoute /> to protect authenticate pages
     */
@@ -163,7 +167,7 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.lectuterDashboard,
         element: (
-          <AuthRoute allowedRoles={['TEACHER']}>
+          <AuthRoute allowedRoles={['TEACHER', 'ADMIN']}>
             <LectuterDashboard />
           </AuthRoute>
         )
@@ -197,6 +201,14 @@ const routes: RouteObject[] = [
         element: (
           <AuthRoute allowedRoles={['ADMIN']}>
             <UserManager />
+          </AuthRoute>
+        )
+      },
+      {
+        path: ROUTES.payoutManagement,
+        element: (
+          <AuthRoute allowedRoles={['ADMIN']}>
+            <PayoutManager />
           </AuthRoute>
         )
       },

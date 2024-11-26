@@ -2,7 +2,7 @@
 // DeletedNotificationManager.tsx
 import React, { useEffect, useState } from 'react'
 import { Close, Search } from '@mui/icons-material'
-import Pagination from 'pages/management/course/components/Pagination'
+import Pagination from 'pages/management/component/Pagination'
 import { getAllDeletedNotification } from 'api/get/get.api'
 import DeletedNotificationItem from './deletedNotificationItem'
 

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
+/* eslint-disable multiline-ternary */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/no-redeclare */
 /* eslint-disable @typescript-eslint/no-misused-promises */
@@ -9,13 +11,11 @@ import { CategoryCourse, Course } from 'api/get/get.interface'
 import { getAllCategoryCourse, getCourseById } from 'api/get/get.api'
 import ReactQuill, { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
-import { IconButton, Button } from '@mui/material'
 import { ChangeCircle, Close, CloudUpload } from '@mui/icons-material'
 import QuillResizeImage from 'quill-resize-image'
 import ImageUploader from 'quill-image-uploader'
 import 'quill-image-uploader/dist/quill.imageUploader.min.css'
 import axios from 'axios'
-import courseDefault from '../../../assets/images/default/course_default.png'
 import { editCourseItem } from 'api/put/put.interface'
 import { editCourse } from 'api/put/put.api'
 import VideoOverview from './components/VideoOverview'
@@ -23,9 +23,9 @@ import VideoOverview from './components/VideoOverview'
 import BlotFormatter from 'quill-blot-formatter'
 import { ImageActions } from '@xeger/quill-image-actions'
 import { ImageFormats } from '@xeger/quill-image-formats'
+import { toast } from 'react-toastify'
 
 Quill.register('modules/blotFormatter', BlotFormatter)
-
 Quill.register('modules/imageActions', ImageActions)
 Quill.register('modules/imageFormats', ImageFormats)
 interface OverviewProps {
@@ -37,36 +37,6 @@ interface OverviewProps {
   videoLocationPath?: string
   fetchCourse: () => Promise<void>
 }
-
-const ImageFormat = Quill.import('formats/image')
-class CustomImageBlot extends ImageFormat {
-  static create (value: any) {
-    const node = super.create(value)
-    return node
-  }
-
-  static formats (node: any) {
-    console.log('Image attributes:', {
-      src: node.getAttribute('src'),
-      height: node.getAttribute('height'),
-      width: node.getAttribute('width'),
-      // margin: node.getAttribute('margin'),
-      // float: node.getAttribute('float'),
-      'data-align': node.getAttribute('data-align'),
-      style: node.getAttribute('style')
-    })
-    return {
-      src: node.getAttribute('src'),
-      height: node.getAttribute('height'),
-      width: node.getAttribute('width'),
-      // margin: node.getAttribute('margin'),
-      // float: node.getAttribute('float'),
-      'data-align': node.getAttribute('data-align'),
-      style: node.getAttribute('style')
-    }
-  }
-}
-Quill.register(CustomImageBlot, true)
 
 // Mặc định h3 cho quill
 const Parchment = Quill.import('parchment')
@@ -116,7 +86,7 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
         [{ font: [] }],
         [{ size: ['small', false, 'large', 'huge'] }],
         ['bold', 'italic', 'underline', 'strike'],
-        [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
+        // [{ indent: '-1' }, { indent: '+1' }],
         ['link', 'image']
       ],
       imageUploader: {
@@ -240,7 +210,11 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
         setImagePreview(URL.createObjectURL(resizedImage))
 
         const imageUrl = await uploadImage(resizedImage)
-        await editCourse(courseId, { locationPath: imageUrl })
+        await editCourse(courseId, { locationPath: imageUrl }).then(() => {
+          toast.success('Cập nhật ảnh đại diện khóa học thành công!')
+        }).catch(() => {
+          toast.error('Cập nhật ảnh đại diện khóa học thất bại. Vui lòng thử lại!')
+        })
         await fetchCourse()
         // setUpdatedCourse(prev => ({ ...prev, locationPath: imageUrl }))
         console.log('URL hình ảnh đã upload:', imageUrl)
@@ -264,23 +238,11 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
 
   const handleSave = async (): Promise<void> => {
     try {
-      // let imageUrl = updatedCourse?.locationPath ?? ''
-
-      // if (image != null) {
-      //   const formData = new FormData()
-      //   formData.append('file', image)
-      //   formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
-
-      //   const cloudinaryResponse = await axios.post(
-      //     `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/image/upload`,
-      //     formData
-      //   )
-
-      //   console.log('URL hình ảnh:', cloudinaryResponse.data.secure_url)
-      //   imageUrl = cloudinaryResponse.data.secure_url
-      // }
-
-      await editCourse(courseId, updatedCourse)
+      await editCourse(courseId, updatedCourse).then(() => {
+        toast.success('Cập nhật thông tin khóa học thành công!')
+      }).catch(() => {
+        toast.error('Cập nhật thông tin khóa học thất bại. Vui lòng thử lại!')
+      })
       console.log('Cập nhật thành công:', updatedCourse)
       await fetchCourse()
       setIsEditing(false)
@@ -303,16 +265,15 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
           Tổng quan khóa học
         </div>
       </div>
-      <div className="w-full shadow-2xl mt-6 bg-slate-100 px-8 py-8 rounded-lg">
-        <>
+      <div className="w-full shadow-2xl mt-6 bg-gradient-to-r from-gray-50 to-gray-100 md:px-8 md:py-8 p-2 rounded-lg">
           <div className='flex flex-wrap pb-6 border-b-2'>
-            <div className='flex flex-col w-full items-center lg:w-1/2'>
+            <div className='flex flex-col w-full items-center xl:w-1/2'>
               <label className="text-xl font-medium mb-2 flex items-center">
                 Hình ảnh khóa học
                 {/* {isEditing && ( */}
                 <div className='ml-2'>
                   <label className="cursor-pointer">
-                    <CloudUpload fontSize="large" />
+                    <CloudUpload fontSize="large" className='active:scale-95'/>
                     <input
                       type="file"
                       accept="image/*"
@@ -325,15 +286,17 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
               </label>
               <div className='flex'>
                 <div className='border-4 border-gray-300'>
-                  <img
-                    src={imagePreview ?? (locationPath != null ? locationPath : courseDefault)}
+                  <div className='md:w-96 md:h-52 flex justify-center items-center'>
+                    {(locationPath || imagePreview) ? (<img
+                    src={imagePreview ?? locationPath}
                     alt="Thumbnail"
-                    className="w-96 h-52" // object-cover nếu cần
-                  />
+                    className="w-full h-full" // object-cover nếu cần
+                  />) : (<div className="text-gray-500 italic p-4">Ảnh đại diện là ấn tượng đầu tiên mà học viên có về khóa học của bạn. Một hình ảnh chất lượng, hấp dẫn sẽ thu hút sự chú ý và tăng cơ hội ghi danh.</div>)}
+                  </div>
                 </div>
               </div>
             </div>
-            <div className='flex flex-col w-full items-center lg:w-1/2'>
+            <div className='flex flex-col w-full items-center xl:w-1/2'>
               <VideoOverview
                 videoLocationPath={videoLocationPath ?? ''}
                 setUpdatedCourse={(course) =>
@@ -350,8 +313,8 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
             </div>
             {isEditing
               ? (
-                <div className='flex gap-2 pl-2'>
-                  <div className="cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400  mt-2 bg-teal-500 w-28 h-10 items-center"
+                <div className='flex gap-2 pl-2 flex-wrap'>
+                  <div className="cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 p-1 px-2 mt-2 bg-teal-500 md:w-28 md:h-10 items-center rounded-md active:scale-95"
                     onClick={() => {
                       handleSave().catch(error => {
                         console.error('Error while submitting:', error)
@@ -360,7 +323,7 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
                   >
                     Lưu
                   </div>
-                  <div className="cursor-pointer flex justify-center text-white text-lg  mt-2 hover:bg-teal-400 bg-teal-500 w-28 h-10 items-center" onClick={() => {
+                  <div className="cursor-pointer flex justify-center text-white text-lg  mt-2 hover:bg-teal-400 p-1 px-2 bg-teal-500 md:w-28 md:h-10 items-center rounded-md active:scale-95" onClick={() => {
                     setIsEditing(false)
                     setImagePreview(null)
                     setUpdatedCourse({
@@ -376,8 +339,8 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
                 </div>
                 )
               : (
-                <div onClick={() => setIsEditing(true)} className="cursor-pointer flex justify-center mt-2 text-white text-lg hover:bg-teal-400 bg-teal-500 w-32 h-10 items-center">
-                  Chỉnh sửa
+                <div onClick={() => setIsEditing(true)} className="cursor-pointer flex justify-center mt-2 text-center text-white text-lg hover:bg-teal-400 bg-teal-500 md:w-32 md:h-10 ml-2 md:ml-0 items-center rounded-md active:scale-95">
+                  <p>Chỉnh sửa</p>
                 </div>
                 )}
           </div>
@@ -428,7 +391,7 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
                 )}
           </div>
 
-          <div className="mt-4">
+          <div className={`mt-4 ${!isEditing ? 'pointer-events-none' : ''}`}>
             <label className="block mb-2 text-xl font-medium">Mô tả chi tiết</label>
             <ReactQuill
               theme='snow'
@@ -444,13 +407,12 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
               className="w-full pb-0 bg-white"
               modules={modules} // Chỉ định modules khi đang ở chế độ chỉnh sửa
             />
-            <div className="ql-editor" data-gramm="false">
+            {/* <div className="ql-editor" data-gramm="false">
               <div
               dangerouslySetInnerHTML={{ __html: updatedCourse?.summary ?? '' }}
             />
-            </div>
+            </div> */}
           </div>
-        </>
       </div >
     </div >
   )

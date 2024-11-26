@@ -11,8 +11,6 @@ import ImageUploader from 'quill-image-uploader'
 import 'quill-image-uploader/dist/quill.imageUploader.min.css'
 
 import BlotFormatter from 'quill-blot-formatter'
-import { StyledQuill } from './ReactQuillConfig'
-
 Quill.register('modules/blotFormatter', BlotFormatter)
 
 // const ImageFormat = Quill.import('formats/image')
@@ -50,7 +48,7 @@ interface QuillEditorProps {
   placeholder?: string
 }
 
-const QuillEditor: React.FC<QuillEditorProps> = ({ theme, onChange, value }) => {
+const QuillEditor: React.FC<QuillEditorProps> = ({ theme, onChange, value, placeholder }) => {
   const Parchment = Quill.import('parchment')
   const Block = Quill.import('blots/block')
   Block.tagName = 'H3'
@@ -96,7 +94,8 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ theme, onChange, value }) => 
         theme={theme}
         modules={modules}
         value={value}
-        onChange={onChange} // Để cập nhật giá trị khi người dùng chỉnh sửa
+        onChange={onChange}
+        placeholder={placeholder}
       />
     </div>
   )
@@ -130,22 +129,37 @@ const QuillEditorQuestion: React.FC<QuillEditorProps> = ({ theme, onChange, valu
         }
       }
     },
-    resize: {
-      locale: {}
-    }
+    blotFormatter: {}
   }), [])
 
   return (
       <div>
-        <StyledQuill
+        <ReactQuill
           theme={theme}
           modules={modules}
           value={value}
           placeholder={placeholder}
-          onChange={onChange} // Để cập nhật giá trị khi người dùng chỉnh sửa
+          onChange={onChange}
         />
       </div>
   )
 }
 
 export { QuillEditor, QuillEditorQuestion }
+
+// [
+//   ['bold', 'italic', 'underline', 'strike'],
+//   ['blockquote', 'code-block'],
+//   ['link', 'image', 'formula'],
+//   [{ header: 1 }, { header: 2 }],
+//   [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
+//   [{ script: 'sub' }, { script: 'super' }],
+//   [{ indent: '-1' }, { indent: '+1' }],
+//   [{ direction: 'rtl' }],
+//   [{ size: ['small', false, 'large', 'huge'] }],
+//   [{ header: [1, 2, 3, 4, 5, 6, false] }],
+//   [{ color: [] }, { background: [] }],
+//   [{ font: [] }],
+//   [{ align: [] }],
+//   ['clean']
+// ]
