@@ -28,7 +28,8 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
     itemType: 'lession',
     uploadedBy: userId,
     type: null,
-    locationPath: null
+    locationPath: null,
+    durationInSecond: 0
   })
   const [file, setFile] = useState<File | null>(null)
   const [uploadedUrl, setUploadedUrl] = useState<string>('')
@@ -60,7 +61,8 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
       setNewLesson((prevLesson) => ({
         ...prevLesson,
         locationPath: response.data.secure_url,
-        type: file.type.includes('video') ? 'MP4' : 'PDF' // Phân loại theo loại tệp
+        type: file.type.includes('video') ? 'MP4' : 'PDF',
+        durationInSecond: Math.round(response.data.duration)
       }))
     } catch (error) {
       if (axios.isCancel(error)) {
@@ -106,7 +108,8 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
           itemType: 'lession',
           uploadedBy: userId,
           type: null,
-          locationPath: null
+          locationPath: null,
+          durationInSecond: 0
         })
         setIsAddingLession(false)
       }).catch(() => {
@@ -134,7 +137,8 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
             itemType: 'lession',
             uploadedBy: userId,
             type: null,
-            locationPath: null
+            locationPath: null,
+            durationInSecond: 0
           })
         }}>
           <Close />

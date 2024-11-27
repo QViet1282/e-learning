@@ -536,12 +536,17 @@
       }
     },
     "Curriculum": {
-      "warningText": "Bạn có chắc chắn muốn xóa chương trình giảng dạy này?"
+      "warningText": "Bạn muốn xóa chương trình giảng dạy này",
+      "warningHiddenQuestion": "Câu hỏi sẽ không được sử dụng trong bài kiểm tra từ thời điểm này"
+
     },
     "deleteModal": {
       "title": "Xác nhận xóa",
       "yes": "Xóa",
       "no": "Hủy"
+    },
+    "pricingandpublishing": {
+      "warningText": "Hành động sẽ không thể thay đổi, khóa học này sẽ bị xóa"
     },
     "dashboard-report": {
       "title": "Tổng Quan Học Tập"

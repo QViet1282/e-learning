@@ -166,7 +166,7 @@ router.post('/createStudyItemAndExam', isAuthenticated, async (req, res) => {
 router.put('/editStudyItemAndLession/:studyItemId', isAuthenticated, async (req, res) => {
   try {
     const { studyItemId } = req.params
-    const { name, description, type, locationPath, uploadedBy } = req.body
+    const { name, description, type, locationPath, uploadedBy, durationInSecond } = req.body
 
     console.log('Request body:', req.body)
 
@@ -189,7 +189,8 @@ router.put('/editStudyItemAndLession/:studyItemId', isAuthenticated, async (req,
       await lession.update({
         type: type !== '' ? type : null,
         locationPath: locationPath !== '' ? locationPath : null,
-        uploadedBy: locationPath !== '' ? uploadedBy : null
+        uploadedBy: locationPath !== '' ? uploadedBy : null,
+        durationInSecond: durationInSecond ?? null
       })
     }
 
@@ -251,7 +252,6 @@ router.delete('/deleteStudyItem/:id', isAuthenticated, async (req, res) => {
     const studyItem = await models.StudyItem.findByPk(id, { transaction: t })
 
     if (!studyItem) {
-      await t.rollback()
       return res.status(404).json({ error: 'StudyItem not found' })
     }
 

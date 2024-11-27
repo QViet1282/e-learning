@@ -25,10 +25,11 @@ export interface Lession {
   locationPath: string
   uploadedBy: number | null
   type: string
+  durationInSecond: number | null
 }
 
 export interface Question {
-  id: number | undefined
+  id: number
   instruction?: string
   content?: string
   type?: string
@@ -51,7 +52,7 @@ export interface Question {
   p?: string
   answer?: string
   explanation?: string
-  isQuestionStopped?: boolean
+  isQuestionStopped: boolean
   createdAt?: Date
   updatedAt?: Date
 }

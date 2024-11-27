@@ -171,7 +171,8 @@ router.get('/top-enrollment-courses', async (req, res) => {
       include: [
         {
           model: models.Course,
-          attributes: ['id', 'name']
+          attributes: ['id', 'name'],
+          where: { [Op.in]: [2, 3, 4, 5, 6, 7] }
         }
       ]
     })
@@ -214,6 +215,7 @@ router.get('/top-earning-courses', async (req, res) => {
       sequelize.where(sequelize.fn('MONTH', sequelize.col('enrollmentDate')), month)
     )
   }
+  whereCondition.status = 1
 
   const maxResults = limit ? parseInt(limit, 10) : 10
 
@@ -230,7 +232,8 @@ router.get('/top-earning-courses', async (req, res) => {
       include: [
         {
           model: models.Course,
-          attributes: ['name']
+          attributes: ['name'],
+          where: { [Op.in]: [2, 3, 4, 5, 6, 7] }
         }
       ]
     })
@@ -290,7 +293,8 @@ router.get('/allRegistrationsAndRevenue', isAuthenticated, async (req, res) => {
       include: [
         {
           model: models.Course,
-          attributes: []
+          attributes: [],
+          where: { [Op.in]: [2, 3, 4, 5, 6, 7] }
         }
       ],
       where: whereCondition,
@@ -478,7 +482,7 @@ router.get('/overview', async (req, res) => {
 
     const totalCourses = await models.Course.count({
       where: {
-        status: 0
+        status: { [Op.in]: [2, 3, 4, 5, 6, 7] }
       }
     })
 
@@ -530,6 +534,7 @@ router.get('/top-earning-teachers', async (req, res) => {
         {
           model: models.Course,
           attributes: ['assignedBy', 'price'], // Lấy giá khóa học
+          where: { [Op.in]: [2, 3, 4, 5, 6, 7] },
           include: [
             {
               model: models.User,
@@ -668,7 +673,8 @@ router.get('/courseStatistics', async (req, res) => {
       include: [
         {
           model: models.Course,
-          attributes: []
+          attributes: [],
+          where: { [Op.in]: [2, 3, 4, 5, 6, 7] }
         }
       ],
       where: {
@@ -760,7 +766,8 @@ router.get('/StatisticsEnrollmentAndRevenueByTeacher', isAuthenticated, async (r
       include: [
         {
           model: models.Course,
-          attributes: []
+          attributes: [],
+          where: { [Op.in]: [2, 3, 4, 5, 6, 7] }
         }
       ],
       where: whereCondition,
@@ -841,7 +848,8 @@ router.get('/teacherStatistics', isAuthenticated, async (req, res) => {
       include: [
         {
           model: models.Course,
-          attributes: []
+          attributes: [],
+          where: { [Op.in]: [2, 3, 4, 5, 6, 7] }
         },
         {
           model: models.Order,
@@ -855,7 +863,7 @@ router.get('/teacherStatistics', isAuthenticated, async (req, res) => {
     const totalCourses = await models.Course.count({
       where: {
         assignedBy: actualTeacherId,
-        status: { [Op.gte]: 0 }
+        status: { [Op.in]: [2, 3, 4, 5, 6, 7] }
       }
     })
 

@@ -36,6 +36,8 @@ export const resetPassword = async (payload: any): Promise<AxiosResponse<any>> =
   return await requestWithoutJwt.post<any>('/auth/resetPassword', { data: payload }, { withCredentials: true })
 }
 
+// Quan li khoa hoc
+
 export const getAllCourse = async (): Promise<AxiosResponse<any>> => {
   return await requestWithJwt.get<any>('/courses/getAllCourse', { withCredentials: true })
 }

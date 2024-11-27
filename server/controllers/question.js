@@ -158,6 +158,29 @@ router.put('/editQuestion/:questionId', isAuthenticated, async (req, res) => {
   }
 })
 
+router.put('/stopUsingQuestion/:questionId', isAuthenticated, async (req, res) => {
+  try {
+    const { questionId } = req.params
+
+    const question = await models.Question.findByPk(questionId)
+
+    if (!question) {
+      return res.status(404).json({ message: 'Câu hỏi không tồn tại' })
+    }
+
+    await question.update({
+      isQuestionStopped: true
+    })
+
+    logInfo(req, question)
+    return res.status(200).json(question)
+  } catch (err) {
+    logError(req, err)
+    console.error(err)
+    return res.status(500).json({ message: 'Có lỗi xảy ra khi cập nhật câu hỏi' })
+  }
+})
+
 router.delete('/deleteQuestion/:id', isAuthenticated, async (req, res) => {
   const { id } = req.params
   const t = await sequelize.transaction()

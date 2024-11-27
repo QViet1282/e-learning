@@ -41,6 +41,7 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId, courseStatus }) => {
   const [categories, setCategories] = useState<Category[]>([])
   const tokensString = localStorage.getItem('tokens')
   const tokens: Tokens | null = (tokensString != null) ? JSON.parse(tokensString) : null
+  const isRequestStatus = [1, 5, 6, 7].includes(courseStatus)
 
   useEffect(() => {
     fetchCategories()
@@ -189,7 +190,10 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId, courseStatus }) => {
           )
         : (
           <div className='w-56'>
-            <div className='cursor-pointer flex justify-center text-white bg-teal-500 w-full p-2 rounded-md active:scale-95' onClick={handleAddClick}>Add new category lesson</div>
+            <div className={`flex justify-center text-white bg-teal-500 w-full p-2 rounded-md ${isRequestStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-95'}`}
+             onClick={isRequestStatus ? undefined : handleAddClick}>
+              Add new category lesson
+            </div>
           </div>
 
           )}

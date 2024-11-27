@@ -162,7 +162,10 @@ router.get('/getEnrollmentUserByCourseId/:courseId', isAuthenticated, async (req
               model: models.Enrollment,
               attributes: ['enrollmentDate'],
               required: true,
-              where: { courseId }
+              where: {
+                courseId,
+                status: 1
+              }
             }
           ]
         }
