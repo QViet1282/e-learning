@@ -57,7 +57,7 @@ const CourseManagementPage = (): JSX.Element => {
 
   useEffect(() => {
     void fetchCourses()
-  }, [currentPage, selectedCategory, priceRange, durationRange, statusFilter])
+  }, [currentPage])
 
   const fetchCourses = async (): Promise<void> => {
     try {
@@ -208,7 +208,7 @@ const CourseManagementPage = (): JSX.Element => {
             className="md:w-72 h-12 w-full bg-white border-2 rounded-md items-center px-2 focus:outline-none"
           />
           <button
-            className="w-2/5 md:w-12 h-12 font-sans bg-white rounded-md border-2 items-center justify-center flex active:scale-95 hover:bg-slate-50"
+            className="w-2/5 md:w-20 h-12 font-sans bg-white rounded-md border-2 items-center justify-center flex active:scale-95 hover:bg-slate-50"
             onClick={handleSearch}
           >
             <Search className="text-gray-500" />

@@ -28,6 +28,7 @@ export interface editLession {
   uploadedBy: number | undefined
   type: string | undefined
   locationPath: string | undefined
+  durationInSecond: number | null
 }
 
 export interface editExam {

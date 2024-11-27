@@ -61,6 +61,7 @@ router.put('/editCategoryLession/:id', isAuthenticated, async (req, res) => {
 
 router.delete('/deleteCategoryLession/:id', isAuthenticated, async (req, res) => {
   const { id } = req.params
+  const t = await sequelize.transaction()
 
   try {
     const categoryLession = await models.CategoryLession.findByPk(id)
@@ -69,12 +70,22 @@ router.delete('/deleteCategoryLession/:id', isAuthenticated, async (req, res) =>
       return res.status(404).json({ error: 'CategoryLession not found' })
     }
 
-    await categoryLession.destroy()
+    await models.CategoryLession.decrement('order', {
+      by: 1,
+      where: {
+        order: { [Op.gt]: categoryLession.order },
+        courseId: categoryLession.courseId
+      },
+      transaction: t
+    })
 
+    await categoryLession.destroy({ transaction: t })
+
+    await t.commit()
     logInfo(req, { deletedCategoryLessionId: id })
-
     return res.status(200).json({ message: 'CategoryLession deleted successfully' })
   } catch (error) {
+    await t.rollback()
     logError(req, error)
     return res.status(500).json({ error: 'Internal server error' })
   }

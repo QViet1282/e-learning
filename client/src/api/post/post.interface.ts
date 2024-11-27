@@ -36,6 +36,7 @@ export interface newStudyItemAndLession {
   uploadedBy: number | undefined
   type: 'MP4' | 'PDF' | null
   locationPath: string | null
+  durationInSecond: number
 }
 
 export interface newStudyItemAndExam {

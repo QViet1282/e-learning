@@ -1,9 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/prefer-optional-chain */
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 import React, { useState, useEffect, useRef } from 'react'
 import { User, Role } from 'api/get/get.interface'
-import { updateUser } from 'api/post/post.api'
+import { findUserById, updateAvatar, updateUser } from 'api/post/post.api'
 import { useTranslation } from 'react-i18next'
+import { toast } from 'react-toastify'
+import { getFromLocalStorage } from 'utils/functions'
+import axios from 'axios'
+import AvatarEditor from 'react-avatar-editor'
+import CameraAltIcon from '@mui/icons-material/CameraAlt'
 
 interface EditUserModalProps {
   user: User | null
@@ -18,8 +27,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles, fet
   const [lastName, setLastName] = useState<string>(user?.lastName ?? '')
   const [email, setEmail] = useState<string>(user?.email ?? '')
   const [selectedRole, setSelectedRole] = useState<number | null>(user?.Role?.id ?? null)
-  const [avatar, setAvatar] = useState<File | null>(null)
-  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(user?.avatar ?? '')
+  const [avatar, setAvatar] = useState<string | undefined>(user?.avatar)
+  const [avatarPreview, setAvatarPreview] = useState<string | undefined>(user?.avatar)
   const [gender, setGender] = useState<string | undefined>(user?.gender)
   const [age, setAge] = useState<number | undefined>(user?.age ?? undefined)
 
@@ -41,14 +50,6 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles, fet
     }
   }, [user])
 
-  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file != null) {
-      setAvatar(file)
-      setAvatarPreview(URL.createObjectURL(file))
-    }
-  }
-
   const handleAvatarClick = () => {
     fileInputRef.current?.click()
   }
@@ -66,13 +67,88 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles, fet
       }
 
       if (user?.id !== undefined) {
+        await updateAvatar(String(user?.id), avatarPreview!)
         await updateUser(user?.id, payload)
       }
       void fetchUsers()
       onClose()
+      toast.success('Cập nhật user thành công!')
     } catch (error) {
+      toast.error('Có lỗi xảy ra khi cập nhật user!')
       console.error('Lỗi khi cập nhật user:', error)
     }
+  }
+
+  const [isAvatarEditing, setIsAvatarEditing] = useState(false)
+  const [avatarImage, setAvatarImage] = useState<File | null>(null)
+  const [avatarScale, setAvatarScale] = useState<number>(1)
+  const [editor, setEditor] = useState<AvatarEditor | null>(null)
+  const [avatarRotate, setAvatarRotate] = useState<number>(0)
+  const [isUploading, setIsUploading] = useState(false)
+
+  const uploadImage = async (image: File): Promise<string> => {
+    const formData = new FormData()
+    const uniqueId = `avatar_${Date.now()}` // Generate unique ID using current date and time
+    formData.append('file', image)
+    formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
+    formData.append('folder', 'avatar')
+    formData.append('public_id', uniqueId) // Add unique public_id
+
+    const response = await axios.post(
+      `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/image/upload`,
+      formData
+    )
+
+    return response.data.secure_url
+  }
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setAvatarImage(e.target.files[0])
+      setIsAvatarEditing(true)
+
+      // Reset giá trị của input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
+
+  const handleAvatarSave = async () => {
+    setIsUploading(true)
+    if (editor) {
+      const canvasScaled = editor.getImageScaledToCanvas().toDataURL()
+      // Chuyển đổi data URL thành Blob
+      const blob = await fetch(canvasScaled).then(async (res) => await res.blob())
+      const file = new File([blob], 'avatar.png', { type: 'image/png' })
+
+      try {
+        const avatarUrl = await uploadImage(file) // Tải lên Cloudinary và lấy URL
+        setAvatarPreview(avatarUrl)
+        setIsAvatarEditing(false)
+        setAvatarRotate(0)
+        setAvatarScale(1)
+
+        // Cập nhật avatar trong localStorage
+        // const tokens = getFromLocalStorage<any>('tokens')
+        // tokens.avatar = updatedAvatar
+        // localStorage.setItem('tokens', JSON.stringify(tokens))
+        // window.dispatchEvent(new Event('storage'))
+        // await findUserById(String(user?.id))
+      } catch (error) {
+        toast.error('Lỗi khi cập nhật avatar')
+      } finally {
+        setIsUploading(false)
+      }
+    }
+  }
+
+  const setEditorRef = (editorInstance: AvatarEditor | null) => {
+    setEditor(editorInstance)
+  }
+
+  const getAvatarUrl = (avatarPath?: string | undefined) => {
+    return avatarPath ?? 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png'
   }
 
   return (
@@ -81,30 +157,39 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles, fet
         {/* Avatar Section */}
         <div className="mb-6">
           <div className="flex justify-center">
-            {(avatarPreview != null)
-              ? (
-              <img
-                src={avatarPreview}
-                alt="Avatar Preview"
-                className="w-24 h-24 rounded-full mb-2 cursor-pointer object-cover ring-2 ring-blue-500"
-                onClick={handleAvatarClick}
-              />
-                )
-              : (
-              <div
-                className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center cursor-pointer mb-2 ring-2 ring-gray-300"
-                onClick={handleAvatarClick}
-              >
-                <span className="text-gray-400">No Avatar</span>
+            <div className="relative">
+              <div className="rounded-full border-4 border-teal-400 overflow-hidden w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-32 lg:h-32 flex-shrink-0">
+                <img
+                  className="w-full h-full object-cover"
+                  src={getAvatarUrl(avatarPreview ?? avatar)}
+                  alt="User avatar"
+                />
               </div>
-                )}
-            <input
-              type="file"
-              accept="image/*"
-              onChange={handleAvatarChange}
-              className="hidden"
-              ref={fileInputRef}
-            />
+              <label
+                htmlFor="avatar-upload"
+                className="absolute bottom-[10%] right-[10%] inline-flex items-center bg-gray-800 text-white p-1 rounded-full cursor-pointer"
+              >
+                <input
+                  type="file"
+                  id="avatar-upload"
+                  accept="image/*"
+                  onChange={handleAvatarChange}
+                  className="hidden"
+                  ref={fileInputRef}
+                />
+                <CameraAltIcon
+                  sx={{
+                    fontSize: {
+                      xs: 10,
+                      sm: 12,
+                      md: 14,
+                      lg: 18,
+                      xl: 20
+                    }
+                  }}
+                />
+              </label>
+            </div>
           </div>
         </div>
 
@@ -161,9 +246,9 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles, fet
               className="w-full p-2 border rounded-md focus:border-blue-500"
             >
               <option value="">{t('profile.selectGender')}</option>
-                   <option value="Male">{t('profile.male')}</option>
-                   <option value="Female">{t('profile.female')}</option>
-                   <option value="Other">{t('profile.other')}</option>
+              <option value="Male">{t('profile.male')}</option>
+              <option value="Female">{t('profile.female')}</option>
+              <option value="Other">{t('profile.other')}</option>
             </select>
           </div>
           <div>
@@ -190,6 +275,77 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles, fet
           </button>
         </div>
       </div>
+      {/* Modal chỉnh sửa Avatar */}
+      {isAvatarEditing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
+            <h2 className="text-2xl font-semibold mb-4 text-center">Chỉnh sửa Avatar</h2>
+            <div className="flex flex-col items-center">
+              <div className="w-64 h-64 mb-4 relative">
+                <AvatarEditor
+                  ref={setEditorRef}
+                  image={avatarImage!}
+                  width={250}
+                  height={250}
+                  border={0}
+                  borderRadius={125}
+                  color={[255, 255, 255, 0.6]} // RGBA
+                  scale={avatarScale}
+                  rotate={avatarRotate}
+                  className="editor-canvas"
+                />
+                <div className="absolute inset-0 rounded-full border-4 border-teal-400 pointer-events-none"></div>
+              </div>
+              <div className="w-full">
+                <label className="block text-sm font-medium mb-2">Phóng to/Thu nhỏ</label>
+                <input
+                  type="range"
+                  min="1"
+                  max="3"
+                  step="0.01"
+                  value={avatarScale}
+                  onChange={(e) => setAvatarScale(parseFloat(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  style={{ accentColor: '#14b8a6' }}
+                />
+              </div>
+              <div className="w-full mt-4">
+                <label className="block text-sm font-medium mb-2">Góc xoay: {avatarRotate}°</label>
+                <input
+                  type="range"
+                  min="0"
+                  max="360"
+                  step="1"
+                  value={avatarRotate}
+                  onChange={(e) => setAvatarRotate(parseInt(e.target.value))}
+                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                  style={{ accentColor: '#14b8a6' }}
+                />
+              </div>
+              <div className="flex justify-end mt-6 w-full">
+                <button
+                  className="bg-gray-300 text-black px-4 py-2 rounded-md mr-2 hover:bg-gray-400 transition duration-200"
+                  onClick={() => {
+                    setIsAvatarEditing(false)
+                    setAvatarImage(null)
+                    setAvatarRotate(0)
+                    setAvatarScale(1)
+                  }}
+                >
+                  Hủy bỏ
+                </button>
+                <button
+                  className={`bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-600 transition duration-200 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  onClick={handleAvatarSave}
+                  disabled={isUploading}
+                >
+                  {isUploading ? 'Đang lưu...' : 'Lưu'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -123,7 +123,7 @@
       "privacy_policy": "Privacy Policy",
       "follow_us": "Follow Us",
       "rights_reserved": "All rights reserved.",
-      "coming_soon":"This feature is coming soon!"
+      "coming_soon": "This feature is coming soon!"
     },
     "sidebar": {
       "pages": "Pages",
@@ -230,7 +230,7 @@
       "continue": "Continue learning",
       "enrollNow": "Enroll Now",
       "createdAt": "Created At",
-       "remainingDays": "{{days}} days left to register"
+      "remainingDays": "{{days}} days left to register"
     },
     "course_detail": {
       "overview": "Overview",
@@ -536,12 +536,16 @@
       }
     },
     "curriculum": {
-      "warningText": "Are you sure you want to delete this curriculum?"
+      "warningText": "You want to delete this curriculum",
+      "warningHiddenQuestion": "The question will not be used in the test from this point on"
     },
     "deleteModal": {
-      "title": "Confirm deletion",
-      "yes": "Delete",
+      "title": "Are you sure?",
+      "yes": "Confirm",
       "no": "Cancel"
+    },
+    "pricingandpublishing": {
+      "warningText": "The action cannot be reversed, this course will be deleted"
     },
     "dashboard-report": {
       "title": "Learning Overview"

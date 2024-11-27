@@ -22,7 +22,7 @@ export default function CourseDetailPage (): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedContent, setSelectedContent] = useState<string>('Tổng quan khóa học')
   const [course, setCourse] = useState<Course | null>(null)
-  const [isManagement, setIsManagement] = useState<boolean>(false)
+  const [isManagement, setIsManagement] = useState<boolean>(true)
 
   useEffect(() => {
     void fetchCourse()
@@ -31,8 +31,10 @@ export default function CourseDetailPage (): JSX.Element {
   const fetchCourse = async (): Promise<void> => {
     try {
       const response = await getCourseById(courseId)
-      setCourse(response.data)
-      setIsManagement(course?.status !== 0 && course?.status !== 1)
+      const fetchedCourse = response.data
+
+      setCourse(fetchedCourse)
+      setIsManagement(Number(fetchedCourse.status) > 1)
     } catch (error) {
       console.error('Error fetching course:', error)
     }
@@ -84,6 +86,7 @@ export default function CourseDetailPage (): JSX.Element {
   }
 
   console.log('courseId(DetailPage)', courseId)
+  console.log('isMa', isManagement)
   return (
     <div className='grid md:grid-cols-5 grid-cols-1 gap-6 p-4 bg-white border-x-2'>
       <Box className='col-span-1 '>

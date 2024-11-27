@@ -68,6 +68,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
   const [newNameCategory, setNewNameCategory] = useState<string>(name)
   const [nameCategory, setNameCategory] = useState<string>(name)
   const isPublic = courseStatus !== 0
+  const isRequestStatus = [1, 5, 6, 7].includes(courseStatus)
   const [isSomeZero, setIsSomeZero] = useState(false)
   const [isAllZero, setIsAllZero] = useState(false)
 
@@ -159,7 +160,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
     try {
       if (studyItems.length > 0) {
         setOpenModalDeleteLessionCategory(false)
-        alert('Không thể xóa. Có phần tử liên kết với chương này.')
+        toast.error('Không thể xóa. Có phần tử liên kết với chương này.')
         return
       }
       const response = await deleteCategoryLession(lessionCategoryId)
@@ -171,11 +172,14 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
   }
 
   // Xoa studyItem
-  const handleDeleteStudyItem = async (): Promise<void> => {
+  const handleDeleteStudyItem = async (itemType: string): Promise<void> => {
     try {
       if (seletedDeleteStudyItem != null) {
+        itemType === 'exam' && await getAllQuestionByExamId(seletedDeleteStudyItem).then((response) => {
+          response.data.length > 0 && toast.error('Không thể xóa. Có câu hỏi liên kết với bài kiểm tra này.')
+        })
         const response = await deleteStudyItem(seletedDeleteStudyItem)
-        response.status === 200 && setOpenModalEditCategoryLession(false)
+        response.status === 200 && toast.success('Xóa thành công')
       }
     } catch (error) {
       console.error('Error edit category:', error)
@@ -183,42 +187,42 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
     void fetchStudyItems()
   }
 
-  const modules = useMemo(() => ({
-    toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block'],
-      ['link', 'image', 'formula'],
-      [{ 'header': 1 }, { 'header': 2 }],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
-      [{ 'script': 'sub' }, { 'script': 'super' }],
-      [{ 'indent': '-1' }, { 'indent': '+1' }],
-      [{ 'direction': 'rtl' }],
-      [{ 'size': ['small', false, 'large', 'huge'] }],
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'font': [] }],
-      [{ 'align': [] }],
-      ['clean']
-    ],
-    imageUploader: {
-      upload: async (file: File) => {
-        const formData = new FormData()
-        formData.append('file', file)
-        formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
-        try {
-          const response = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/upload`, formData)
-          const imageUrl = response.data.secure_url
-          return imageUrl // Trả về URL của ảnh sau khi upload thành công
-        } catch (error) {
-          console.error('Error uploading image:', error)
-          throw new Error('Image upload failed')
-        }
-      }
-    },
-    resize: {
-      locale: {}
-    }
-  }), [])
+  // const modules = useMemo(() => ({
+  //   toolbar: [
+  //     ['bold', 'italic', 'underline', 'strike'],
+  //     ['blockquote', 'code-block'],
+  //     ['link', 'image', 'formula'],
+  //     [{ 'header': 1 }, { 'header': 2 }],
+  //     [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
+  //     [{ 'script': 'sub' }, { 'script': 'super' }],
+  //     [{ 'indent': '-1' }, { 'indent': '+1' }],
+  //     [{ 'direction': 'rtl' }],
+  //     [{ 'size': ['small', false, 'large', 'huge'] }],
+  //     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+  //     [{ 'color': [] }, { 'background': [] }],
+  //     [{ 'font': [] }],
+  //     [{ 'align': [] }],
+  //     ['clean']
+  //   ],
+  //   imageUploader: {
+  //     upload: async (file: File) => {
+  //       const formData = new FormData()
+  //       formData.append('file', file)
+  //       formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
+  //       try {
+  //         const response = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/upload`, formData)
+  //         const imageUrl = response.data.secure_url
+  //         return imageUrl // Trả về URL của ảnh sau khi upload thành công
+  //       } catch (error) {
+  //         console.error('Error uploading image:', error)
+  //         throw new Error('Image upload failed')
+  //       }
+  //     }
+  //   },
+  //   resize: {
+  //     locale: {}
+  //   }
+  // }), [])
   console.log(studyItems)
 
   return (
@@ -229,10 +233,10 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
             Chương {order}: {nameCategory}
           </div>
           <div className='flex opacity-0 group-hover:opacity-100'>
-            <IconButton onClick={() => setOpenModalEditCategoryLession(true)}>
+            {(!isPublic || isAllZero) && <IconButton onClick={() => setOpenModalEditCategoryLession(true)}>
               <EditTwoTone fontSize='small' className='text-teal-600' />
-            </IconButton>
-            {!isPublic && <IconButton onClick={() => setOpenModalDeleteLessionCategory(true)}>
+            </IconButton>}
+            {(!isPublic || isAllZero) && <IconButton onClick={() => setOpenModalDeleteLessionCategory(true)}>
               <DeleteOutline fontSize='small' className='text-teal-600' />
             </IconButton>}
             <DeleteModal
@@ -303,18 +307,18 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
                                 ? <p className='mr-2'>{(studyItem.Lession?.type === 'MP4') ? (<VideoLibraryRounded className='text-teal-600' />) : (studyItem.Lession?.type === 'PDF') ? (<PictureAsPdfRounded className='text-teal-600' />) : (<DisabledByDefaultRounded className='text-red-600' />)} {studyItem.order}. {studyItem.name}</p>
                                 : <p className='mr-2'><QuizRounded className='text-teal-600' /> {studyItem.order}. {studyItem.name}</p>}
                               <div className='flex opacity-0 group-hover:opacity-100'>
-                                {studyItem.status === 0 &&
+                                {(studyItem.status === 0 && !isRequestStatus) &&
                                   <IconButton onClick={() => setSelectedStudyItem(studyItem)}>
                                     <EditTwoTone className='text-teal-600' fontSize='small' />
                                   </IconButton>}
-                                {studyItem.status === 0 &&
+                                {(studyItem.status === 0 && !isRequestStatus) &&
                                   <IconButton onClick={() => setSeletedDeleteStudyItem(studyItem.id ?? null)}>
                                     <DeleteOutline className='text-teal-600' fontSize='small' />
                                   </IconButton>}
                                 <DeleteModal
                                   isOpen={seletedDeleteStudyItem === studyItem.id}
                                   onClose={() => setSeletedDeleteStudyItem(null)}
-                                  onDelete={async () => await handleDeleteStudyItem()}
+                                  onDelete={async () => await handleDeleteStudyItem(studyItem.itemType)}
                                   warningText={t('curriculum.warningText')}
                                 />
                               </div>
@@ -372,7 +376,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
                           <Collapse className='duration-400' in={openLessonIds.includes(studyItem.id ?? 0)}>
                             {studyItem.itemType === 'lession'
                               ? <LessionDetail studyItem={studyItem} load={openLoadIds.includes(studyItem.id ?? 0)} />
-                              : <ExamDetail studyItem={studyItem} userId={userId} load={openLoadIds.includes(studyItem.id ?? 0)} />}
+                              : <ExamDetail studyItem={studyItem} userId={userId} load={openLoadIds.includes(studyItem.id ?? 0)} courseStatus={courseStatus} />}
                           </Collapse>
                         </div>
                       </div>
@@ -397,14 +401,12 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
             <AddExamForm userId={userId} lessionCategoryId={lessionCategoryId} setIsAddingExam={setIsAddingExam} fetchStudyItems={fetchStudyItems} />
           ) : (
             <div className='mb-4 md:ml-20 flex gap-3'>
-              <div className='cursor-pointer flex justify-center text-white bg-teal-500 w-36 p-2 rounded-md active:scale-95' onClick={() => {
-                setIsAddingLesson(true)
-              }}>
+              <div className={`flex justify-center text-white bg-teal-500 w-36 p-2 rounded-md ${isRequestStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-95'}`}
+              onClick={isRequestStatus ? undefined : () => { setIsAddingLesson(true) }}>
                 Thêm bài học
               </div>
-              <div className='cursor-pointer flex justify-center text-white bg-teal-500 w-40 p-2 rounded-md active:scale-95' onClick={() => {
-                setIsAddingExam(true)
-              }}>
+              <div className={`flex justify-center text-white bg-teal-500 w-40 p-2 rounded-md ${isRequestStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-95'}`}
+              onClick={isRequestStatus ? undefined : () => { setIsAddingExam(true) }}>
                 Thêm trắc nghiệm
               </div>
             </div>

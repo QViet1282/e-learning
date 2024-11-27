@@ -85,7 +85,6 @@ const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, us
     setAnswers(updatedAnswers)
   }
 
-  // Hàm xử lý submit
   const handleSubmit = async (): Promise<void> => {
     const strippedContent = dataQuestion.content.replace(/<\/?[^>]+(>|$)/g, '').trim()
 

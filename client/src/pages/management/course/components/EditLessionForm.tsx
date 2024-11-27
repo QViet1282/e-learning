@@ -76,7 +76,8 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
           locationPath: response.data.secure_url,
           type: file.type.includes('video') ? 'MP4' : 'PDF', // Phân loại theo loại tệp
           studyItemId: prevLesson.Lession?.studyItemId ?? 0,
-          uploadedBy: userId
+          uploadedBy: userId,
+          durationInSecond: response.data.duration
         }
       }))
     } catch (error) {
@@ -120,7 +121,8 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
       description: lesson.description,
       uploadedBy: userId,
       type: lesson.Lession?.type !== '' ? lesson.Lession?.type : undefined,
-      locationPath: lesson.Lession?.locationPath
+      locationPath: lesson.Lession?.locationPath,
+      durationInSecond: lesson.Lession?.durationInSecond ?? null
     }
     await editStudyItemAndLession(studyItem.id, payload).then(async () => {
       toast.success('Lưu thành công')

@@ -39,11 +39,12 @@ export const editCategoryLession = async (categoryLessionId: number | undefined,
   return await requestWithJwt.put<any>(`/category-lessions/editCategoryLession/${categoryLessionId}`, payload)
 }
 
-export const editQuestion = async (questionId: number | undefined, payload: editQuestionItem): Promise<AxiosResponse<any>> => {
-  if (questionId === undefined) {
-    throw new Error('questionId cannot be undefined')
-  }
+export const editQuestion = async (questionId: number, payload: editQuestionItem): Promise<AxiosResponse<any>> => {
   return await requestWithJwt.put<any>(`/questions/editQuestion/${questionId}`, payload)
+}
+
+export const stopUsingQuestion = async (questionId: number): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.put<any>(`/questions/stopUsingQuestion/${questionId}`)
 }
 
 export const editCourse = async (courseId: number | undefined, payload: editCourseItem): Promise<AxiosResponse<any>> => {
@@ -64,7 +65,7 @@ export const updateCourseStatus = async (courseId: number | undefined, payload: 
   })
 }
 
-export const acceptOrDeclineCourseStatus = async (courseId: number | undefined, payload: { status: number | undefined }): Promise<AxiosResponse<any>> => {
+export const acceptOrDeclineCourseStatus = async (courseId: number | undefined, payload: { status: number | undefined, resuft: boolean }): Promise<AxiosResponse<any>> => {
   if (courseId === undefined) {
     throw new Error('courseId cannot be undefined')
   }

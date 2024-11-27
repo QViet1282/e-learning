@@ -34,6 +34,8 @@ router.get('/getAllCourseInfo', isAuthenticated, async (req, res) => {
     } else if (status) {
       whereConditions.status = status
     }
+  } else {
+    whereConditions.status = { [Op.ne]: 8 }
   }
 
   if (priceMin || priceMax) {
@@ -94,7 +96,10 @@ router.get('/getAllCourseByTeacher', isAuthenticated, async (req, res) => {
 
   try {
     const courses = await models.Course.findAll({
-      where: { assignedBy: teacherIdToUse },
+      where: {
+        assignedBy: teacherIdToUse,
+        status: { [Op.ne]: 8 }
+      },
       attributes: ['id', 'categoryCourseId', 'name', 'durationInMinute', 'locationPath', 'price', 'status']
     })
 
@@ -114,7 +119,10 @@ router.get('/getCourseById/:courseId', isAuthenticated, async (req, res) => {
     }
 
     const course = await models.Course.findOne({
-      where: { id: courseId }
+      where: {
+        id: courseId,
+        status: { [Op.ne]: 8 }
+      }
     })
 
     if (!course) {
@@ -235,7 +243,7 @@ router.put('/acceptOrDeclineCourseStatus/:courseId', isAuthenticated, async (req
 
       const startDate = course.status === 1 ? Date.now() : null
 
-      await models.Course.update({ status, durationInMinute: totalDuration, startDate }, {
+      await models.Course.update({ status, durationInMinute: totalDuration === null ? 0 : totalDuration, startDate }, {
         where: {
           id: courseId
         },
@@ -342,7 +350,7 @@ async function calculateTotalCourseDuration (courseId) {
       type: sequelize.QueryTypes.SELECT
     })
 
-    return results.totalDuration
+    return Math.round(results.totalDuration / 60)
   } catch (error) {
     console.error('Error calculating total course duration:', error)
     return 0 // Trả về 0 nếu có lỗi
@@ -1400,6 +1408,11 @@ function paginateData (data, size, page) {
 // Kiem tra gia tri trươc khi yeu cau public
 async function isCourseValidForStatus (courseId) {
   try {
+    const totalDuration = await calculateTotalCourseDuration(courseId)
+    if (!totalDuration || totalDuration < 20) {
+      return false
+    }
+
     const course = await models.Course.findByPk(Number(courseId), {
       attributes: ['id', 'price', 'videoLocationPath', 'locationPath', 'prepare', 'description'],
       include: [
