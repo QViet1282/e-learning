@@ -77,7 +77,7 @@ const PayoutPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-sky-100 p-8 border-x-2">
+    <div className="bg-sky-100 p-8 border-x-2">
       {/* Header */}
       <h1 className="text-4xl font-semibold text-center text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-teal-400 to-blue-500 mb-8">
         Quản Lý Yêu Cầu Trả Tiền

@@ -13,6 +13,7 @@ import { IconButton, Modal } from '@mui/material'
 import { createCourse } from 'api/post/post.api'
 import LecturerRevenue from './component/LecturerRevenue'
 import { toast } from 'react-toastify'
+import courseDefault from '../../assets/images/default/course_default.png'
 
 const LecturerDashboard = () => {
   const navigate = useNavigate()
@@ -264,7 +265,7 @@ const LecturerDashboard = () => {
                     onClick={() => navigate(ROUTES.detailCourse, { state: { courseId: course.id } })}
                   >
                     <img
-                      src={course.locationPath}
+                      src={course.locationPath ?? courseDefault}
                       alt={course.name}
                       className="w-48 h-24 object-cover rounded mr-4 group-hover:scale-105"
                     />

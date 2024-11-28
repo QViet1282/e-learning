@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/prefer-nullish-coalescing */
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* PAGE: COURSEPAGE
    ========================================================================== */
@@ -19,15 +21,31 @@ import Statistics from './Statistics'
 export default function CourseDetailPage (): JSX.Element {
   const location = useLocation()
   const { courseId } = location.state || {}
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedContent, setSelectedContent] = useState<string>('Tổng quan khóa học')
   const [course, setCourse] = useState<Course | null>(null)
   const [isManagement, setIsManagement] = useState<boolean>(true)
+  const [selectedContent, setSelectedContent] = useState<string>(
+    sessionStorage.getItem('selectedContent') || 'Tổng quan khóa học'
+  )
+
+  useEffect(() => {
+    sessionStorage.setItem('selectedContent', selectedContent)
+  }, [selectedContent])
 
   useEffect(() => {
     void fetchCourse()
   }, [courseId])
 
+  useEffect(() => {
+    const currentPath = location.pathname
+
+    return () => {
+      const newPath = window.location.pathname
+      if (currentPath !== newPath) {
+        sessionStorage.removeItem('selectedContent')
+      }
+    }
+  }, [location.pathname])
+  
   const fetchCourse = async (): Promise<void> => {
     try {
       const response = await getCourseById(courseId)
@@ -39,6 +57,11 @@ export default function CourseDetailPage (): JSX.Element {
       console.error('Error fetching course:', error)
     }
   }
+
+  const handleContentSelect = (content: string) => {
+    setSelectedContent(content)
+  }
+
   const renderContent = (content: string | null): JSX.Element | null => {
     switch (content) {
       case 'Học viên mục tiêu':
@@ -96,18 +119,18 @@ export default function CourseDetailPage (): JSX.Element {
           </AccordionSummary>
           <AccordionDetails>
             <div className='flex flex-col gap-4'>
-              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => setSelectedContent('Tổng quan khóa học')}>
+              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => handleContentSelect('Tổng quan khóa học')}>
                 Tổng quan khóa học
               </button>
-              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => setSelectedContent('Học viên mục tiêu')}>
+              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => handleContentSelect('Học viên mục tiêu')}>
                 Học viên mục tiêu
               </button>
 
-              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => setSelectedContent('Chương trình giảng dạy')}>
+              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => handleContentSelect('Chương trình giảng dạy')}>
                 Chương trình giảng dạy
               </button>
 
-              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => setSelectedContent('Định giá & Xuất bản')}>
+              <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => handleContentSelect('Định giá & Xuất bản')}>
                 Định giá & Xuất bản
               </button>
 
@@ -124,7 +147,7 @@ export default function CourseDetailPage (): JSX.Element {
                 disabled={!isManagement}
                 className={`rounded py-2 w-full shadow focus:outline-none 
     ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
-                onClick={() => setSelectedContent('Danh sách học viên')}
+                onClick={() => handleContentSelect('Danh sách học viên')}
               >
                 Danh sách học viên
               </button>
@@ -132,7 +155,7 @@ export default function CourseDetailPage (): JSX.Element {
                 disabled={!isManagement}
                 className={`rounded py-2 w-full shadow focus:outline-none 
     ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
-                onClick={() => setSelectedContent('Kết quả các bài trắc nghiệm')}
+                onClick={() => handleContentSelect('Kết quả các bài trắc nghiệm')}
               >
                 Kết quả các bài trắc nghiệm
               </button>
@@ -140,7 +163,7 @@ export default function CourseDetailPage (): JSX.Element {
                 disabled={!isManagement}
                 className={`rounded py-2 w-full shadow focus:outline-none 
     ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
-                onClick={() => setSelectedContent('Thông báo')}
+                onClick={() => handleContentSelect('Thông báo')}
               >
                 Thông báo
               </button>
@@ -148,7 +171,7 @@ export default function CourseDetailPage (): JSX.Element {
                 disabled={!isManagement}
                 className={`rounded py-2 w-full shadow focus:outline-none 
     ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
-                onClick={() => setSelectedContent('Thống kê')}
+                onClick={() => handleContentSelect('Thống kê')}
               >
                 Thống kê
               </button>

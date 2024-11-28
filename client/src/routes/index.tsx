@@ -175,7 +175,7 @@ const routes: RouteObject[] = [
       {
         path: ROUTES.lectuterDashboard,
         element: (
-          <AuthRoute allowedRoles={['TEACHER', 'ADMIN']}>
+          <AuthRoute allowedRoles={['TEACHER']}>
             <LectuterDashboard />
           </AuthRoute>
         )

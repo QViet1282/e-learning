@@ -172,7 +172,7 @@ router.get('/top-enrollment-courses', async (req, res) => {
         {
           model: models.Course,
           attributes: ['id', 'name'],
-          where: { [Op.in]: [2, 3, 4, 5, 6, 7] }
+          where: { status: { [Op.in]: [2, 3, 4, 5, 6, 7] } }
         }
       ]
     })
@@ -233,7 +233,7 @@ router.get('/top-earning-courses', async (req, res) => {
         {
           model: models.Course,
           attributes: ['name'],
-          where: { [Op.in]: [2, 3, 4, 5, 6, 7] }
+          where: { status: { [Op.in]: [2, 3, 4, 5, 6, 7] } }
         }
       ]
     })
@@ -294,7 +294,7 @@ router.get('/allRegistrationsAndRevenue', isAuthenticated, async (req, res) => {
         {
           model: models.Course,
           attributes: [],
-          where: { [Op.in]: [2, 3, 4, 5, 6, 7] }
+          where: { status: { [Op.in]: [2, 3, 4, 5, 6, 7] } }
         }
       ],
       where: whereCondition,
@@ -482,7 +482,7 @@ router.get('/overview', async (req, res) => {
 
     const totalCourses = await models.Course.count({
       where: {
-        status: { [Op.in]: [2, 3, 4, 5, 6, 7] }
+        status: { status: { [Op.in]: [2, 3, 4, 5, 6, 7] } }
       }
     })
 
@@ -534,7 +534,7 @@ router.get('/top-earning-teachers', async (req, res) => {
         {
           model: models.Course,
           attributes: ['assignedBy', 'price'], // Lấy giá khóa học
-          where: { [Op.in]: [2, 3, 4, 5, 6, 7] },
+          where: { status: { [Op.in]: [2, 3, 4, 5, 6, 7] } },
           include: [
             {
               model: models.User,
@@ -674,7 +674,7 @@ router.get('/courseStatistics', async (req, res) => {
         {
           model: models.Course,
           attributes: [],
-          where: { [Op.in]: [2, 3, 4, 5, 6, 7] }
+          where: { status: { [Op.in]: [2, 3, 4, 5, 6, 7] } }
         }
       ],
       where: {
@@ -767,7 +767,7 @@ router.get('/StatisticsEnrollmentAndRevenueByTeacher', isAuthenticated, async (r
         {
           model: models.Course,
           attributes: [],
-          where: { [Op.in]: [2, 3, 4, 5, 6, 7] }
+          where: { status: { [Op.in]: [2, 3, 4, 5, 6, 7] } }
         }
       ],
       where: whereCondition,
@@ -849,7 +849,7 @@ router.get('/teacherStatistics', isAuthenticated, async (req, res) => {
         {
           model: models.Course,
           attributes: [],
-          where: { [Op.in]: [2, 3, 4, 5, 6, 7] }
+          where: { status: { [Op.in]: [2, 3, 4, 5, 6, 7] } }
         },
         {
           model: models.Order,
