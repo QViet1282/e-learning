@@ -164,7 +164,7 @@ const Notification = ({ courseId }: { courseId: number }) => {
 
         {loading
           ? (
-            <div className="flex justify-center items-center w-full min-h-80 mt-15">
+            <div className="flex justify-center items-center w-full min-h-80 mt-40">
               <PacmanLoader
                 className='flex justify-center items-center w-full mt-20 min-h-96'
                 color='#5EEAD4'

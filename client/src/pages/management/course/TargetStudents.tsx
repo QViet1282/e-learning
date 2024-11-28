@@ -147,7 +147,6 @@ const TargetStudents: React.FC<TargetStudentsProps> = ({
         <DragDropContext onDragEnd={(result) => handleDragEnd(result, descriptions, setDescriptions)}>
           {renderList(descriptions, setDescriptions)}
         </DragDropContext>
-
         <div className="text-xl font-semibold mt-8 mb-4">Yêu cầu hoặc điều kiện tiên quyết để tham gia khóa học của bạn là gì?</div>
         <DragDropContext onDragEnd={(result) => handleDragEnd(result, preparations, setPreparations)}>
           {renderList(preparations, setPreparations)}
