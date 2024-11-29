@@ -2,6 +2,11 @@
 
 cd client
 
+                                REACT_APP_NAME="reactjs-template-development"
+                                REACT_APP_API=http://localhost:8000/api/v1
+                                REACT_APP_CLOUDINARY_CLOUD_NAME=
+                                REACT_APP_CLOUDINARY_UPLOAD_PRESET=
+
 yarn install
 
 yarn dev
