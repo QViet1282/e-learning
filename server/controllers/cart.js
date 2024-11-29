@@ -1,6 +1,5 @@
 const express = require('express')
 const { models } = require('../models')
-const { sequelize } = require('../models')
 const router = express.Router()
 const { Op } = require('sequelize')
 
@@ -185,55 +184,85 @@ router.post('/cart/add', async (req, res) => {
       return res.status(404).json({ message: 'Khóa học không tồn tại' })
     }
 
-    // Tìm đơn hàng đang chờ của người dùng
-    let order = await models.Order.findOne({ where: { userId, status: 0 } })
+    // Tìm đơn hàng của người dùng có trạng thái 0 (chờ thanh toán) hoặc 2 (đang thanh toán)
+    let order = await models.Order.findOne({
+      where: { userId, status: { [Op.in]: [0, 2] } } // Kiểm tra trạng thái 0 và 2
+    })
 
-    // Nếu không có đơn hàng đang chờ, tạo một đơn hàng mới
+    // Nếu tìm thấy đơn hàng với trạng thái "đang thanh toán" (status = 2), tìm đơn hàng có trạng thái "chờ thanh toán" (status = 0)
+    if (order && order.status === 2) {
+      order = await models.Order.findOne({
+        where: { userId, status: 0 } // Tìm đơn hàng có trạng thái "chờ thanh toán" (status = 0)
+      })
+    }
+
+    // Nếu không có đơn hàng nào có trạng thái "chờ thanh toán" (status = 0), tạo đơn hàng mới
     if (!order) {
       order = await models.Order.create({
         userId,
         orderDate: new Date(),
-        status: 0,
+        status: 0, // Trạng thái chờ thanh toán
         totalAmount: 0,
         paymentMethod: 'PayOS' // Phương thức thanh toán mặc định
       })
     }
 
-    // Kiểm tra xem khóa học đã có trong giỏ hàng chưa
+    // Kiểm tra xem khóa học đã có trong giỏ hàng chưa (dựa trên orderId và status = 0)
     const existingEnrollment = await models.Enrollment.findOne({
-      where: { courseId, orderId: order.id, status: 0 } // chỗ này sửa lại status: 0 // Fix_1001
+      where: { courseId, orderId: order.id, status: 0 } // Chỉ kiểm tra các enrollment có status = 0 (chưa thanh toán)
     })
 
     if (existingEnrollment) {
       return res.status(400).json({ message: 'Khóa học đã có trong giỏ hàng' })
     }
 
-    // Thêm khóa học vào đơn hàng (enrollment)
+    // Thêm khóa học vào giỏ hàng
     await models.Enrollment.create({
       courseId,
       orderId: order.id,
       enrollmentDate: new Date(),
-      status: 0, // Chưa kích hoạt
-      progress: 0
+      status: 0, // Đánh dấu là chưa kích hoạt
+      progress: 0 // Tiến độ chưa bắt đầu
     })
 
-    // Cập nhật tổng số tiền của đơn hàng
+    // Cập nhật lại tổng số tiền của đơn hàng
     const totalAmount = parseFloat(order.totalAmount) + parseFloat(course.price)
-    order.totalAmount = totalAmount.toFixed(2)
+    order.totalAmount = totalAmount.toFixed(2) // Cập nhật tổng số tiền của đơn hàng
     await order.save()
 
+    // Trả về thông báo và đơn hàng mới được cập nhật
     res.status(200).json({ message: 'Khóa học đã được thêm vào giỏ hàng', order })
   } catch (error) {
     console.error('Error adding course to cart:', error)
     res.status(500).json({ message: 'Error adding course to cart', error: error.message })
   }
 })
+
 // Xem giỏ hàng của người dùng
 router.get('/cart/:userId', async (req, res) => {
   const { userId } = req.params
 
   try {
-    // Tìm đơn hàng chưa thanh toán
+    // Lấy tất cả các đơn hàng đã thanh toán của người dùng
+    const completedOrders = await models.Order.findAll({
+      where: { userId, status: 1 },
+      include: [
+        {
+          model: models.Enrollment,
+          attributes: ['courseId']
+        }
+      ]
+    })
+
+    // Tập hợp các courseId đã mua
+    const purchasedCourseIds = new Set()
+    completedOrders.forEach(order => {
+      order.Enrollments.forEach(enrollment => {
+        purchasedCourseIds.add(enrollment.courseId)
+      })
+    })
+
+    // Tìm đơn hàng chưa thanh toán (giỏ hàng hiện tại)
     const order = await models.Order.findOne({
       where: { userId, status: 0 },
       include: [
@@ -258,42 +287,43 @@ router.get('/cart/:userId', async (req, res) => {
       return res.status(200).json({ message: 'Giỏ hàng trống' })
     }
 
-    // Lấy rating trung bình của mỗi khóa học từ bảng Enrollment
-    const ratings = await models.Enrollment.findAll({
-      attributes: [
-        'courseId',
-        [sequelize.fn('AVG', sequelize.col('rating')), 'averageRating']
-      ],
-      where: {
-        rating: {
-          [Op.ne]: null // Chỉ lấy các bản ghi có rating khác null
-        },
-        status: 1 // chỗ này sửa lại status: 0 // Fix_1001
-      },
-      group: ['courseId']
+    // Loại bỏ các Enrollment đã mua khỏi giỏ hàng
+    const enrollmentsToKeep = order.Enrollments.filter(enrollment => {
+      return !purchasedCourseIds.has(enrollment.courseId)
     })
 
-    // Chuyển đổi kết quả thành đối tượng dễ tìm kiếm
-    const ratingsObject = ratings.reduce((acc, curr) => {
-      const courseId = curr.getDataValue('courseId') // Lấy courseId
-      const averageRating = parseFloat(curr.getDataValue('averageRating')) // Lấy averageRating
-      acc[courseId] = averageRating || 0 // Gán giá trị averageRating vào đối tượng
-      return acc
-    }, {})
-
-    // Thêm rating trung bình và tên người gán vào thông tin khóa học
-    order.Enrollments.forEach(enrollment => {
-      enrollment.Course.dataValues.averageRating = ratingsObject[enrollment.Course.id] || 0
-      enrollment.Course.dataValues.assignedByName = enrollment.Course.User.username || 'Unknown'
+    // Xóa các Enrollment đã mua khỏi cơ sở dữ liệu
+    const enrollmentsToRemove = order.Enrollments.filter(enrollment => {
+      return purchasedCourseIds.has(enrollment.courseId)
     })
 
+    for (const enrollment of enrollmentsToRemove) {
+      await enrollment.destroy()
+    }
+
+    // Cập nhật lại danh sách Enrollment trong đơn hàng
+    order.Enrollments = enrollmentsToKeep
+
+    // Nếu giỏ hàng trống sau khi loại bỏ
+    if (order.Enrollments.length === 0) {
+      await order.destroy()
+      return res.status(200).json({ message: 'Giỏ hàng trống' })
+    }
+
+    // Cập nhật lại totalAmount của đơn hàng
+    const totalAmount = enrollmentsToKeep.reduce((sum, enrollment) => {
+      return sum + parseFloat(enrollment.Course.price)
+    }, 0.0)
+    order.totalAmount = totalAmount.toFixed(2) // Đảm bảo định dạng số thập phân hợp lệ
+    await order.save()
+
+    // Trả về đơn hàng với thông tin giỏ hàng
     res.status(200).json(order)
   } catch (error) {
     console.error('Error fetching cart:', error)
     res.status(500).json({ message: 'Error fetching cart', error: error.message })
   }
 })
-
 // Remove a course from the cart
 router.delete('/cart/remove', async (req, res) => {
   const { userId, courseId } = req.body
