@@ -8,18 +8,15 @@ const { sequelize, models } = require('../models')
 // Process payment and create PayOS payment link
 router.post('/process', async (req, res) => {
   const { userId, amount } = req.body.data
-  const transaction = await sequelize.transaction() // Khởi tạo transaction
 
   try {
-    // Tìm giỏ hàng đang chờ thanh toán của người dùng và khóa dòng
+    // Tìm giỏ hàng đang chờ thanh toán của người dùng
     const order = await models.Order.findOne({
       where: { userId, status: 0 }, // Giỏ hàng chờ thanh toán
       include: [{
         model: models.Enrollment,
         include: [models.Course] // Include Course để lấy thông tin chi tiết khóa học
-      }],
-      transaction,
-      lock: transaction.LOCK.UPDATE // Khóa dòng đơn hàng để tránh thay đổi trong quá trình thanh toán
+      }]
     })
 
     if (!order) {
@@ -27,7 +24,7 @@ router.post('/process', async (req, res) => {
     }
 
     order.status = 2 // Hoặc trạng thái bạn định nghĩa cho "Đang thanh toán"
-    await order.save({ transaction })
+    await order.save() // Không sử dụng transaction ở đây
 
     // Map các khóa học và chuẩn bị thông tin thanh toán
     const items = order.Enrollments.map(item => ({
@@ -67,17 +64,12 @@ router.post('/process', async (req, res) => {
       status: 'PENDING', // Trạng thái ban đầu là chờ
       transactionId: paymentLinkResponse.paymentLinkId,
       orderSnapshot // Lưu chuỗi id của các khóa học
-    }, { transaction })
-
-    // Commit giao dịch
-    await transaction.commit()
+    })
 
     // Trả về URL thanh toán
     res.status(200).json({ checkoutUrl: paymentLinkResponse.checkoutUrl })
   } catch (error) {
-    // Rollback giao dịch nếu có lỗi
     console.error('Error processing payment:', error)
-    await transaction.rollback()
     res.status(500).json({ message: 'Error processing payment', error: error.message })
   }
 })
@@ -258,130 +250,130 @@ router.get('/purchase-history/:userId', async (req, res) => {
 // })
 
 // Handle PayOS payment webhook v2 - fix không dùng description để lấy orderId
-// router.post('/payos-webhook', async (req, res) => {
-//   const transaction = await sequelize.transaction() // Khởi tạo transaction
+router.post('/payos-webhook', async (req, res) => {
+  const transaction = await sequelize.transaction() // Khởi tạo transaction
 
-//   try {
-//     console.log('Payment webhook received------------------------')
-//     console.log('Webhook body:', req.body)
+  try {
+    console.log('Payment webhook received------------------------')
+    console.log('Webhook body:', req.body)
 
-//     const webhookData = payOS.verifyPaymentWebhookData(req.body)
-//     console.log('Webhook data:', webhookData)
+    const webhookData = payOS.verifyPaymentWebhookData(req.body)
+    console.log('Webhook data:', webhookData)
 
-//     const desc = webhookData.desc
-//     const paymentLinkId = webhookData.paymentLinkId // Sử dụng paymentLinkId thay vì transactionId
-//     if (!paymentLinkId) {
-//       console.error('Payment Link ID is missing')
-//       return res.status(400).json({ message: 'Payment Link ID is missing' })
-//     }
-//     // Tìm bản ghi Payment trong cơ sở dữ liệu dựa trên paymentLinkId
-//     const payment = await models.Payment.findOne({ where: { transactionId: paymentLinkId }, transaction })
-//     if (!payment) {
-//       console.error('Payment not found for paymentLinkId:', paymentLinkId)
-//       return res.status(404).json({ message: 'Payment not found' })
-//     }
+    const desc = webhookData.desc
+    const paymentLinkId = webhookData.paymentLinkId // Sử dụng paymentLinkId thay vì transactionId
+    if (!paymentLinkId) {
+      console.error('Payment Link ID is missing')
+      return res.status(400).json({ message: 'Payment Link ID is missing' })
+    }
+    // Tìm bản ghi Payment trong cơ sở dữ liệu dựa trên paymentLinkId
+    const payment = await models.Payment.findOne({ where: { transactionId: paymentLinkId }, transaction })
+    if (!payment) {
+      console.error('Payment not found for paymentLinkId:', paymentLinkId)
+      return res.status(404).json({ message: 'Payment not found' })
+    }
 
-//     // Lấy orderId từ Payment
-//     const orderId = payment.orderId
-//     if (!orderId) {
-//       console.error('Order ID is missing')
-//       return res.status(400).json({ message: 'Order ID is missing' })
-//     }
-//     // Tìm đơn hàng liên kết với orderId
-//     // const order = await models.Order.findOne({ where: { id: orderId, status: 0 }, transaction })
-//     const order = await models.Order.findOne({
-//       where: { id: orderId, status: 0 }, // Đơn hàng chưa thanh toán
-//       transaction,
-//       lock: transaction.LOCK.UPDATE // Khóa dòng đơn hàng trong khi thanh toán đang xử lý
-//     })
+    // Lấy orderId từ Payment
+    const orderId = payment.orderId
+    if (!orderId) {
+      console.error('Order ID is missing')
+      return res.status(400).json({ message: 'Order ID is missing' })
+    }
+    // Tìm đơn hàng liên kết với orderId
+    // const order = await models.Order.findOne({ where: { id: orderId, status: 0 }, transaction })
+    const order = await models.Order.findOne({
+      where: { id: orderId, status: 2 }, // Đơn hàng chưa thanh toán
+      transaction,
+      lock: transaction.LOCK.UPDATE // Khóa dòng đơn hàng trong khi thanh toán đang xử lý
+    })
 
-//     if (!order) {
-//       console.error('Order not found or already processed for orderId:', orderId)
-//       return res.status(404).json({ message: 'Order not found or already processed' })
-//     }
+    if (!order) {
+      console.error('Order not found or already processed for orderId:', orderId)
+      return res.status(404).json({ message: 'Order not found or already processed' })
+    }
 
-//     // Xử lý thanh toán thành công
-//     if (desc === 'success') {
-//       // Cập nhật trạng thái Payment và Order trong database
-//       payment.status = 'COMPLETED'
-//       payment.paymentDate = new Date()
-//       await payment.save({ transaction })
+    // Xử lý thanh toán thành công
+    if (desc === 'success') {
+      // Cập nhật trạng thái Payment và Order trong database
+      payment.status = 'COMPLETED'
+      payment.paymentDate = new Date()
+      await payment.save({ transaction })
 
-//       // Cập nhật trạng thái Order
-//       order.status = 1 // Đã thanh toán
-//       await order.save({ transaction })
+      // Cập nhật trạng thái Order
+      order.status = 1 // Đã thanh toán
+      await order.save({ transaction })
 
-//       // Kích hoạt các khóa học liên quan
-//       await models.Enrollment.update(
-//         { status: 1, enrollmentDate: new Date() }, // Kích hoạt khóa học sau khi thanh toán thành công
-//         { where: { orderId: order.id }, transaction }
-//       )
+      // Kích hoạt các khóa học liên quan
+      await models.Enrollment.update(
+        { status: 1, enrollmentDate: new Date() }, // Kích hoạt khóa học sau khi thanh toán thành công
+        { where: { orderId: order.id }, transaction }
+      )
 
-//       // Cập nhật pendingRevenue cho các người dùng được chỉ định (assignedBy) từ các khóa học đã thanh toán
-//       const enrollments = await models.Enrollment.findAll({ where: { orderId: order.id }, transaction })
+      // Cập nhật pendingRevenue cho các người dùng được chỉ định (assignedBy) từ các khóa học đã thanh toán
+      const enrollments = await models.Enrollment.findAll({ where: { orderId: order.id }, transaction })
 
-//       for (const enrollment of enrollments) {
-//         // Truy vấn bảng Course để lấy giá của khóa học
-//         const course = await models.Course.findOne({
-//           where: { id: enrollment.courseId }, // Giả sử mỗi Enrollment đều có trường courseId
-//           transaction
-//         })
-//         if (!course) {
-//           console.error('Course not found for courseId:', enrollment.courseId)
-//           return // Hoặc xử lý lỗi nếu không tìm thấy khóa học
-//         }
-//         if (course) {
-//           const user = await models.User.findOne({
-//             where: { id: course.assignedBy }, // Lấy assignedBy từ bảng Course
-//             transaction,
-//             lock: transaction.LOCK.UPDATE // Sử dụng khóa dòng dữ liệu
-//           })
-//           if (!user) {
-//             console.error('User not found for assignedBy:', enrollment.assignedBy)
-//             return // Hoặc xử lý lỗi nếu không tìm thấy người dùng
-//           }
-//           if (user) {
-//             console.log('Updating pendingRevenue for user:', user.id)
-//             console.log('Course price:', course.price)
-//             console.log('User pendingRevenue:', user.pendingRevenue)
+      for (const enrollment of enrollments) {
+        // Truy vấn bảng Course để lấy giá của khóa học
+        const course = await models.Course.findOne({
+          where: { id: enrollment.courseId }, // Giả sử mỗi Enrollment đều có trường courseId
+          transaction
+        })
+        if (!course) {
+          console.error('Course not found for courseId:', enrollment.courseId)
+          return // Hoặc xử lý lỗi nếu không tìm thấy khóa học
+        }
+        if (course) {
+          const user = await models.User.findOne({
+            where: { id: course.assignedBy }, // Lấy assignedBy từ bảng Course
+            transaction,
+            lock: transaction.LOCK.UPDATE // Sử dụng khóa dòng dữ liệu
+          })
+          if (!user) {
+            console.error('User not found for assignedBy:', enrollment.assignedBy)
+            return // Hoặc xử lý lỗi nếu không tìm thấy người dùng
+          }
+          if (user) {
+            console.log('Updating pendingRevenue for user:', user.id)
+            console.log('Course price:', course.price)
+            console.log('User pendingRevenue:', user.pendingRevenue)
 
-//             // Đảm bảo giá trị là một số hợp lệ
-//             const coursePrice = parseFloat(course.price) // Chuyển thành số
-//             if (isNaN(coursePrice)) {
-//               console.error('Invalid course price:', course.price)
-//               return // Dừng lại nếu giá trị không hợp lệ
-//             }
+            // Đảm bảo giá trị là một số hợp lệ
+            const coursePrice = parseFloat(course.price) // Chuyển thành số
+            if (isNaN(coursePrice)) {
+              console.error('Invalid course price:', course.price)
+              return // Dừng lại nếu giá trị không hợp lệ
+            }
 
-//             // Đảm bảo user.pendingRevenue là số
-//             user.pendingRevenue = parseFloat(user.pendingRevenue) || 0 // Chuyển thành số nếu chưa phải là số
+            // Đảm bảo user.pendingRevenue là số
+            user.pendingRevenue = parseFloat(user.pendingRevenue) || 0 // Chuyển thành số nếu chưa phải là số
 
-//             // Cộng giá trị vào pendingRevenue
-//             user.pendingRevenue += coursePrice // Cộng trực tiếp, không cần làm tròn vì coursePrice đã là số hợp lệ
+            // Cộng giá trị vào pendingRevenue
+            user.pendingRevenue += coursePrice // Cộng trực tiếp, không cần làm tròn vì coursePrice đã là số hợp lệ
 
-//             // Lưu lại thông tin người dùng với giá trị mới của pendingRevenue
-//             await user.save({ transaction })
+            // Lưu lại thông tin người dùng với giá trị mới của pendingRevenue
+            await user.save({ transaction })
 
-//             console.log('Updated pendingRevenue:', user.pendingRevenue)
-//           }
-//         }
-//       }
+            console.log('Updated pendingRevenue:', user.pendingRevenue)
+          }
+        }
+      }
 
-//       // Commit giao dịch khi tất cả các bước đều thành công
-//       await transaction.commit()
+      // Commit giao dịch khi tất cả các bước đều thành công
+      await transaction.commit()
 
-//       res.json({ message: 'Payment processed successfully' })
-//     } else {
-//       // Payment failed or other status
-//       console.error('Payment failed for orderId:', orderId)
-//       res.status(400).json({ message: 'Payment failed or invalid status' })
-//     }
-//   } catch (error) {
-//     // Nếu có lỗi, rollback giao dịch
-//     console.error('Error processing payment webhook:', error)
-//     await transaction.rollback()
-//     res.status(500).json({ message: 'Error processing payment webhook', error: error.message })
-//   }
-// })
+      res.json({ message: 'Payment processed successfully' })
+    } else {
+      // Payment failed or other status
+      console.error('Payment failed for orderId:', orderId)
+      res.status(400).json({ message: 'Payment failed or invalid status' })
+    }
+  } catch (error) {
+    // Nếu có lỗi, rollback giao dịch
+    console.error('Error processing payment webhook:', error)
+    await transaction.rollback()
+    res.status(500).json({ message: 'Error processing payment webhook', error: error.message })
+  }
+})
 
 // B1:đầu tiên sẽ chạy API này trước đóng API trên lại sau khi báo thành công thì sẽ chạy API ở trên
 // B2: chạy ứng dụng
@@ -391,30 +383,30 @@ router.get('/purchase-history/:userId', async (req, res) => {
 // B6: copy link ngrok http://xxxxxx/api/v1/payment/payos-webhook
 // B7: vào tài khoản PayOS -> cài đặt Webhook -> paste link vào -> lưu -> kiểm tra kết nối
 // B8: sau đó mở API trên lêN => hoàn tất
-router.post('/payos-webhook', async function (req, res) {
-  console.log('Received a request at /payos')
-  console.log('Request body:', req.body)
-  const webhookData = payOS.verifyPaymentWebhookData(req.body)
+// router.post('/payos-webhook', async function (req, res) {
+//   console.log('Received a request at /payos')
+//   console.log('Request body:', req.body)
+//   const webhookData = payOS.verifyPaymentWebhookData(req.body)
 
-  if (
-    ['Ma giao dich thu nghiem', 'VQRIO123'].includes(webhookData.description)
-  ) {
-    return res.json({
-      error: 0,
-      message: 'Ok',
-      data: webhookData
-    })
-  }
+//   if (
+//     ['Ma giao dich thu nghiem', 'VQRIO123'].includes(webhookData.description)
+//   ) {
+//     return res.json({
+//       error: 0,
+//       message: 'Ok',
+//       data: webhookData
+//     })
+//   }
 
-  // Source code uses webhook data - nghĩa là dùng dữ liệu từ webhook để xử lý gì đó (ví dụ: cập nhật trạng thái đơn hàng)
-  // ở đây mình chỉ log ra thôi
-  console.log(webhookData)
+//   // Source code uses webhook data - nghĩa là dùng dữ liệu từ webhook để xử lý gì đó (ví dụ: cập nhật trạng thái đơn hàng)
+//   // ở đây mình chỉ log ra thôi
+//   console.log(webhookData)
 
-  return res.json({
-    error: 0,
-    message: 'Ok',
-    data: webhookData
-  })
-})
+//   return res.json({
+//     error: 0,
+//     message: 'Ok',
+//     data: webhookData
+//   })
+// })
 
 module.exports = router
