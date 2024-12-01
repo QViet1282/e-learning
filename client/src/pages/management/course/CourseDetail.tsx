@@ -45,7 +45,7 @@ export default function CourseDetailPage (): JSX.Element {
       }
     }
   }, [location.pathname])
-  
+
   const fetchCourse = async (): Promise<void> => {
     try {
       const response = await getCourseById(courseId)

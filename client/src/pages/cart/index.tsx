@@ -65,11 +65,15 @@ const CartPage: React.FC = () => {
   const checkCancellation = async (orderCode: string) => {
     try {
       const response = await checkCancellationInfor(orderCode)
-      // console.log('Cancellation response:', response)
-      // if (result.error === 0 && result.data.status === 'CANCELLED') {
-      //   // Handle cancellation message
-      //   alert('Thanh toán đã bị hủy. Đơn hàng vẫn còn trong giỏ hàng của bạn.')
-      // }
+      // Kiểm tra kết quả trả về từ API, nếu đơn hàng đã bị hủy
+      if (response.data.status === 'CANCELLED') {
+        toast.info(t('cart.order_cancelled')) // Hiển thị thông báo đơn hàng đã hủy
+      }
+
+      // Sau khi xử lý hủy, cập nhật lại giỏ hàng
+      if (userId) {
+        dispatch(fetchCart({ userId, forceReload: true }))
+      }
     } catch (error) {
       console.error('Error checking cancellation:', error)
     }

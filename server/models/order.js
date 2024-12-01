@@ -24,8 +24,8 @@ const Order = sequelize.define(
       allowNull: false
     },
     status: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      type: DataTypes.TINYINT,
+      defaultValue: 0,
       allowNull: false
     },
     paymentMethod: {
