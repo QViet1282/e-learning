@@ -5,8 +5,10 @@ import HistoryIcon from '@mui/icons-material/History'
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet'
 import WithdrawRequestModal from './WithdrawRequestModal'
 import HistoryModal from './HistoryModal'
+import { useTranslation } from 'react-i18next'
 
 const LecturerRevenue = ({ totalRevenue = 0, pendingRevenue = 0 }: { totalRevenue: number, pendingRevenue: number }) => {
+  const { t } = useTranslation()
   const [isHistoryModalOpen, setHistoryModalOpen] = useState(false)
   const [isWithdrawModalOpen, setWithdrawModalOpen] = useState(false)
 
@@ -20,13 +22,13 @@ const LecturerRevenue = ({ totalRevenue = 0, pendingRevenue = 0 }: { totalRevenu
     <div className="w-full bg-white shadow-lg rounded-lg p-6 hover:shadow-xl transition-shadow duration-300">
       <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
         <AccountBalanceWalletIcon className="text-green-500" />
-        Doanh Thu Của Bạn
+        {t('lectureDashboard.revenue_header')}
       </h2>
       {/* Tổng doanh thu */}
       <div className="mb-6 flex items-center gap-4">
         <AttachMoneyIcon className="text-green-500 text-3xl" />
         <div>
-          <p className="text-gray-600 text-sm">Tổng doanh thu:</p>
+          <p className="text-gray-600 text-sm">{t('lectureDashboard.total_revenue')}</p>
           <p className="text-2xl font-semibold text-green-500">{Number(totalRevenue).toLocaleString('vi-VN')} VND</p>
         </div>
       </div>
@@ -34,7 +36,7 @@ const LecturerRevenue = ({ totalRevenue = 0, pendingRevenue = 0 }: { totalRevenu
       <div className="mb-6 flex items-center gap-4">
         <AttachMoneyIcon className="text-blue-500 text-3xl" />
         <div>
-          <p className="text-gray-600 text-sm">Số dư khả dụng:</p>
+          <p className="text-gray-600 text-sm">{t('lectureDashboard.pending_revenue')}</p>
           <p className="text-2xl font-semibold text-blue-500">{Number(pendingRevenue).toLocaleString('vi-VN')} VND</p>
         </div>
       </div>
@@ -45,21 +47,19 @@ const LecturerRevenue = ({ totalRevenue = 0, pendingRevenue = 0 }: { totalRevenu
           onClick={handleOpenWithdrawModal}
         >
           <AttachMoneyIcon />
-          Yêu Cầu Rút Tiền
+          {t('lectureDashboard.withdraw_request')}
         </button>
         <button
           className="w-full bg-gray-200 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-300 shadow-md transition-transform transform hover:scale-105 flex items-center justify-center gap-2"
           onClick={handleOpenHistoryModal}
         >
           <HistoryIcon />
-          Xem Lịch Sử
+          {t('lectureDashboard.view_history')}
         </button>
       </div>
 
-      {/* Modal: Lịch sử rút tiền */}
       <HistoryModal isOpen={isHistoryModalOpen} onClose={handleCloseHistoryModal}/>
 
-      {/* Modal: Yêu cầu rút tiền */}
       <WithdrawRequestModal isOpen={isWithdrawModalOpen} onClose={handleCloseWithdrawModal} pendingRevenue={pendingRevenue}/>
     </div>
   )

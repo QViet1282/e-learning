@@ -14,9 +14,12 @@ import { createCourse } from 'api/post/post.api'
 import LecturerRevenue from './component/LecturerRevenue'
 import { toast } from 'react-toastify'
 import courseDefault from '../../assets/images/default/course_default.png'
+import { useTranslation } from 'react-i18next'
 
 const LecturerDashboard = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
+  const searchTitle = t('lectureDashboard.search_course')
   const currentYear = new Date().getFullYear()
   const currentMonth = new Date().getMonth() + 1
   const [courses, setCourses] = useState<Course[]>([])
@@ -156,7 +159,7 @@ const LecturerDashboard = () => {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full bg-white md:p-8 p-1 border-x-2 border-shadow">
-        <h1 className="text-2xl font-bold md:mb-8 text-center">Bảng điều khiển Giảng viên</h1>
+        <h1 className="text-2xl font-bold md:mb-8 text-center">{t('lectureDashboard.lecturer_dashboard')}</h1>
         <div className="flex flex-col md:flex-row items-center">
           <div className="w-full md:w-3/5 md:pr-4 mb-4 md:mb-0">
             <LecturerRevenue totalRevenue={teacherStats.totalRevenue} pendingRevenue={pendingRevenue} />
@@ -178,7 +181,7 @@ const LecturerDashboard = () => {
           onClick={handleToggleExpand}
           className="flex items-center justify-center w-full p-4 rounded cursor-pointer transition-all duration-300"
         >
-          <span className="font-semi text-gray-400">Xem biểu đồ</span>
+          <span className="font-semi text-gray-400">{t('lectureDashboard.view_chart')}</span>
           {isExpanded
             ? (
               <ExpandLess className="w-6 h-6 text-gray-400" />
@@ -191,11 +194,11 @@ const LecturerDashboard = () => {
         {/* Phần mở rộng */}
         {isExpanded && (
           <div className="shadow-lg rounded-lg transition-all duration-500 transform scale-100 opacity-100 mb-2">
-            <h2 className="text-xl font-semibold mb-2">Thống kê Doanh thu & Lượt đăng ký</h2>
+            <h2 className="text-xl font-semibold mb-2">{t('lectureDashboard.revenue_and_enrollment_statistics')}</h2>
 
             {/* Bộ lọc năm và tháng */}
             <div className="flex items-center justify-center mb-4">
-              <label className="mr-4 font-semibold">Chọn năm:</label>
+              <label className="mr-4 font-semibold">{t('lectureDashboard.select_year')}:</label>
               <select
                 value={selectedYearTop}
                 onChange={handleYearChange}
@@ -209,16 +212,16 @@ const LecturerDashboard = () => {
               </select>
               {selectedYearTop && (
                 <>
-                  <label className="ml-6 mr-4 font-semibold">Chọn tháng:</label>
+                  <label className="ml-6 mr-4 font-semibold">{t('lectureDashboard.select_month')}:</label>
                   <select
                     value={selectedMonthTop ?? undefined}
                     onChange={handleMonthChange}
                     className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                   >
-                    <option value={undefined}>Tháng 1-12</option>
+                    <option value={undefined}>1 - 12</option>
                     {[...Array(12)].map((_, i) => (
                       <option key={i + 1} value={i + 1}>
-                        Tháng {i + 1}
+                        {`${i + 1}`}
                       </option>
                     ))}
                   </select>
@@ -235,12 +238,12 @@ const LecturerDashboard = () => {
           </div>
         )}
 
-        <h2 className="text-xl font-semibold mb-4">Danh sách Khóa học</h2>
+        <h2 className="text-xl font-semibold mb-4">{t('lectureDashboard.course_list')}</h2>
 
         <div className="flex items-center justify-between mb-8 md:space-x-2 space-x-1 flex-wrap gap-2">
           <input
             type="text"
-            placeholder="Tìm khóa học..."
+            placeholder={searchTitle}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className="p-2 border rounded md:w-1/2 w-full focus:outline-none"
@@ -249,7 +252,7 @@ const LecturerDashboard = () => {
             onClick={handleCreateCourseModalToggle}
             className="px-4 py-2 bg-blue-500 text-white rounded flex items-center gap-1"
           >
-            <AddCircleOutline className="" /><p>Tạo khóa học mới</p>
+            <AddCircleOutline className="" /><p>{t('lectureDashboard.create_new_course')}</p>
           </button>
         </div>
 
@@ -278,7 +281,7 @@ const LecturerDashboard = () => {
               )
             : (
               <div className="flex items-center justify-center h-96">
-                <p className="text-gray-500 text-lg">Không có khóa học nào được tìm thấy.</p>
+                <p className="text-gray-500 text-lg">{t('lectureDashboard.no_courses_found')}</p>
               </div>
               )}
         </div>
@@ -286,16 +289,16 @@ const LecturerDashboard = () => {
 
       {/* Modal tạo khóa học */}
       <Modal open={isCreateCourseModalOpen} onClose={() => setIsCreateCourseModalOpen(false)}>
-      <div className="flex items-center justify-center min-h-screen p-2">
+        <div className="flex items-center justify-center min-h-screen p-2">
           <div className="bg-white w-96 p-6 rounded-md shadow-lg">
             <div className='flex items-center justify-between mb-4'>
-              <h2 className="text-xl font-semibold">Add New Course</h2>
+              <h2 className="text-xl font-semibold">{t('lectureDashboard.add_new_course')}</h2>
               <IconButton onClick={() => setIsCreateCourseModalOpen(false)}>
                 <Close />
               </IconButton>
             </div>
             <label className="block text-sm font-medium text-gray-700">
-              Course Name
+              {t('lectureDashboard.course_name')}
             </label>
             <input
               type="text"
@@ -306,7 +309,7 @@ const LecturerDashboard = () => {
             />
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-700">
-                Category
+                {t('lectureDashboard.category')}
               </label>
               <select
                 name="categoryCourseId"
@@ -315,7 +318,7 @@ const LecturerDashboard = () => {
                 className="w-full mt-1 p-2 border border-gray-300 rounded-md"
               >
                 <option value="0" disabled hidden>
-                  Select a category
+                  {t('lectureDashboard.select_category')}
                 </option>
                 {courseCategories.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -330,7 +333,7 @@ const LecturerDashboard = () => {
                   console.error('Save failed:', error)
                 })
               }} className='bg-teal-300 hover:bg-teal-500 text-white px-4 py-2 rounded-md flex items-center gap-2 active:scale-95'>
-                Save
+                {t('lectureDashboard.save')}
               </button>
             </div>
           </div>

@@ -50,7 +50,7 @@ const StudentList: React.FC<StudentListProps> = ({ courseId }) => {
 
   const handleReload = () => {
     setSearchQuery('')
-    void fetchStudents(page, '') // Tải lại danh sách học viên
+    void fetchStudents(page, '')
   }
 
   const handlePageChange = (newPage: number) => {
@@ -140,7 +140,7 @@ const StudentList: React.FC<StudentListProps> = ({ courseId }) => {
               ))
             ) : (
               <div className="text-center py-4 text-gray-500 items-center justify-center flex h-96">
-                Không có học viên nào đăng ký.
+                Không có học viên nào.
               </div>
             )}
           </div>

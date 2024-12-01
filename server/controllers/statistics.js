@@ -482,7 +482,7 @@ router.get('/overview', async (req, res) => {
 
     const totalCourses = await models.Course.count({
       where: {
-        status: { status: { [Op.in]: [2, 3, 4, 5, 6, 7] } }
+        status: { [Op.in]: [2, 3, 4, 5, 6, 7] }
       }
     })
 

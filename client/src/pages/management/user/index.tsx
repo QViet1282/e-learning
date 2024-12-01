@@ -11,8 +11,10 @@ import { Search } from '@mui/icons-material'
 import Modal from '@mui/material/Modal' // Thêm Modal từ MUI
 import EditUserModal from './component/EditUserModel'
 import { PacmanLoader } from 'react-spinners'
+import { useTranslation } from 'react-i18next'
 
 const UserManagementPage: React.FC = () => {
+  const { t } = useTranslation()
   const [users, setUsers] = useState<User[]>([])
   const [totalUsers, setTotalUsers] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
@@ -23,7 +25,7 @@ const UserManagementPage: React.FC = () => {
   const [openModal, setOpenModal] = useState(false)
   const [selectedUser, setSelectedUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(false)
-
+  const searchTitle = t('userManagement.searchTitle')
   const fetchUsers = async (page: number, limit: number, search: string, roleId: number | null): Promise<void> => {
     setLoading(true) // Bắt đầu loading
     try {
@@ -85,19 +87,19 @@ const UserManagementPage: React.FC = () => {
       <div className="flex justify-between items-center mb-4 w-full flex-wrap">
         <div className='flex flex-wrap md:flex-nowrap justify-center md:justify-between w-full items-center gap-2 mb-4 p-2'>
           <h2 className="text-4xl font-semibold text-center text-transparent bg-clip-text bg-gradient-to-r from-green-400 via-teal-400 to-blue-500">
-            User Management
+            {t('userManagement.title')}
           </h2>
           <div className='gap-2 flex w-full lg:w-3/6 items-center flex-wrap lg:flex-nowrap'>
             <div className='flex gap-2 lg:w-1/2 w-full justify-end'>
               <div className='p-2 border-2 rounded-lg shadow-sm bg-white flex items-center'>
-                <p>{totalUsers} tài khoản</p>
+                <p>{totalUsers} {t('userManagement.itemName')}</p>
               </div>
               <select
                 value={selectedRole ?? ''}
                 onChange={handleRoleChange}
                 className="p-2 border-2 rounded-md h-11"
               >
-                <option value="">Tất cả vai trò</option>
+                <option value="">{t('userManagement.allRole')}</option>
                 {roles.map(role => (
                   <option key={role.id} value={role.id}>{role.description}</option>
                 ))}
@@ -106,7 +108,7 @@ const UserManagementPage: React.FC = () => {
             <div className='flex gap-2 lg:w-1/2 w-full'>
               <input
                 type="text"
-                placeholder="Tìm kiếm theo tên hoặc email"
+                placeholder={searchTitle}
                 value={search}
                 onChange={handleSearchChange}
                 className="w-full p-2 border-2 rounded-md focus:outline-none"

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-// StatisticsCards.tsx
 import React from 'react'
 import { Money, People, Star, School } from '@mui/icons-material'
+import { useTranslation } from 'react-i18next'
 
 interface StatisticsCardsProps {
   totalRevenue?: number
@@ -21,6 +21,8 @@ const StatisticsCards = ({
   totalReviews = 0,
   totalPublishedCourses = 0
 }: StatisticsCardsProps) => {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-col w-full gap-2">
       {/* Doanh thu */}
@@ -29,7 +31,7 @@ const StatisticsCards = ({
           <Money className="text-blue-600" fontSize="large" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-blue-700">Doanh thu</h2>
+          <h2 className="text-lg font-semibold text-blue-700">{t('statisticsCards.total_revenue')}</h2>
           <p className="text-3xl text-blue-600 font-bold">
             {totalRevenue.toLocaleString()}₫
           </p>
@@ -43,7 +45,7 @@ const StatisticsCards = ({
           <People className="text-green-600" fontSize="large" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-green-700">Số học viên</h2>
+          <h2 className="text-lg font-semibold text-green-700">{t('lectureDashboard.students')}</h2>
           <p className="text-3xl text-green-600 font-bold">{totalStudents}</p>
         </div>
       </div>
@@ -54,10 +56,10 @@ const StatisticsCards = ({
           <Star className="text-yellow-600" fontSize="large" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-yellow-700">Trung bình đánh giá</h2>
+          <h2 className="text-lg font-semibold text-yellow-700">{t('lectureDashboard.average_rating_text')}</h2>
           <div className="flex-row flex items-end">
             <p className="text-3xl text-yellow-600 font-bold">{averageRating} ⭐</p>
-            <p className="text-gray-600">({totalReviews} đánh giá)</p>
+            <p className="text-gray-600">({totalReviews} {t('lectureDashboard.reviews')})</p>
           </div>
         </div>
       </div>
@@ -68,7 +70,7 @@ const StatisticsCards = ({
           <School className="text-purple-600" fontSize="large" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-purple-700">Khóa học mở bán</h2>
+          <h2 className="text-lg font-semibold text-purple-700">{t('lectureDashboard.published_courses')}</h2>
           <p className="text-3xl text-purple-600 font-bold">{totalPublishedCourses}</p>
         </div>
       </div>
