@@ -3,8 +3,10 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { AttachMoney, TrendingUp, HourglassEmpty, DoneAll } from '@mui/icons-material'
 import { getPayoutStatistics } from 'api/get/get.api'
+import { useTranslation } from 'react-i18next'
 
 const StatisticsCards: React.FC = () => {
+  const { t } = useTranslation()
   const [systemBudget, setSystemBudget] = useState<number>(0)
   const [totalPending, setTotalPending] = useState<number>(0)
   const [totalPaid, setTotalPaid] = useState<number>(0)
@@ -32,28 +34,28 @@ const StatisticsCards: React.FC = () => {
       {
         id: 1,
         icon: <AttachMoney className="text-green-500" style={{ fontSize: '32px' }} />,
-        title: 'Ngân Sách Hệ Thống',
+        title: `${t('payoutManagement.statisticTitle1')}`,
         value: `${(totalRevenue + totalPending).toLocaleString()} VND`,
         color: 'green'
       },
       {
         id: 2,
         icon: <TrendingUp className="text-blue-500" style={{ fontSize: '32px' }} />,
-        title: 'Doanh Thu Hệ Thống',
+        title: `${t('payoutManagement.statisticTitle2')}`,
         value: `${systemBudget.toLocaleString()} VND`,
         color: 'blue'
       },
       {
         id: 3,
         icon: <HourglassEmpty className="text-yellow-500" style={{ fontSize: '32px' }} />,
-        title: 'Số Tiền Chưa Chi Trả',
+        title: `${t('payoutManagement.statisticTitle3')}`,
         value: `${totalPending.toLocaleString()} VND`,
         color: 'yellow'
       },
       {
         id: 4,
         icon: <DoneAll className="text-red-500" style={{ fontSize: '32px' }} />,
-        title: 'Số Tiền Đã Chi',
+        title: `${t('payoutManagement.statisticTitle4')}`,
         value: `${totalPaid.toLocaleString()} VND`,
         color: 'red'
       }

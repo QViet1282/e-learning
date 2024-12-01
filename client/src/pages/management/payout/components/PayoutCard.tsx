@@ -6,6 +6,7 @@
 import { ContentCopyOutlined } from '@mui/icons-material'
 import { processPayoutRequest } from 'api/put/put.api'
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify'
 
 interface PayoutCardProps {
@@ -36,6 +37,7 @@ const PayoutCard: React.FC<PayoutCardProps> = React.memo(({
   note,
   fetchAllPayoutData
 }) => {
+  const { t } = useTranslation()
   const [noteText, setNoteText] = useState(note ?? '')
 
   const statusColor = status === 'Pending' ? 'yellow' : status === 'Success' ? 'green' : 'red'
@@ -63,7 +65,7 @@ const PayoutCard: React.FC<PayoutCardProps> = React.memo(({
       }
 
       await processPayoutRequest(id, payload)
-      toast.success(result ? 'Duyệt thành công' : 'Từ chối thành công') // trans
+      toast.success(result ? `${t('payoutManagement.accept')}` : `${t('payoutManagement.decline')}`) // trans
       void fetchAllPayoutData()
     } catch (error) {
       toast.error('Xử lý thất bại, vui lòng thử lại.') // trans
@@ -85,11 +87,11 @@ const PayoutCard: React.FC<PayoutCardProps> = React.memo(({
       {/* Thông tin tổng doanh thu và phí dịch vụ */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <p className="text-sm text-gray-500">Doanh Thu</p>
+          <p className="text-sm text-gray-500">{t('payoutManagement.revenue')}</p>
           <p className="text-xl font-semibold">{Number(totalRevenue).toLocaleString('vi-VN')} VND</p>
         </div>
         <div>
-          <p className="text-sm text-gray-500">Phí Dịch Vụ</p>
+          <p className="text-sm text-gray-500">{t('payoutManagement.serviceFee')}</p>
           <p className="text-xl font-semibold">{serviceFee}%</p>
         </div>
       </div>
@@ -97,7 +99,7 @@ const PayoutCard: React.FC<PayoutCardProps> = React.memo(({
       {/* Số tiền chuyển khoản */}
       <div className="mb-4">
         <div className="flex items-center gap-2">
-          <p className="text-sm text-gray-500">Số Tiền Chuyển Khoản</p>
+          <p className="text-sm text-gray-500">{t('payoutManagement.transferAmount')}</p>
           <button
             onClick={handleCopyPayoutAmount}
             className="active:scale-95"
@@ -111,11 +113,11 @@ const PayoutCard: React.FC<PayoutCardProps> = React.memo(({
       {/* Ngân hàng và Chủ thẻ */}
       <div className="grid grid-cols-2 gap-4 mb-4">
         <div>
-          <p className="text-sm text-gray-500">Ngân Hàng</p>
+          <p className="text-sm text-gray-500">{t('payoutManagement.bank')}</p>
           <p className="text-lg font-semibold">{bankName}</p>
         </div>
         <div>
-          <p className="text-sm text-gray-500">Chủ Thẻ</p>
+          <p className="text-sm text-gray-500">{t('payoutManagement.cardholderName')}</p>
           <p className="text-lg font-semibold">{cardholderName}</p>
         </div>
       </div>
@@ -123,7 +125,7 @@ const PayoutCard: React.FC<PayoutCardProps> = React.memo(({
       {/* Số thẻ (Ẩn một phần cho bảo mật) */}
       <div className="mb-4">
         <div className="flex items-center gap-2">
-          <p className="text-sm text-gray-500">Số Thẻ</p>
+          <p className="text-sm text-gray-500">{t('payoutManagement.accountNumber')}</p>
           <button
             onClick={handleCopyCardNumber}
             className="active:scale-95"
@@ -136,13 +138,13 @@ const PayoutCard: React.FC<PayoutCardProps> = React.memo(({
 
       {/* Ngày chuyển khoản */}
       <div className="mb-4">
-        <p className="text-sm text-gray-500">Thời Điểm Chuyển Khoản</p>
+        <p className="text-sm text-gray-500">{t('payoutManagement.timeOfTransfer')}</p>
         <p className="text-lg font-semibold">{payoutDate ? new Date(payoutDate).toLocaleString('vi-VN') : 'Chưa có'}</p>
       </div>
 
       {/* Ghi chú */}
       <div className="">
-        <p className="text-sm text-gray-500">Ghi Chú</p>
+        <p className="text-sm text-gray-500">{t('payoutManagement.note')}</p>
         <textarea
           placeholder="Nhập ghi chú..."
           className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none"
@@ -158,13 +160,13 @@ const PayoutCard: React.FC<PayoutCardProps> = React.memo(({
             className="w-full px-4 py-2 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition-all"
             onClick={async () => await handleAction(true)} // Duyệt
           >
-            Duyệt
+            {t('payoutManagement.success')}
           </button>
           <button
             className="w-full px-4 py-2 bg-red-500 text-white rounded-lg shadow-md hover:bg-red-600 transition-all"
             onClick={async () => await handleAction(false)} // Từ Chối
           >
-            Từ Chối
+            {t('payoutManagement.fail')}
           </button>
         </div>
       )}

@@ -8,10 +8,12 @@ import { Bar, Line } from 'react-chartjs-2'
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement } from 'chart.js'
 import { getTopEarningCourses, getTopEnrollmentCourses, getTopRatedCourses, getAllRegistrationsAndRevenue, getStatistics, getTopEarningTeachers, getUserCourseGrowthStatistics } from 'api/get/get.api'
 import { AttachMoney, EventNote, Group, School } from '@mui/icons-material'
+import { useTranslation } from 'react-i18next'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement)
 
 const StatisticsPage: React.FC = () => {
+  const { t } = useTranslation()
   const currentYear = new Date().getFullYear()
   const currentMonth = new Date().getMonth() + 1
   const [allRegistrationsAndRevenue, setAllRegistrationsAndRevenue] = useState<any>({})
@@ -102,28 +104,6 @@ const StatisticsPage: React.FC = () => {
     }
   }, [selectedYear, selectedMonth])
 
-  // const registrationData = {
-  //   labels: allRegistrationsAndRevenue.labels ?? [],
-  //   datasets: [
-  //     {
-  //       label: 'Lượt Đăng Ký',
-  //       data: allRegistrationsAndRevenue.data ?? [],
-  //       backgroundColor: '#2dd4bf'
-  //     }
-  //   ]
-  // }
-
-  // const revenueData = {
-  //   labels: allRegistrationsAndRevenue.labels ?? [],
-  //   datasets: [
-  //     {
-  //       label: 'Doanh Thu (VNĐ)',
-  //       data: allRegistrationsAndRevenue.revenue ?? [],
-  //       backgroundColor: '#4caf50'
-  //     }
-  //   ]
-  // }
-
   const options = {
     responsive: true,
     plugins: {
@@ -140,7 +120,7 @@ const StatisticsPage: React.FC = () => {
         type: 'category' as const,
         title: {
           display: true,
-          text: selectedMonth ? 'Ngày trong tháng' : 'Tháng trong năm'
+          text: selectedMonth ? `${t('statisticManagement.dayInMonth')}` : `${t('statisticManagement.monthInYear')}`
         },
         ticks: {
           autoSkip: true,
@@ -160,7 +140,7 @@ const StatisticsPage: React.FC = () => {
         position: 'left' as const,
         title: {
           display: true,
-          text: 'Doanh thu (VNĐ)'
+          text: `${t('statisticManagement.revenue')}`
         },
         ticks: {
           callback: (value: number | string) => {
@@ -175,7 +155,7 @@ const StatisticsPage: React.FC = () => {
         position: 'right' as const,
         title: {
           display: true,
-          text: 'Lượt đăng ký'
+          text: `${t('statisticManagement.registrations')}`
         },
         grid: {
           drawOnChartArea: false
@@ -188,7 +168,7 @@ const StatisticsPage: React.FC = () => {
     labels: allRegistrationsAndRevenue.labels ?? [],
     datasets: [
       {
-        label: 'Doanh Thu (VNĐ)',
+        label: `${t('statisticManagement.revenue')}`,
         data: allRegistrationsAndRevenue.totalRevenueData ?? [],
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -198,7 +178,7 @@ const StatisticsPage: React.FC = () => {
         borderWidth: 2
       },
       {
-        label: 'Lượt Đăng Ký',
+        label: `${t('statisticManagement.registrations')}`,
         data: allRegistrationsAndRevenue.totalRegistrationsData ?? [],
         borderColor: 'rgba(255, 99, 132, 1)',
         backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -226,7 +206,7 @@ const StatisticsPage: React.FC = () => {
         type: 'category' as const,
         title: {
           display: true,
-          text: selectedMonth ? 'Ngày trong tháng' : 'Tháng trong năm'
+          text: selectedMonth ? `${t('statisticManagement.dayInMonth')}` : `${t('statisticManagement.monthInYear')}`
         },
         ticks: {
           autoSkip: true,
@@ -246,7 +226,7 @@ const StatisticsPage: React.FC = () => {
         position: 'left' as const,
         title: {
           display: true,
-          text: 'Doanh thu (VNĐ)'
+          text: `${t('statisticManagement.revenue')}`
         },
         ticks: {
           callback: (value: number | string) => {
@@ -261,7 +241,7 @@ const StatisticsPage: React.FC = () => {
         position: 'right' as const,
         title: {
           display: true,
-          text: 'Lượt đăng ký'
+          text: `${t('statisticManagement.registrations')}`
         },
         grid: {
           drawOnChartArea: false
@@ -274,7 +254,7 @@ const StatisticsPage: React.FC = () => {
     labels: userCourseGrowthStatistics.labels ?? [],
     datasets: [
       {
-        label: 'Người dùng',
+        label: `${t('statisticManagement.courses')}`,
         data: userCourseGrowthStatistics.userGrowthData ?? [],
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -284,7 +264,7 @@ const StatisticsPage: React.FC = () => {
         borderWidth: 2
       },
       {
-        label: 'Khóa học',
+        label: `${t('statisticManagement.users')}`,
         data: userCourseGrowthStatistics.courseGrowthData ?? [],
         borderColor: 'rgba(255, 99, 132, 1)',
         backgroundColor: 'rgba(255, 99, 132, 0.2)',
@@ -316,7 +296,7 @@ const StatisticsPage: React.FC = () => {
   return (
     <div className="ml-0 py-8 md:px-8 px-2 min-h-screen bg-sky-100 border-x-2">
       <h2 className="text-4xl font-semibold text-center text-transparent bg-clip-text bg-gradient-to-r from-green-500 via-teal-400 to-blue-500 mb-8">
-        Quản lý thống kê
+        {t('statisticManagement.title')}
       </h2>
 
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-4">
@@ -325,7 +305,7 @@ const StatisticsPage: React.FC = () => {
           <div className="mb-4 mx-auto">
             <School fontSize="large" />
           </div>
-          <h3 className="text-xl font-semibold mb-2">Tổng số khóa học</h3>
+          <h3 className="text-xl font-semibold mb-2">{t('statisticManagement.totalCourses')}</h3>
           <p className="text-3xl font-bold">{statistics.totalCourses}</p>
         </div>
 
@@ -334,7 +314,7 @@ const StatisticsPage: React.FC = () => {
           <div className="mb-4 mx-auto">
             <Group fontSize="large" />
           </div>
-          <h3 className="text-xl font-semibold mb-2">Tổng số người dùng</h3>
+          <h3 className="text-xl font-semibold mb-2">{t('statisticManagement.totalUsers')}</h3>
           <p className="text-3xl font-bold">{statistics.totalUsers}</p>
         </div>
 
@@ -343,7 +323,7 @@ const StatisticsPage: React.FC = () => {
           <div className="mb-4 mx-auto">
             <AttachMoney fontSize="large" />
           </div>
-          <h3 className="text-xl font-semibold mb-2">Tổng doanh thu</h3>
+          <h3 className="text-xl font-semibold mb-2">{t('statisticManagement.totalRevenue')}</h3>
           <p className="text-3xl font-bold">{statistics.totalEarnings.toLocaleString('vi-VN')} VNĐ</p>
         </div>
 
@@ -352,7 +332,7 @@ const StatisticsPage: React.FC = () => {
           <div className="mb-4 mx-auto">
             <EventNote fontSize="large" />
           </div>
-          <h3 className="text-xl font-semibold mb-2">Tổng lượt đăng ký</h3>
+          <h3 className="text-xl font-semibold mb-2">{t('statisticManagement.totalRegistrations')}</h3>
           <p className="text-3xl font-bold">{statistics.totalRegistrations}</p>
         </div>
       </div>
@@ -361,7 +341,7 @@ const StatisticsPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <div className="md:col-span-2 space-y-4">
           <div className="flex items-center justify-center">
-            <label className="mr-4 font-semibold">Chọn năm:</label>
+            <label className="mr-4 font-semibold">{t('statisticManagement.chartLabels.year')}:</label>
             <select
               value={selectedYear}
               onChange={handleYearChange}
@@ -375,16 +355,16 @@ const StatisticsPage: React.FC = () => {
             </select>
             {selectedYear && (
               <>
-                <label className="ml-6 mr-4 font-semibold">Tháng:</label>
+                <label className="ml-6 mr-4 font-semibold">{t('statisticManagement.chartLabels.month')}:</label>
                 <select
                   value={selectedMonth ?? undefined}
                   onChange={handleMonthChange}
                   className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
-                  <option value={undefined}>Tháng 1-12</option>
+                  <option value={undefined}>{t('statisticManagement.chartLabels.month')} 1-12</option>
                   {[...Array(12)].map((_, i) => (
                     <option key={i + 1} value={i + 1}>
-                      Tháng {i + 1}
+                      {t('statisticManagement.chartLabels.month')} {i + 1}
                     </option>
                   ))}
                 </select>
@@ -392,26 +372,26 @@ const StatisticsPage: React.FC = () => {
             )}
           </div>
           <div className="w-full bg-white p-4 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold text-center mb-4">Biểu đồ đăng kí và doanh thu</h3>
+            <h3 className="text-xl font-semibold text-center mb-4">{t('statisticManagement.charts.registrationAndRevenue')}</h3>
             <Bar data={combinedData} options={options} />
           </div>
 
           <div className="w-full bg-white p-4 rounded-lg shadow-md">
-            <h3 className="text-xl font-semibold text-center mb-4">Biểu đồ tăng trưởng người dùng và khóa học</h3>
+            <h3 className="text-xl font-semibold text-center mb-4">{t('statisticManagement.charts.userGrowthAndCourseGrowth')}</h3>
             <Bar data={combinedData2} options={options2} />
           </div>
         </div>
 
         {/* Top khóa học đánh giá cao, chiếm 1/3 */}
         <div className="bg-white p-6 rounded-lg shadow-md md:col-span-1 mt-2">
-          <h3 className="text-2xl font-semibold text-center mb-4">Các khóa học tốt nhất</h3>
+          <h3 className="text-2xl font-semibold text-center mb-4">{t('statisticManagement.topRatedCourses')}</h3>
           <div className="space-y-4">
             {topRatedCourses.map((course, index) => (
               <div key={index} className={`p-4 border rounded-lg shadow flex items-center ${index < 3 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
                 {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mr-2">#{index + 1}</span>}
                 <div>
                   <h4 className="text-lg font-semibold mb-1">{course.courseName}</h4>
-                  <p className="text-gray-700">Đánh giá: {course.bayesianAverage}</p>
+                  <p className="text-gray-700">{t('statisticManagement.rating.averageRating')}: {course.bayesianAverage}</p>
                 </div>
               </div>
             ))}
@@ -420,7 +400,7 @@ const StatisticsPage: React.FC = () => {
       </div>
 
       <div className="mb-4 flex flex-wrap gap-2 items-center">
-        <label htmlFor="year" className="font-semibold text-lg">Chọn năm:</label>
+        <label htmlFor="year" className="font-semibold text-lg">{t('statisticManagement.chartLabels.year')}:</label>
         <select
           id="year"
           value={selectedYearTop}
@@ -434,7 +414,7 @@ const StatisticsPage: React.FC = () => {
           className="ml-4 p-2 border rounded-lg"
           defaultValue={undefined}
         >
-          <option value={undefined}>Toàn thời gian</option>
+          <option value={undefined}>{t('statisticManagement.chartLabels.overTime')}</option>
           <option value={2024}>2024</option>
           <option value={2023}>2023</option>
           <option value={2022}>2022</option>
@@ -442,7 +422,7 @@ const StatisticsPage: React.FC = () => {
         {(selectedYearTop)
           ? (
             <>
-              <label htmlFor="month" className="font-semibold text-lg md:ml-4">Chọn tháng:</label>
+              <label htmlFor="month" className="font-semibold text-lg md:ml-4">{t('statisticManagement.chartLabels.month')}:</label>
               <select
                 id="month"
                 value={selectedMonthTop}
@@ -450,19 +430,19 @@ const StatisticsPage: React.FC = () => {
                 className="ml-4 p-2 border rounded-lg"
                 defaultValue={undefined}
               >
-                <option value={undefined}>Tháng 1 - 12</option>
-                <option value={1}>Tháng 1</option>
-                <option value={2}>Tháng 2</option>
-                <option value={3}>Tháng 3</option>
-                <option value={4}>Tháng 4</option>
-                <option value={5}>Tháng 5</option>
-                <option value={6}>Tháng 6</option>
-                <option value={7}>Tháng 7</option>
-                <option value={8}>Tháng 8</option>
-                <option value={9}>Tháng 9</option>
-                <option value={10}>Tháng 10</option>
-                <option value={11}>Tháng 11</option>
-                <option value={12}>Tháng 12</option>
+                <option value={undefined}>{t('statisticManagement.chartLabels.month')} 1 - 12</option>
+                <option value={1}>{t('statisticManagement.chartLabels.month')} 1</option>
+                <option value={2}>{t('statisticManagement.chartLabels.month')} 2</option>
+                <option value={3}>{t('statisticManagement.chartLabels.month')} 3</option>
+                <option value={4}>{t('statisticManagement.chartLabels.month')} 4</option>
+                <option value={5}>{t('statisticManagement.chartLabels.month')} 5</option>
+                <option value={6}>{t('statisticManagement.chartLabels.month')} 6</option>
+                <option value={7}>{t('statisticManagement.chartLabels.month')} 7</option>
+                <option value={8}>{t('statisticManagement.chartLabels.month')} 8</option>
+                <option value={9}>{t('statisticManagement.chartLabels.month')} 9</option>
+                <option value={10}>{t('statisticManagement.chartLabels.month')} 10</option>
+                <option value={11}>{t('statisticManagement.chartLabels.month')} 11</option>
+                <option value={12}>{t('statisticManagement.chartLabels.month')} 12</option>
               </select>
             </>
             )
@@ -472,14 +452,14 @@ const StatisticsPage: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Top khóa học có nhiều lượt đăng ký */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-2xl font-semibold text-center mb-4">Top khóa học có nhiều đăng ký</h3>
+          <h3 className="text-2xl font-semibold text-center mb-4">{t('statisticManagement.topEnrollmentCourses')}</h3>
           <div className="space-y-4">
             {topEnrollmentCourses.map((course, index) => (
               <div key={index} className={`p-4 border rounded-lg shadow flex items-center ${index < 3 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
-                {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mr-2">#{index + 1}</span>}
+                {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mx-2 mr-4">#{index + 1}</span>}
                 <div>
                   <h4 className="text-lg font-semibold mb-1">{course.courseName}</h4>
-                  <p className="text-gray-700">Lượt đăng ký: {course.enrollmentCount}</p>
+                  <p className="text-gray-700">{t('statisticManagement.registrations')}: {course.enrollmentCount}</p>
                 </div>
               </div>
             ))}
@@ -488,14 +468,14 @@ const StatisticsPage: React.FC = () => {
 
         {/* Top khóa học có doanh thu cao */}
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-2xl font-semibold text-center mb-4">Top khóa học có doanh thu cao</h3>
+          <h3 className="text-2xl font-semibold text-center mb-4">{t('statisticManagement.topEarningCourses')}</h3>
           <div className="space-y-4">
             {topEarningCourses.map((course, index) => (
               <div key={index} className={`p-4 border rounded-lg shadow flex items-center ${index < 3 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
-                {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mr-2">#{index + 1}</span>}
+                {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mx-2 mr-4">#{index + 1}</span>}
                 <div>
                   <h4 className="text-lg font-semibold mb-1">{course.courseName}</h4>
-                  <p className="text-gray-700">Doanh thu: {course.totalEarnings.toLocaleString('vi-VN')} VNĐ</p>
+                  <p className="text-gray-700">{t('statisticManagement.revenue')}: {course.totalEarnings.toLocaleString('vi-VN')} VNĐ</p>
                 </div>
               </div>
             ))}
@@ -503,14 +483,14 @@ const StatisticsPage: React.FC = () => {
         </div>
 
         <div className="bg-white p-6 rounded-lg shadow-md">
-          <h3 className="text-2xl font-semibold text-center mb-4">Top giảng viên có doanh thu cao</h3>
+          <h3 className="text-2xl font-semibold text-center mb-4">{t('statisticManagement.topEarningTeachers')}</h3>
           <div className="space-y-4">
             {topEarningTeachers.map((teacher, index) => (
               <div key={index} className={`p-4 border rounded-lg shadow flex items-center ${index < 3 ? 'bg-yellow-100' : 'bg-gray-100'}`}>
-                {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mr-2">#{index + 1}</span>}
+                {index < 3 ? <span className="text-3xl mr-2">{crownIcons[index]}</span> : <span className="text-lg font-semibold text-gray-500 mx-2 mr-4">#{index + 1}</span>}
                 <div>
                   <h4 className="text-lg font-semibold mb-1">{teacher.teacherName}</h4>
-                  <p className="text-gray-700">Doanh thu: {teacher.totalEarnings.toLocaleString('vi-VN')} VNĐ</p>
+                  <p className="text-gray-700">{t('statisticManagement.revenue')}: {teacher.totalEarnings.toLocaleString('vi-VN')} VNĐ</p>
                 </div>
               </div>
             ))}
