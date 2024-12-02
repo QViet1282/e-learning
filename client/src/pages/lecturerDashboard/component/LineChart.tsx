@@ -32,7 +32,7 @@ const LineChart = ({ type = 'day', year = 2024, month = 1, teacherId }: LineChar
     const fetchData = async () => {
       try {
         setLoading(true)
-        const response = await getStatisticsEnrollmentAndRevenueByTeacher({ month, year, teacherId, type })
+        const response = await getStatisticsEnrollmentAndRevenueByTeacher({ month, year, type })
         const { labels, totalRevenueData, totalStudentsData } = response.data
 
         console.log('Labels:', labels)

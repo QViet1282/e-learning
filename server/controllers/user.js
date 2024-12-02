@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 const express = require('express')
 const { models } = require('../models')
 const { isAuthenticated } = require('../middlewares/authentication')
@@ -160,7 +161,7 @@ router.get('/getEnrollmentUserByCourseId/:courseId', isAuthenticated, async (req
           include: [
             {
               model: models.Enrollment,
-              attributes: ['enrollmentDate'],
+              attributes: ['id', 'enrollmentDate'],
               required: true,
               where: {
                 courseId,
@@ -176,17 +177,23 @@ router.get('/getEnrollmentUserByCourseId/:courseId', isAuthenticated, async (req
       distinct: true
     })
 
-    const users = rows.map((user) => {
+    const lessonCounts = await fetchLessonCounts(courseId)
+
+    console.log('vvvvvvvvvvvvvvvvvvvvv', lessonCounts)
+
+    const users = await Promise.all(rows.map(async (user) => {
       const enrollment = user.Orders?.[0]?.Enrollments?.[0] || {}
+      const courseProgressCount = await models.CourseProgress.count({ where: { enrollmentId: enrollment.id } })
       return {
         id: user.id,
         avatar: user.avatar,
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
-        enrollmentDate: enrollment.enrollmentDate || null
+        enrollmentDate: enrollment.enrollmentDate || null,
+        processPercentage: ((courseProgressCount / lessonCounts) * 100).toFixed(1)
       }
-    })
+    }))
 
     const totalPages = Math.ceil((count < users.length && users.length < 10) ? count : users.length / limit)
 
@@ -201,6 +208,29 @@ router.get('/getEnrollmentUserByCourseId/:courseId', isAuthenticated, async (req
     res.status(500).json({ message: MASSAGE.USER_NOT_FOUND })
   }
 })
+
+async function fetchLessonCounts (courseId) {
+  // Lấy tất cả các khóa học
+  const listLessonCategories = await models.CategoryLession.findAll({
+    where: { courseId },
+    include: [{
+      model: models.StudyItem,
+      include: [{
+        model: models.Lession,
+        attributes: ['studyItemId']
+      }, {
+        model: models.Exam,
+        attributes: ['studyItemId']
+      }]
+    }]
+  })
+
+  const itemCount = listLessonCategories.reduce((sum, lessonCategory) => {
+    return sum + lessonCategory.StudyItems.length
+  }, 0)
+
+  return itemCount
+}
 
 router.put('/:id/avatar', isAuthenticated, async (req, res) => {
   try {

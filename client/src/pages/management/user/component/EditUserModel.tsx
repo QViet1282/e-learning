@@ -229,6 +229,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles, fet
             value={selectedRole ?? ''}
             onChange={(e) => setSelectedRole(Number(e.target.value))}
             className="w-full p-2 mb-2 border rounded-md focus:border-blue-500"
+            disabled={ Number(user?.Role?.id) === 1 }
           >
             {roles.map(role => (
               <option key={role.id} value={role.id}>{role.description}</option>

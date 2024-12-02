@@ -35,7 +35,7 @@ const StatisticsCards: React.FC = () => {
         id: 1,
         icon: <AttachMoney className="text-green-500" style={{ fontSize: '32px' }} />,
         title: `${t('payoutManagement.statisticTitle1')}`,
-        value: `${(totalRevenue + totalPending).toLocaleString()} VND`,
+        value: `${(totalRevenue).toLocaleString()} VND`,
         color: 'green'
       },
       {

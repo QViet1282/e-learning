@@ -737,7 +737,10 @@
       "pending_request": "You have a pending payout request",
       "empty_fields": "Please fill in all fields",
       "no_banks_found": "No banks found",
-      "search_bank": "Search for a bank..."
+      "search_bank": "Search for a bank...",
+      "category": "Category",
+      "select_category": "Select Category",
+      "save": "Create"
     },
     "withdrawRequest": {
       "title": "Withdraw Request",

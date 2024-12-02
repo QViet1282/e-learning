@@ -421,8 +421,8 @@ const StatisticsPage: React.FC = () => {
                 </option>
           ))}
         </select>
-        {(selectedYearTop)
-          ? (
+        {(selectedYearTop) &&
+          (
             <>
               <label htmlFor="month" className="font-semibold text-lg md:ml-4">{t('statisticManagement.chartLabels.month')}:</label>
               <select
@@ -447,8 +447,7 @@ const StatisticsPage: React.FC = () => {
                 <option value={12}>{t('statisticManagement.chartLabels.month')} 12</option>
               </select>
             </>
-            )
-          : (<></>)}
+          )}
       </div>
       {/* List of top courses */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

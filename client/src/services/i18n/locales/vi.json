@@ -651,8 +651,8 @@
       "decline": "Từ chối thành công",
       "statisticTitle1": "Ngân sách hệ thống",
       "statisticTitle2": "Doanh thu hệ thống",
-      "statisticTitle3": "Số tiền còn lại",
-      "statisticTitle4": "Số tiền đã chi",
+      "statisticTitle3": "Số tiền đợi thanh toán",
+      "statisticTitle4": "Số tiền đã thanh toán",
       "searchTitle": "Tìm kiếm theo ID hoặc số thẻ...",
       "note": "Ghi chú"
     },
@@ -737,7 +737,10 @@
       "pending_request": "Bạn đã có yêu cầu thanh toán đang chờ xử lý",
       "empty_fields": "Vui lòng điền đầy đủ thông tin",
       "no_banks_found": "Không tìm thấy ngân hàng",
-      "search_bank": "Nhập tên ngân hàng..."
+      "search_bank": "Nhập tên ngân hàng...",
+      "category": "Loại khóa học",
+      "select_category": "Chọn loại khóa học",
+      "save": "Tạo"
     },
     "withdrawRequest": {
       "title": "Yêu cầu rút tiền",

@@ -52,7 +52,7 @@ const NotificationManager = () => {
   const searchTitle = t('notificationManagement.searchTitle')
 
   const fetchNotifications = async (page = 1, search = '') => {
-    setLoading(true)
+    if (notifications.length === 0) setLoading(true)
     try {
       const response = await getAllNotification({ page, limit: 16, search })
       setNotifications(response.data.data)
@@ -61,7 +61,7 @@ const NotificationManager = () => {
     } catch (error) {
       console.error('Failed to fetch notifications:', error)
     } finally {
-      setLoading(false)
+      if (notifications.length === 0) setLoading(false)
     }
   }
 
@@ -167,7 +167,7 @@ const NotificationManager = () => {
       {/* Nếu đang loading, hiển thị spinner */}
       {loading
         ? (
-          <div className="flex justify-center items-center w-full min-h-80 mt-15">
+          <div className="flex justify-center items-center w-full min-h-screen mt-15">
             <PacmanLoader
               className='flex justify-center items-center w-full mt-20'
               color='#5EEAD4'

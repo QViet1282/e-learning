@@ -27,7 +27,7 @@ const UserManagementPage: React.FC = () => {
   const [loading, setLoading] = useState(false)
   const searchTitle = t('userManagement.searchTitle')
   const fetchUsers = async (page: number, limit: number, search: string, roleId: number | null): Promise<void> => {
-    setLoading(true) // Bắt đầu loading
+    if (users.length === 0) setLoading(true) // Bắt đầu loading
     try {
       const response = await getUsers({ page, limit, search, roleId })
       setUsers(response.data.data)
@@ -35,7 +35,7 @@ const UserManagementPage: React.FC = () => {
     } catch (error) {
       console.error('Error fetching users:', error)
     } finally {
-      setLoading(false) // Kết thúc loading
+      if (users.length === 0) setLoading(false) // Kết thúc loading
     }
   }
 
@@ -121,7 +121,7 @@ const UserManagementPage: React.FC = () => {
         </div>
         {loading
           ? (
-            <div className="flex justify-center items-center w-full min-h-80 mt-15">
+            <div className="flex justify-center items-center w-full min-h-screen mt-15">
               <PacmanLoader
                 className='flex justify-center items-center w-full mt-20'
                 color='#5EEAD4'

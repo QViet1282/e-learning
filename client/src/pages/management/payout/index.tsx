@@ -54,7 +54,7 @@ const PayoutPage: React.FC = () => {
   const ITEMS_PER_PAGE = 9
 
   const fetchAllPayoutData = async () => {
-    setLoading(true)
+    if (payoutData.length === 0) setLoading(true)
     setError(null)
     try {
       const response: AxiosResponse<PayoutResponse> = await getAllPayout(searchQuery, statusFilter, currentPage, ITEMS_PER_PAGE)
@@ -64,7 +64,7 @@ const PayoutPage: React.FC = () => {
     } catch (err) {
       setError('Không thể tải dữ liệu')
     } finally {
-      setLoading(false)
+      if (payoutData.length === 0) setLoading(false)
     }
   }
 
@@ -123,7 +123,7 @@ const PayoutPage: React.FC = () => {
       <div className="mt-10">
         {loading
           ? (
-            <div className="flex justify-center items-center w-full min-h-72 mt-15">
+            <div className="flex justify-center items-center w-full min-h-screen mt-15">
               <PacmanLoader
                 className='flex justify-center items-center w-full mt-20'
                 color='#5EEAD4'

@@ -1409,7 +1409,7 @@ function paginateData (data, size, page) {
 async function isCourseValidForStatus (courseId) {
   try {
     const totalDuration = await calculateTotalCourseDuration(courseId)
-    if (!totalDuration || totalDuration < 20) {
+    if (!totalDuration || totalDuration < 1) {
       return false
     }
 

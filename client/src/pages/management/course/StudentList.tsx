@@ -19,6 +19,7 @@ interface Student {
   lastName: string
   email: string
   enrollmentDate: Date
+  processPercentage: number
 }
 
 const StudentList: React.FC<StudentListProps> = ({ courseId }) => {
@@ -67,7 +68,7 @@ const StudentList: React.FC<StudentListProps> = ({ courseId }) => {
           <div className="flex items-center">
             <span className="text-lg mr-4">Tổng số học viên: {totalStudents}</span>
             <IconButton onClick={handleReload} color="primary">
-              <Refresh className='text-teal-400 hover:text-teal-300'/>
+              <Refresh className='text-teal-400 hover:text-teal-300' />
             </IconButton>
           </div>
           <div className="flex items-center">
@@ -87,55 +88,69 @@ const StudentList: React.FC<StudentListProps> = ({ courseId }) => {
         {/* Phần danh sách học viên */}
         {loading ? (
           <div className="flex justify-center items-center w-full min-h-96 mt-15">
-          <PacmanLoader
-            className='flex justify-center items-center w-full mt-20'
-            color='#5EEAD4'
-            cssOverride={{
-              display: 'block',
-              margin: '0 auto',
-              borderColor: 'blue'
-            }}
-            loading
-            margin={10}
-            speedMultiplier={3}
-            size={40}
-          />
-        </div>
+            <PacmanLoader
+              className='flex justify-center items-center w-full mt-20'
+              color='#5EEAD4'
+              cssOverride={{
+                display: 'block',
+                margin: '0 auto',
+                borderColor: 'blue'
+              }}
+              loading
+              margin={10}
+              speedMultiplier={3}
+              size={40}
+            />
+          </div>
         ) : (
           <div className="flex flex-col min-h-96">
             {students.length > 0 ? (
               students.map((student) => (
                 <div
                   key={student.id}
-                  className="flex items-center justify-between border-b-2 py-4 flex-wrap"
+                  className="flex items-center justify-between border-b-2 p-4 flex-wrap bg-white rounded-lg shadow-md mb-2"
                 >
                   {/* Avatar và thông tin */}
-                  <div className="flex items-center">
+                  <div className="flex items-center space-x-4">
                     <img
                       src={student.avatar}
                       alt={student.firstName}
-                      className="w-12 h-12 rounded-full"
+                      className="w-14 h-14 rounded-full border-2 border-gray-200"
                     />
-                    <div className="ml-4">
-                      <p className="font-bold truncate w-48">
+                    <div>
+                      <p className="font-semibold text-lg text-gray-800 truncate max-w-xs">
                         {student.firstName} {student.lastName}
                       </p>
-                      <p className="text-sm text-gray-600 truncate w-48">
-                        {student.email}
+                      <p className="text-sm text-gray-600 truncate max-w-xs">Email: {student.email}</p>
+                      {/* Ngày đăng ký */}
+                      <p className="text-sm text-gray-500 whitespace-nowrap">
+                        {student.enrollmentDate
+                          ? `Đăng ký: ${new Intl.DateTimeFormat('vi-VN', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                          }).format(new Date(student.enrollmentDate))}`
+                          : ''}
                       </p>
                     </div>
                   </div>
 
-                  {/* Ngày đăng ký */}
-                  <p className="text-sm text-gray-500 ml-4 whitespace-nowrap">
-                    {student.enrollmentDate
-                      ? `Đăng kí ${new Intl.DateTimeFormat('vi-VN', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric'
-                      }).format(new Date(student.enrollmentDate))}`
-                      : ''}
-                  </p>
+                  {/* Tiến độ */}
+                  <div className="ml-4 flex flex-col items-end">
+                    <p className="text-sm text-gray-500">Tiến độ học:</p>
+                    <div className="w-32 h-2.5 bg-gray-300 rounded-full mt-2">
+                      <div
+                        className="h-2.5 rounded-full"
+                        style={{
+                          width: `${student.processPercentage}%`,
+                          backgroundColor: student.processPercentage === 100 ? '#4caf50' : '#4fd1c5'
+                        }}
+                      />
+                    </div>
+                    <p className="text-sm font-semibold mt-2 text-teal-600">
+                      {student.processPercentage}%
+                    </p>
+                  </div>
                 </div>
               ))
             ) : (

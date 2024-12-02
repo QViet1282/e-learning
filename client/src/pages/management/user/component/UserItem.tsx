@@ -71,4 +71,4 @@ const UserItem: React.FC<UserItemProps> = ({ user }) => {
   )
 }
 
-export default UserItem
+export default React.memo(UserItem)

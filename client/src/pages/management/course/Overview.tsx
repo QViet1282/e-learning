@@ -12,7 +12,6 @@ import { getAllCategoryCourse, getCourseById } from 'api/get/get.api'
 import ReactQuill, { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import { ChangeCircle, Close, CloudUpload } from '@mui/icons-material'
-import QuillResizeImage from 'quill-resize-image'
 import ImageUploader from 'quill-image-uploader'
 import 'quill-image-uploader/dist/quill.imageUploader.min.css'
 import axios from 'axios'
@@ -20,11 +19,11 @@ import { editCourseItem } from 'api/put/put.interface'
 import { editCourse } from 'api/put/put.api'
 import VideoOverview from './components/VideoOverview'
 
-import BlotFormatter from 'quill-blot-formatter'
 import { ImageActions } from '@xeger/quill-image-actions'
 import { ImageFormats } from '@xeger/quill-image-formats'
 import { toast } from 'react-toastify'
-
+import BlotFormatter from 'quill-blot-formatter'
+import { StyledQuill } from './components/ReactQuillConfig'
 Quill.register('modules/blotFormatter', BlotFormatter)
 Quill.register('modules/imageActions', ImageActions)
 Quill.register('modules/imageFormats', ImageFormats)
@@ -51,28 +50,9 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
   const [updatedCourse, setUpdatedCourse] = useState<editCourseItem>({
     categoryCourseId: Number(categoryCourseId),
     name,
-    summary,
-    locationPath,
-    videoLocationPath
+    summary
   })
 
-  const formats = [
-    'align',
-    'bold',
-    'code-block',
-    'color',
-    'float',
-    'height',
-    'image',
-    'italic',
-    'link',
-    'list',
-    'placeholder',
-    'calltoaction',
-    'size',
-    'underline',
-    'width'
-  ]
   const modules = useMemo(
     () => ({
       imageActions: {},
@@ -119,9 +99,7 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
       setUpdatedCourse({
         categoryCourseId: Number(categoryCourseId),
         name: name ?? '',
-        summary: summary ?? '',
-        locationPath: locationPath ?? '',
-        videoLocationPath: videoLocationPath ?? ''
+        summary: summary ?? ''
       })
       void fetchCourseCategories()
     }
@@ -329,9 +307,7 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
                     setUpdatedCourse({
                       categoryCourseId: Number(categoryCourseId),
                       name: name ?? '',
-                      summary: summary ?? '',
-                      locationPath: locationPath ?? '',
-                      videoLocationPath: videoLocationPath ?? ''
+                      summary: summary ?? ''
                     })
                   }}>
                     Hủy
@@ -393,7 +369,7 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
 
           <div className={`mt-4 ${!isEditing ? 'pointer-events-none' : ''}`}>
             <label className="block mb-2 text-xl font-medium">Mô tả chi tiết</label>
-            <ReactQuill
+            <StyledQuill
               theme='snow'
               // value={isEditing ? updatedCourse?.summary : summary}
               value={updatedCourse?.summary}
@@ -403,7 +379,6 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
                 }
               }}
               readOnly={!isEditing}
-              formats={formats}
               className="w-full pb-0 bg-white"
               modules={modules} // Chỉ định modules khi đang ở chế độ chỉnh sửa
             />

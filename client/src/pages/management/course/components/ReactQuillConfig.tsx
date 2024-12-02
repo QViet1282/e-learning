@@ -8,12 +8,12 @@ const StyledQuill = styled(ReactQuill)`
   }
 
   .ql-editor {
-    padding: 0; /* Xóa padding cho editor */
+    padding: 8px; /* Xóa padding cho editor */
   }
   .ql-editor img {
     display: block;
-    margin-left: 4px;
-    margin-right: 4px;
+    margin-left: 0px;
+    margin-right: 8px;
   }
 `
 
