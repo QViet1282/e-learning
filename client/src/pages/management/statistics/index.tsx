@@ -226,12 +226,12 @@ const StatisticsPage: React.FC = () => {
         position: 'left' as const,
         title: {
           display: true,
-          text: `${t('statisticManagement.revenue')}`
+          text: `${t('statisticManagement.courses')}`
         },
         ticks: {
           callback: (value: number | string) => {
             const numValue = typeof value === 'number' ? value : parseFloat(value)
-            return `${numValue.toLocaleString()} VNĐ`
+            return `${numValue.toLocaleString()}`
           }
         }
       },
@@ -241,7 +241,7 @@ const StatisticsPage: React.FC = () => {
         position: 'right' as const,
         title: {
           display: true,
-          text: `${t('statisticManagement.registrations')}`
+          text: `${t('statisticManagement.users')}`
         },
         grid: {
           drawOnChartArea: false
@@ -255,7 +255,7 @@ const StatisticsPage: React.FC = () => {
     datasets: [
       {
         label: `${t('statisticManagement.courses')}`,
-        data: userCourseGrowthStatistics.userGrowthData ?? [],
+        data: userCourseGrowthStatistics.courseGrowthData ?? [],
         borderColor: 'rgba(75, 192, 192, 1)',
         backgroundColor: 'rgba(75, 192, 192, 0.2)',
         yAxisID: 'y1',
@@ -265,7 +265,7 @@ const StatisticsPage: React.FC = () => {
       },
       {
         label: `${t('statisticManagement.users')}`,
-        data: userCourseGrowthStatistics.courseGrowthData ?? [],
+        data: userCourseGrowthStatistics.userGrowthData ?? [],
         borderColor: 'rgba(255, 99, 132, 1)',
         backgroundColor: 'rgba(255, 99, 132, 0.2)',
         yAxisID: 'y2',
@@ -347,7 +347,7 @@ const StatisticsPage: React.FC = () => {
               onChange={handleYearChange}
               className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
             >
-              {[2024, 2023, 2022].map((year) => (
+              {[2025, 2024, 2023, 2022].map((year) => (
                 <option key={year} value={year}>
                   {year}
                 </option>
@@ -415,9 +415,11 @@ const StatisticsPage: React.FC = () => {
           defaultValue={undefined}
         >
           <option value={undefined}>{t('statisticManagement.chartLabels.overTime')}</option>
-          <option value={2024}>2024</option>
-          <option value={2023}>2023</option>
-          <option value={2022}>2022</option>
+          {[2025, 2024, 2023, 2022].map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+          ))}
         </select>
         {(selectedYearTop)
           ? (
