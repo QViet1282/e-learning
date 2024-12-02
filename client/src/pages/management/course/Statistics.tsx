@@ -283,7 +283,7 @@ const Statistics = ({ courseId }: { courseId: number }) => {
                   onChange={handleYearChange}
                   className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
-                  {[2024, 2023, 2022].map((year) => (
+                  {[2025, 2024, 2023, 2022].map((year) => (
                     <option key={year} value={year}>
                       {year}
                     </option>

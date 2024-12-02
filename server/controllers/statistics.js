@@ -32,7 +32,7 @@ function logInfo (req, response) {
   })
 }
 
-router.get('/top-rated-courses', async (req, res) => {
+router.get('/top-rated-courses', isAuthenticated, async (req, res) => {
   const { limit } = req.query
 
   const maxResults = limit ? parseInt(limit, 10) : 10
@@ -90,7 +90,7 @@ router.get('/top-rated-courses', async (req, res) => {
 //       "averageRating": 5
 //   },
 
-router.get('/rating/:courseId', async (req, res) => {
+router.get('/rating/:courseId', isAuthenticated, async (req, res) => {
   const courseId = req.params.courseId
 
   try {
@@ -133,7 +133,7 @@ router.get('/rating/:courseId', async (req, res) => {
 //   "5": 0
 // }
 
-router.get('/top-enrollment-courses', async (req, res) => {
+router.get('/top-enrollment-courses', isAuthenticated, async (req, res) => {
   const { month, year, limit } = req.query
 
   const maxResults = limit ? parseInt(limit, 10) : 10
@@ -198,7 +198,7 @@ router.get('/top-enrollment-courses', async (req, res) => {
 //   }
 // ]
 
-router.get('/top-earning-courses', async (req, res) => {
+router.get('/top-earning-courses', isAuthenticated, async (req, res) => {
   const { year, month, limit } = req.query
 
   const filterYear = year?.trim() !== '' ? parseInt(year, 10) : undefined
@@ -268,21 +268,33 @@ router.get('/allRegistrationsAndRevenue', isAuthenticated, async (req, res) => {
 
   try {
     const dateFilter = type === 'day'
-      ? sequelize.literal('DAY(Enrollment.createdAt)')
-      : sequelize.literal('MONTH(Enrollment.createdAt)')
+      ? sequelize.literal('DAY(Enrollment.enrollmentDate)')
+      : sequelize.literal('MONTH(Enrollment.enrollmentDate)')
 
     const whereCondition = {
-      status: 1,
-      createdAt: {
-        [Op.gte]: new Date(`${year}-01-01`),
-        [Op.lt]: new Date(`${parseInt(year) + 1}-01-01`)
-      }
+      status: 1
+      // createdAt: {
+      //   [Op.gte]: new Date(`${year}-01-01`),
+      //   [Op.lt]: new Date(`${parseInt(year) + 1}-01-01`)
+      // }
     }
 
+    whereCondition[Op.and] = [
+      sequelize.where(sequelize.fn('YEAR', sequelize.col('Enrollment.enrollmentDate')), '=', year)
+    ]
+
     if (type === 'day' && month) {
-      whereCondition.createdAt[Op.gte] = new Date(`${year}-${month}-01`)
-      whereCondition.createdAt[Op.lt] = new Date(`${year}-${parseInt(month) + 1}-01`)
+      // const nextMonth = parseInt(month) === 12 ? 1 : parseInt(month) + 1
+      // const nextYear = parseInt(month) === 12 ? parseInt(year) + 1 : year
+
+      // whereCondition.createdAt[Op.gte] = new Date(`${year}-${month.padStart(2, '0')}-01`)
+      // whereCondition.createdAt[Op.lt] = new Date(`${nextYear}-${String(nextMonth).padStart(2, '0')}-01`)
+      whereCondition[Op.and].push(
+        sequelize.where(sequelize.fn('MONTH', sequelize.col('Enrollment.enrollmentDate')), '=', month)
+      )
     }
+
+    console.log('whereCondition whereCondition whereCondition whereCondition', whereCondition)
 
     const stats = await models.Enrollment.findAll({
       attributes: [
@@ -346,7 +358,7 @@ router.get('/allRegistrationsAndRevenue', isAuthenticated, async (req, res) => {
   }
 })
 
-router.get('/user-course-growth-statistics', isAuthenticated, async (req, res) => {
+router.get('/user-course-growth-statistics', isAuthenticated, isAuthenticated, async (req, res) => {
   const { type, year, month } = req.query
 
   if (!type || !year) {
@@ -354,54 +366,80 @@ router.get('/user-course-growth-statistics', isAuthenticated, async (req, res) =
   }
 
   try {
-    const dateFilter = type === 'day'
+    const userDateFilter = type === 'day'
       ? sequelize.literal('DAY(createdAt)')
       : sequelize.literal('MONTH(createdAt)')
 
+    const courseDateFilter = type === 'day'
+      ? sequelize.literal('DAY(startDate)')
+      : sequelize.literal('MONTH(startDate)')
+
     const courseWhereCondition = {
-      status: { [Op.gte]: 0 },
-      startDate: {
-        [Op.gte]: new Date(`${year}-01-01`),
-        [Op.lt]: new Date(`${parseInt(year) + 1}-01-01`)
-      }
+      status: { [Op.in]: [2, 3, 4, 5, 6, 7] }
+      // startDate: {
+      //   [Op.gte]: new Date(`${year}-01-01`),
+      //   [Op.lt]: new Date(`${parseInt(year) + 1}-01-01`)
+      // }
     }
 
     const userWhereCondition = {
-      createdAt: {
-        [Op.gte]: new Date(`${year}-01-01`),
-        [Op.lt]: new Date(`${parseInt(year) + 1}-01-01`)
-      }
+      // createdAt: {
+      //   [Op.gte]: new Date(`${year}-01-01`),
+      //   [Op.lt]: new Date(`${parseInt(year) + 1}-01-01`)
+      // }
     }
+
+    courseWhereCondition[Op.and] = [
+      sequelize.where(sequelize.fn('YEAR', sequelize.col('Course.startDate')), '=', year)
+    ]
+
+    userWhereCondition[Op.and] = [
+      sequelize.where(sequelize.fn('YEAR', sequelize.col('User.createdAt')), '=', year)
+    ]
 
     // Nếu type là 'day' và có tháng, thêm điều kiện cho tháng
     if (type === 'day' && month) {
-      courseWhereCondition.startDate[Op.gte] = new Date(`${year}-${month}-01`)
-      courseWhereCondition.startDate[Op.lt] = new Date(`${year}-${parseInt(month) + 1}-01`)
-      userWhereCondition.createdAt[Op.gte] = new Date(`${year}-${month}-01`)
-      userWhereCondition.createdAt[Op.lt] = new Date(`${year}-${parseInt(month) + 1}-01`)
+      // const nextMonth = parseInt(month) === 12 ? 1 : parseInt(month) + 1
+      // const nextYear = parseInt(month) === 12 ? parseInt(year) + 1 : year
+
+      // const formattedMonth = String(month).padStart(2, '0')
+      // const formattedNextMonth = String(nextMonth).padStart(2, '0')
+
+      // courseWhereCondition.startDate[Op.gte] = new Date(`${year}-${formattedMonth}-01`)
+      // courseWhereCondition.startDate[Op.lt] = new Date(`${nextYear}-${formattedNextMonth}-01`)
+      // userWhereCondition.createdAt[Op.gte] = new Date(`${year}-${formattedMonth}-01`)
+      // userWhereCondition.createdAt[Op.lt] = new Date(`${nextYear}-${formattedNextMonth}-01`)
+
+      userWhereCondition[Op.and].push(
+        sequelize.where(sequelize.fn('MONTH', sequelize.col('User.createdAt')), '=', month)
+      )
+
+      courseWhereCondition[Op.and].push(
+        sequelize.where(sequelize.fn('MONTH', sequelize.col('Course.startDate')), '=', month)
+      )
     }
 
     // Truy vấn số lượng khóa học tăng trưởng
     const courseGrowth = await models.Course.findAll({
       attributes: [
-        [dateFilter, 'dateValue'],
+        [courseDateFilter, 'dateValue'],
         [sequelize.fn('COUNT', sequelize.col('Course.id')), 'totalCourses']
       ],
       where: courseWhereCondition,
-      group: [dateFilter],
-      order: [[dateFilter, 'ASC']],
+      group: [courseDateFilter],
+      order: [[courseDateFilter, 'ASC']],
       raw: true
     })
 
     // Truy vấn số lượng người dùng mới
     const userGrowth = await models.User.findAll({
       attributes: [
-        [dateFilter, 'dateValue'],
+        [userDateFilter, 'dateValue'],
         [sequelize.fn('COUNT', sequelize.col('User.id')), 'totalUsers']
       ],
       where: userWhereCondition,
-      group: [dateFilter],
-      order: [[dateFilter, 'ASC']],
+      group: [userDateFilter],
+      order: [[userDateFilter, 'ASC']],
       raw: true
     })
 
@@ -457,7 +495,7 @@ router.get('/user-course-growth-statistics', isAuthenticated, async (req, res) =
 })
 
 // Lấy các dữ liệu tổng quan toàn hệ thống
-router.get('/overview', async (req, res) => {
+router.get('/overview', isAuthenticated, async (req, res) => {
   try {
     const totalRevenue = await models.Enrollment.findAll({
       attributes: [
@@ -502,7 +540,7 @@ router.get('/overview', async (req, res) => {
   }
 })
 
-router.get('/top-earning-teachers', async (req, res) => {
+router.get('/top-earning-teachers', isAuthenticated, async (req, res) => {
   const { year, month, limit } = req.query
 
   const filterYear = year?.trim() !== '' ? parseInt(year, 10) : undefined
@@ -571,7 +609,7 @@ router.get('/top-earning-teachers', async (req, res) => {
 //   },
 
 // Thống kê doanh thu đăng ký của 1 khóa học
-router.get('/StatisticsEnrollmentAndRevenueByCourse', async (req, res) => {
+router.get('/StatisticsEnrollmentAndRevenueByCourse', isAuthenticated, async (req, res) => {
   const { courseId, type, year, month } = req.query
 
   if (!courseId || !type || !year) {
@@ -657,7 +695,7 @@ router.get('/StatisticsEnrollmentAndRevenueByCourse', async (req, res) => {
 })
 
 // Lấy thông tin tổng quan phân tích của khóa học
-router.get('/courseStatistics', async (req, res) => {
+router.get('/courseStatistics', isAuthenticated, async (req, res) => {
   const { courseId } = req.query
 
   if (!courseId) {
