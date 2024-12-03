@@ -157,8 +157,8 @@ const LecturerDashboard = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full bg-white md:p-8 p-1 border-x-2 border-shadow">
+    <div className="flex flex-col items-center min-h-screen bg-white border-x-2">
+      <div className="w-full bg-white md:p-8 p-1">
         <h1 className="text-2xl font-bold md:mb-8 text-center">{t('lectureDashboard.lecturer_dashboard')}</h1>
         <div className="flex flex-col md:flex-row items-center">
           <div className="w-full md:w-3/5 md:pr-4 mb-4 md:mb-0">

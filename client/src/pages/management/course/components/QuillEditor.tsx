@@ -9,9 +9,14 @@ import ReactQuill, { Quill } from 'react-quill'
 import QuillResizeImage from 'quill-resize-image'
 import ImageUploader from 'quill-image-uploader'
 import 'quill-image-uploader/dist/quill.imageUploader.min.css'
-
+import { ImageActions } from '@xeger/quill-image-actions'
+import { ImageFormats } from '@xeger/quill-image-formats'
 import BlotFormatter from 'quill-blot-formatter'
+import { StyledQuill } from './ReactQuillConfig'
+
 Quill.register('modules/blotFormatter', BlotFormatter)
+Quill.register('modules/imageActions', ImageActions)
+Quill.register('modules/imageFormats', ImageFormats)
 
 // const ImageFormat = Quill.import('formats/image')
 // class CustomImageBlot extends ImageFormat {
@@ -44,11 +49,13 @@ Quill.register('modules/blotFormatter', BlotFormatter)
 interface QuillEditorProps {
   theme: string
   value: string // Giá trị nội dung của editor
-  onChange: (content: string) => void // Hàm callback để cập nhật nội dung
+  onChange?: (content: string) => void // Hàm callback để cập nhật nội dung
   placeholder?: string
+  readOnly?: boolean
+  className?: string
 }
 
-const QuillEditor: React.FC<QuillEditorProps> = ({ theme, onChange, value, placeholder }) => {
+const QuillEditor: React.FC<QuillEditorProps> = ({ theme, onChange, value, placeholder, readOnly, className }) => {
   const Parchment = Quill.import('parchment')
   const Block = Quill.import('blots/block')
   Block.tagName = 'H3'
@@ -57,6 +64,13 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ theme, onChange, value, place
   console.log(value)
 
   const modules = useMemo(() => ({
+    imageActions: {},
+    imageFormats: {},
+    history: {
+      delay: 500,
+      maxStack: 100,
+      userOnly: true
+    },
     toolbar: [
       [{ font: [] }],
       [{ header: [1, 2, 3, 4, 5, 6, false] }],
@@ -90,24 +104,33 @@ const QuillEditor: React.FC<QuillEditorProps> = ({ theme, onChange, value, place
 
   return (
     <div>
-      <ReactQuill
+      <StyledQuill
         theme={theme}
         modules={modules}
         value={value}
         onChange={onChange}
         placeholder={placeholder}
+        readOnly={readOnly}
+        className={className}
       />
     </div>
   )
 }
 
-const QuillEditorQuestion: React.FC<QuillEditorProps> = ({ theme, onChange, value, placeholder }) => {
+const QuillEditorQuestion: React.FC<QuillEditorProps> = ({ theme, onChange, value, placeholder, readOnly, className }) => {
   const Parchment = Quill.import('parchment')
   const Block = Quill.import('blots/block')
   Block.tagName = 'H3'
   Quill.register(Block, true)
 
   const modules = useMemo(() => ({
+    imageActions: {},
+    imageFormats: {},
+    history: {
+      delay: 500,
+      maxStack: 100,
+      userOnly: true
+    },
     toolbar: [
       ['bold', 'italic', 'underline', 'strike'],
       ['blockquote', 'code-block', 'image'],
@@ -134,12 +157,14 @@ const QuillEditorQuestion: React.FC<QuillEditorProps> = ({ theme, onChange, valu
 
   return (
       <div>
-        <ReactQuill
+        <StyledQuill
           theme={theme}
           modules={modules}
           value={value}
           placeholder={placeholder}
           onChange={onChange}
+          readOnly={readOnly}
+          className={className}
         />
       </div>
   )

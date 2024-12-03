@@ -766,7 +766,9 @@ router.get('/courseStatistics', isAuthenticated, async (req, res) => {
 router.get('/StatisticsEnrollmentAndRevenueByTeacher', isAuthenticated, async (req, res) => {
   const { type, year, month, teacherId } = req.query
   const userId = req.user.id
-  const actualTeacherId = teacherId || userId
+  const actualTeacherId = userId
+
+  console.log('sdddddddddddddddddddddddddddddđ', userId)
 
   if (!type || !year) {
     return res.status(400).json({ error: 'Type (day/month), and year are required' })

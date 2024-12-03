@@ -116,7 +116,7 @@ const DoExamList: React.FC<DoExamProps> = ({ courseId }) => {
                 {exams.map((exam, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between border-b-2 p-4 flex-wrap bg-white rounded-lg shadow hover:bg-gray-100 transition duration-200 ease-in-out"
+                    className="flex items-center justify-between border-b-2 p-4 flex-wrap bg-white rounded-lg shadow-md mb-2"
                   >
                     <div className="flex items-center w-full md:w-2/3">
                       <div className="">

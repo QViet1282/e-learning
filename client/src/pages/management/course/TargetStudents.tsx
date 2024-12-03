@@ -136,7 +136,7 @@ const TargetStudents: React.FC<TargetStudentsProps> = ({
   }
 
   return (
-    <div className="flex flex-col w-full max-w-6xl mx-auto">
+    <div className="flex flex-col w-full max-w-6xl mx-auto min-h-screen">
       <div className="w-full border-b-2">
         <div className="text-3xl font-bold p-2">Học viên mục tiêu</div>
       </div>

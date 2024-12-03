@@ -149,7 +149,6 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
 
       if (response.status === 200) {
         toast.success('Cập nhật thành công')
-        setErrorModalOpen(true)
       } else {
         console.error('Unexpected error:', response.status)
       }
@@ -216,7 +215,7 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
   return (
     <div className="flex flex-col w-full max-w-6xl mx-auto">
       <div className="w-full border-b-2">
-        <div className="text-3xl font-bold p-2">Tổng quan khóa học</div>
+        <div className="text-3xl font-bold p-2">Định giá & Xuất bản</div>
       </div>
       <div className="w-full shadow-2xl mt-6 bg-gradient-to-r from-gray-50 to-gray-100 md:px-8 px-4 py-4 rounded-lg">
         <label className="block text-lg font-bold font-sans text-gray-700 mb-1">Đặt giá cho khóa học của bạn</label>
