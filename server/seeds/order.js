@@ -22,7 +22,6 @@ const generateOrder = async () => {
       orderDate,
       totalAmount,
       status: true,
-      paymentMethod: 'PayOS',
       createdAt: faker.date.past(),
       updatedAt: faker.date.recent()
     })

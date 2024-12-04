@@ -219,7 +219,7 @@ const Learning = () => {
     })
     console.log(allPreviousLessonsCompleted, 'allPreviousLessonsCompleted')
     if (!allPreviousLessonsCompleted && newLessonId !== firstLessonId) {
-      toast.error('You need to complete all previous lessons before continuing')
+      toast.error(t('learning.needToCompleteAllPreviousLessons'))
       return false
     }
     return true
@@ -378,7 +378,7 @@ const Learning = () => {
               //   notificationDetails: { id: 1, title: 'Course completed', message: `Congratulations! ${courseData?.name} completed!`, url: '/myCourses', createdAt: new Date(), updatedAt: new Date() }
               // }
               // dispatch(addNotification(data))
-              toast.success('Congratulations! Course completed!')
+              toast.success(t('learning.courseCompleted'))
             }
           }
         } catch (error) {
@@ -475,7 +475,7 @@ const Learning = () => {
         if (enrollment) {
           setEnrollData(enrollment)
         } else {
-          toast.error('You haven\'t enrolled in this course yet.')
+          toast.error(t('learning.notEnrolled'))
           navigate(ROUTES.homePage)
         }
       } catch (error) {
@@ -527,7 +527,7 @@ const Learning = () => {
       courseProgress.some((progress: { lessionId: string }) => progress.lessionId === lesson.id)
     )
     if (!isAllowedToContinue) {
-      toast.error('You need to complete the previous lessons before continuing.')
+      toast.error(t('learning.needToCompleteAllPreviousLessons'))
       return
     }
     setActiveDrop(drop.name)
@@ -595,7 +595,7 @@ const Learning = () => {
       )
 
       if (!isCompleted) {
-        toast.warn('You have to complete the current lesson before moving to the next one')
+        toast.warn(t('learning.completeCurrentLesson'))
         return
       }
 
@@ -609,7 +609,7 @@ const Learning = () => {
       )
 
       if (!isCompleted) {
-        toast.warn('You have to complete the current lesson before moving to the next one')
+        toast.warn(t('learning.completeCurrentLesson'))
         return
       }
       const nextCategoryIndex = currentCategoryIndex + 1
@@ -844,7 +844,7 @@ const Learning = () => {
               //   notificationDetails: { id: 1, title: 'Course completed', message: `Congratulations! ${courseData?.name} completed!`, url: '/myCourses', createdAt: new Date(), updatedAt: new Date() }
               // }
               // dispatch(addNotification(data))
-              toast.success('Congratulations! Course completed!')
+              toast.success(t('learning.courseCompleted'))
             }
           }
         } catch (error) {
@@ -936,7 +936,7 @@ const Learning = () => {
               //     notificationDetails: { id: 1, title: 'Course completed', message: `Congratulations! ${courseData?.name} completed!`, url: '/myCourses', createdAt: new Date(), updatedAt: new Date() }
               //   }
                 // dispatch(addNotification(data))
-                toast.success('Congratulations! Course completed!')
+                toast.success(t('learning.courseCompleted'))
               }
             }
           } else {

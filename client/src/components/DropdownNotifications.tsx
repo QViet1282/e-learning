@@ -206,7 +206,7 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
       loadNotifications()
       setIsMainMenuOpen(false)
       setDropdownOpen(false)
-      toast.success('All notifications have been removed')
+      toast.success(t('notification.toast_removed_all_notifications'))
     } catch (err) {
       console.error(err)
     }
@@ -217,7 +217,7 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
       dispatch(updateAllStatus(true))
       setIsMainMenuOpen(false)
       loadNotifications()
-      toast.success('All notifications have been marked as readdd')
+      toast.success(t('notification.toast_mark_all_as_read'))
     } catch (err) {
       console.error(err)
     }
@@ -228,7 +228,7 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
       dispatch(updateAllStatus(false))
       loadNotifications()
       setIsMainMenuOpen(false)
-      toast.success('All notifications have been marked as unread')
+      toast.success(t('notification.toast_mark_all_as_unread'))
     } catch (err) {
       console.error(err)
     }

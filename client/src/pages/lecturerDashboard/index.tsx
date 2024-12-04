@@ -136,11 +136,11 @@ const LecturerDashboard = () => {
 
   const handleSave = async (): Promise<void> => {
     if (newCourse.name.length < 12) {
-      toast.error('Course name at least 12 characters')
+      toast.error('Tên khóa học ít nhất 12 ký tự')
       return
     }
     if (newCourse.categoryCourseId === 0) {
-      toast.error('Please select a valid category')
+      toast.error('Vui lòng chọn một danh mục hợp lệ')
       return
     }
     try {

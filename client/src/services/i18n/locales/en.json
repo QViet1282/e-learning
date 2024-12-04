@@ -277,7 +277,12 @@
       "lesson_update": "Course updated, do you want to continue learning?",
       "continue_title": "Course updated",
       "continue_message": "Do you want to continue learning now?",
-      "continue": "Continue"
+      "continue": "Continue",
+      "needToCompleteAllPreviousLessons": "You need to complete all previous lessons before continuing",
+      "courseCompleted":"Congratulations! Course completed!",
+      "notEnrolled": "You have enrolled in this course yet",
+      "completeCurrentLesson": "You have to complete the current lesson before moving to the next one"
+
     },
     "profile": {
       "editProfile": "Edit Profile",
@@ -624,7 +629,10 @@
         "notification_details": "Notification Details",
         "view": "Go to",
         "close": "Close"
-      }
+      },
+      "toast_removed_all_notifications":"All notifications have been removed",
+      "toast_mark_all_as_read":"All notifications have been marked as readdd",
+      "toast_mark_all_as_unread":"All notifications have been marked as unread"
     },
     "userManagement": {
       "title": "User Management",

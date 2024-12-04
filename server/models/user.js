@@ -20,9 +20,6 @@ const User = sequelize.define('User', {
   lastName: {
     type: DataTypes.STRING
   },
-  description: {
-    type: DataTypes.STRING
-  },
   email: {
     type: DataTypes.STRING,
     allowNull: true,

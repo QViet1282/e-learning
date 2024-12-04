@@ -28,9 +28,6 @@ const Order = sequelize.define(
       defaultValue: 0,
       allowNull: false
     },
-    paymentMethod: {
-      type: DataTypes.STRING
-    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

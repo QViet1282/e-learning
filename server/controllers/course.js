@@ -913,6 +913,11 @@ router.get('/', async (req, res) => {
     console.log('Query:', req.query)
     const offset = (Number(page) - 1) * Number(size)
 
+    const adjustedStartDate = new Date(startDate)
+    adjustedStartDate.setHours(0, 0, 0, 0)
+
+    const adjustedEndDate = new Date(endDate)
+    adjustedEndDate.setHours(23, 59, 59, 999)
     // Điều kiện lọc cơ bản
     const searchConditions = {
       where: {
@@ -920,22 +925,14 @@ router.get('/', async (req, res) => {
           // Status = 2: Public courses (không bị ảnh hưởng bởi ngày)
           { status: 2 },
           // Status = 3: Time-based courses (phải kiểm tra đã public)
-          // {
-          //   status: 3,
-          //   startDate: {
-          //     [Op.lte]: new Date() // Khóa học đã public
-          //   },
-          //   endDate: {
-          //     [Op.gte]: new Date() // Chưa hết hạn
-          //   }
-          // }
           {
-            status: 3, // Private courses, cần kiểm tra thời gian
-            startDate: { [Op.lte]: new Date() }, // Khóa học đã public
-            [Op.or]: [
-              { endDate: { [Op.gte]: new Date() } }, // Chưa hết hạn
-              { endDate: null } // Không có thời hạn kết thúc
-            ]
+            status: 3,
+            startDate: {
+              [Op.lte]: new Date() // Khóa học đã public
+            },
+            endDate: {
+              [Op.gte]: new Date() // Chưa hết hạn
+            }
           }
         ]
       }
@@ -943,74 +940,66 @@ router.get('/', async (req, res) => {
 
     // Lọc theo khoảng thời gian nếu có cả startDate và endDate
     if (startDate && endDate) {
-      searchConditions.where[Op.or][1] = {
-        ...searchConditions.where[Op.or][1], // Áp dụng chỉ cho status = 3
-        startDate: {
-          [Op.and]: [
-            { [Op.gte]: new Date(startDate) }, // Người dùng lọc startDate
-            { [Op.lte]: new Date() } // Khóa học phải đã public
-          ]
-        },
-        // endDate: {
-        //   [Op.and]: [
-        //     { [Op.lte]: new Date(endDate) }, // Kết thúc trước endDate
-        //     { [Op.gte]: new Date() } // Chưa hết hạn
-        //   ]
-        // }
-        [Op.or]: [
-          {
+      searchConditions.where[Op.or] = searchConditions.where[Op.or].map(condition => {
+        if (condition.status === 2 || condition.status === 3) {
+          return {
+            ...condition,
+            startDate: {
+              [Op.and]: [
+                { [Op.gte]: adjustedStartDate }, // Bắt đầu sau startDate
+                { [Op.lte]: new Date() } // Khóa học phải đã public
+              ]
+            },
             endDate: {
               [Op.and]: [
-                { [Op.lte]: new Date(endDate) },
-                { [Op.gte]: new Date() }
+                { [Op.lte]: adjustedEndDate }, // Kết thúc trước endDate
+                { [Op.gte]: new Date() } // Chưa hết hạn
               ]
             }
-          },
-          { endDate: null } // Thêm điều kiện này
-        ]
-      }
+          }
+        }
+        return condition
+      })
     }
 
     // Lọc chỉ theo startDate
     if (startDate && !endDate) {
-      searchConditions.where[Op.or][1] = {
-        ...searchConditions.where[Op.or][1],
-        startDate: {
-          [Op.and]: [
-            { [Op.gte]: new Date(startDate) }, // Người dùng lọc startDate
-            { [Op.lte]: new Date() } // Khóa học phải đã public
-          ]
+      searchConditions.where[Op.or] = searchConditions.where[Op.or].map(condition => {
+        if (condition.status === 2 || condition.status === 3) {
+          return {
+            ...condition,
+            startDate: {
+              [Op.and]: [
+                { [Op.gte]: adjustedStartDate }, // Bắt đầu sau startDate
+                { [Op.lte]: new Date() } // Khóa học phải đã public
+              ]
+            }
+          }
         }
-      }
+        return condition
+      })
     }
 
     // Lọc chỉ theo endDate
-    // if (endDate && !startDate) {
-    //   searchConditions.where[Op.or][1] = {
-    //     ...searchConditions.where[Op.or][1],
-    //     endDate: {
-    //       [Op.and]: [
-    //         { [Op.lte]: new Date(endDate) }, // Kết thúc trước endDate
-    //         { [Op.gte]: new Date() } // Chưa hết hạn
-    //       ]
-    //     }
-    //   }
-    // }
-    // Lọc chỉ theo endDate
     if (endDate && !startDate) {
-      searchConditions.where[Op.or][1] = {
-        ...searchConditions.where[Op.or][1],
-        [Op.or]: [
-          {
+      searchConditions.where[Op.or] = searchConditions.where[Op.or].map(condition => {
+        if (condition.status === 2 || condition.status === 3) {
+          return {
+            ...condition,
             endDate: {
               [Op.and]: [
-                { [Op.lte]: new Date(endDate) },
-                { [Op.gte]: new Date() }
+                { [Op.lte]: adjustedEndDate }, // Kết thúc trước endDate
+                { [Op.gte]: new Date() } // Chưa hết hạn
               ]
             }
-          },
-          { endDate: null } // Thêm điều kiện này
-        ]
+          }
+        }
+        return condition
+      })
+    }
+    if (searchCondition) {
+      searchConditions.where.name = {
+        [Op.like]: `%${searchCondition}%`
       }
     }
 
@@ -1028,7 +1017,10 @@ router.get('/', async (req, res) => {
       limit: Number(size),
       offset
     })
-
+    const listCourses2 = await models.Course.findAll({
+      where: { id: 16 }
+    })
+    console.log('List courses2:', listCourses2)
     // Lấy rating trung bình của mỗi khóa học từ bảng Enrollment
     const ratings = await models.Enrollment.findAll({
       attributes: [

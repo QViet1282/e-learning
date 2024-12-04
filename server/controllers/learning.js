@@ -136,8 +136,7 @@ router.post('/addEnrollment', isAuthenticated, async (req, res) => {
       userId: loginedUserId,
       orderDate: new Date(),
       totalAmount: 0,
-      status: 0, // Fix_1001
-      paymentMethod: 'PayOS' // Fix_1001
+      status: 0
     })
 
     // Sử dụng orderId từ Order mới để tạo Enrollment

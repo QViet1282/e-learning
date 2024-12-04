@@ -202,8 +202,7 @@ router.post('/cart/add', async (req, res) => {
         userId,
         orderDate: new Date(),
         status: 0, // Trạng thái chờ thanh toán
-        totalAmount: 0,
-        paymentMethod: 'PayOS' // Phương thức thanh toán mặc định
+        totalAmount: 0
       })
     }
 
@@ -304,11 +303,11 @@ router.get('/cart/:userId', async (req, res) => {
     // Cập nhật lại danh sách Enrollment trong đơn hàng
     order.Enrollments = enrollmentsToKeep
 
-    // Nếu giỏ hàng trống sau khi loại bỏ
-    if (order.Enrollments.length === 0) {
-      await order.destroy()
-      return res.status(200).json({ message: 'Giỏ hàng trống' })
-    }
+    // // Nếu giỏ hàng trống sau khi loại bỏ
+    // if (order.Enrollments.length === 0) {
+    //   await order.destroy()
+    //   return res.status(200).json({ message: 'Giỏ hàng trống' })
+    // }
 
     // Cập nhật lại totalAmount của đơn hàng
     const totalAmount = enrollmentsToKeep.reduce((sum, enrollment) => {

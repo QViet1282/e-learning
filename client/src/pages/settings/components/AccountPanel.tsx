@@ -130,7 +130,7 @@ function AccountPanel () {
   const isValidInputs = () => {
     setObjCheckInput(defaultObjCheckInput)
     if (user.firstName === '' || user.firstName === null) {
-      toast.error('FirstName is required')
+      toast.error('Tên là bắt buộc')
       setObjCheckInput({ ...defaultObjCheckInput, isValidFirstName: false })
       if (firstNameRef.current) {
         firstNameRef.current.focus()
@@ -139,7 +139,7 @@ function AccountPanel () {
     }
     const regxFirstName = /^[a-zA-Z\u00C0-\u017F\u1E00-\u1EFF\s]*$/
     if (!regxFirstName.test(user.firstName)) {
-      toast.error('FirstName must be a string')
+      toast.error('Tên phải là chuỗi')
       setObjCheckInput({ ...defaultObjCheckInput, isValidFirstName: false })
       if (firstNameRef.current) {
         firstNameRef.current.focus()
@@ -148,7 +148,7 @@ function AccountPanel () {
     }
     const regxLastName = /^[a-zA-Z\u00C0-\u017F\u1E00-\u1EFF\s]*$/
     if (!regxLastName.test(user.lastName)) {
-      toast.error('LastName must be a string')
+      toast.error('Họ phải là chuỗi')
       setObjCheckInput({ ...defaultObjCheckInput, isValidLastName: false })
       if (lastNameRef.current) {
         lastNameRef.current.focus()
@@ -156,7 +156,7 @@ function AccountPanel () {
       return false
     }
     if (user.lastName === '' || user.lastName === null) {
-      toast.error('LastName is required')
+      toast.error('Họ là bắt buộc')
       setObjCheckInput({ ...defaultObjCheckInput, isValidLastName: false })
       if (lastNameRef.current) {
         lastNameRef.current.focus()
@@ -164,7 +164,7 @@ function AccountPanel () {
       return false
     }
     if (user.gender === '' || user.gender === null) {
-      toast.error('Gender is required')
+      toast.error('Giới tính là bắt buộc')
       setObjCheckInput({ ...defaultObjCheckInput, isValidGender: false })
       if (genderRef.current) {
         genderRef.current.focus()
@@ -172,7 +172,7 @@ function AccountPanel () {
       return false
     }
     if (user.age === '' || user.age === null) {
-      toast.error('Age is required')
+      toast.error('Tuổi là bắt buộc')
       setObjCheckInput({ ...defaultObjCheckInput, isValidAge: false })
       if (ageRef.current) {
         ageRef.current.focus()
@@ -180,7 +180,7 @@ function AccountPanel () {
       return false
     }
     if (isNaN(Number(user.age))) {
-      toast.error('Age must be a number')
+      toast.error('Tuổi phải là số nguyên dương')
       setObjCheckInput({ ...defaultObjCheckInput, isValidAge: false })
       if (ageRef.current) {
         ageRef.current.focus()
@@ -188,7 +188,7 @@ function AccountPanel () {
       return false
     }
     if (Number(user.age) > 150) {
-      toast.error('Invalid age')
+      toast.error('Tuổi không hợp lệ')
       setObjCheckInput({ ...defaultObjCheckInput, isValidAge: false })
       if (ageRef.current) {
         ageRef.current.focus()
@@ -197,7 +197,7 @@ function AccountPanel () {
     }
     const regxs = /^[0-9]*$/
     if (!regxs.test(user.age)) {
-      toast.error('Age must be a positive integer')
+      toast.error('Tuổi phải là số nguyên dương')
       setObjCheckInput({ ...defaultObjCheckInput, isValidAge: false })
       if (ageRef.current) {
         ageRef.current.focus()
@@ -205,7 +205,7 @@ function AccountPanel () {
       return false
     }
     if (user.email === '' || user.email === null) {
-      toast.error('Email is required')
+      toast.error('Email là bắt buộc')
       setObjCheckInput({ ...defaultObjCheckInput, isValidEmail: false })
       if (emailRef.current) {
         emailRef.current.focus()
@@ -214,7 +214,7 @@ function AccountPanel () {
     }
     const regx = /\S+@\S+\.\S+/
     if (!regx.test(user.email)) {
-      toast.error('Email is invalid')
+      toast.error('Email không hợp lệ')
       setObjCheckInput({ ...defaultObjCheckInput, isValidEmail: false })
       if (emailRef.current) {
         emailRef.current.focus()
@@ -223,7 +223,7 @@ function AccountPanel () {
     }
     const regxPassword = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
     if (user.newPassword && !regxPassword.test(user.newPassword)) {
-      toast.error('Password at least 8 characters')
+      toast.error('Mật khẩu phải chứa ít nhất 8 ký tự, bao gồm chữ cái và số')
       setObjCheckInput({ ...defaultObjCheckInput, isValidPassword: false })
       if (passwordRef.current) {
         passwordRef.current.focus()
@@ -231,7 +231,7 @@ function AccountPanel () {
       return false
     }
     if (isSettingNewPassword && (user.currentPassword === '' || user.currentPassword === null || user.currentPassword === undefined)) {
-      toast.error('Current password is required')
+      toast.error('Mật khẩu hiện tại là bắt buộc')
       setObjCheckInput({ ...defaultObjCheckInput, isValidCurrentPassword: false })
       if (currentPasswordRef.current) {
         currentPasswordRef.current.focus()
@@ -239,7 +239,7 @@ function AccountPanel () {
       return false
     }
     if (isSettingNewPassword && (user.newPassword === '' || user.newPassword === null || user.newPassword === undefined)) {
-      toast.error('New password is required')
+      toast.error('Mật khẩu mới là bắt buộc')
       setObjCheckInput({ ...defaultObjCheckInput, isValidPassword: false })
       if (passwordRef.current) {
         passwordRef.current.focus()
@@ -267,7 +267,7 @@ function AccountPanel () {
   const handleSaveChanges = async () => {
     try {
       if (!isUserChanged()) {
-        toast.info('No changes detected')
+        toast.info('Không có thay đổi nào được thực hiện')
         return
       }
       if (isValidInputs()) {
@@ -278,7 +278,7 @@ function AccountPanel () {
         }
         const response = await updateUser(parseInt(id), finalPayload)
         if (response.status === 200) {
-          toast.success('Update successfully')
+          toast.success('Cập nhật thành công')
           setIsEditing(false)
           setIsSettingNewPassword(false)
           const tokens = getFromLocalStorage<any>('tokens')
@@ -289,11 +289,11 @@ function AccountPanel () {
           window.dispatchEvent(new Event('storage'))
           setOriginalUser(user)
         } else {
-          toast.error('Update failed 1')
+          toast.error('Cập nhật thất bại')
         }
       }
     } catch (error: any) {
-      toast.error(error.message)
+      // toast.error(error.message)
       if (error.field) {
         setErrorField(error.field)
         if (error.field === 'currentPassword') {

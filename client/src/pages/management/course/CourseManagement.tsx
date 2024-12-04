@@ -101,11 +101,11 @@ const CourseManagementPage = (): JSX.Element => {
 
   const handleSave = async (): Promise<void> => {
     if (newCourse.name.length < 12) {
-      toast.error('Course name at least 12 characters') // trans
+      toast.error('Tên khóa học phải có ít nhất 12 ký tự') // trans
       return
     }
     if (newCourse.categoryCourseId === 0) {
-      toast.error('Please select a valid category') // trans
+      toast.error('Vui lòng chọn một danh mục hợp lệ') // trans
       return
     }
     try {

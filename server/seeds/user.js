@@ -25,7 +25,6 @@ const generateUsers = async () => {
     return {
       firstName: faker.person.firstName(),
       lastName: faker.person.lastName(),
-      description: faker.person.jobDescriptor(),
       email: faker.internet.email(),
       gender: faker.helpers.arrayElement(['Male', 'Female', 'Other']),
       age: faker.number.int({ min: 18, max: 60 }),
@@ -46,7 +45,6 @@ const generateAdminUser = async () => {
   return {
     firstName: 'Admin',
     lastName: 'User',
-    description: 'Administrator',
     email: 'admin@gmail.com',
     gender: 'Other',
     age: 30,

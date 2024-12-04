@@ -277,7 +277,11 @@
       "lesson_update": "Khóa học đã được cập nhật. Bạn có muốn học ngay không?",
       "continue_title": "Khóa học đã cập nhật",
       "continue_message": "Bạn có muốn học ngay không?",
-      "continue": "Tiếp tục"
+      "continue": "Tiếp tục",
+      "needToCompleteAllPreviousLessons": "Bạn cần hoàn thành tất cả các bài học trước đó trước khi tiếp tục",
+      "courseCompleted": "Chúc mừng! Khóa học đã hoàn thành!",
+      "notEnrolled": "Bạn chưa đăng ký khóa học này",
+      "completeCurrentLesson": "Bạn phải hoàn thành bài học hiện tại trước khi chuyển sang bài tiếp theo"
     },
     "profile": {
       "editProfile": "Sửa thông tin",
@@ -624,7 +628,10 @@
         "notification_details": "Chi tiết Thông báo",
         "view": "Chuyển đến",
         "close": "Đóng"
-      }
+      },
+      "toast_removed_all_notifications": "Tất cả các thông báo đã được xóa",
+      "toast_mark_all_as_read": "Tất cả các thông báo đã được đánh dấu là đã đọc",
+      "toast_mark_all_as_unread": "Tất cả các thông báo đã được đánh dấu là chưa đọc"
     },
     "userManagement": {
       "title": "Quản lý người dùng",
