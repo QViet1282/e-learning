@@ -750,7 +750,8 @@
       "save": "Tạo",
       "noPayoutHistory": "Chưa có yêu cầu nào",
       "errorNameCourse": "Tên khóa học ít nhất 12 ký tự",
-      "errorCategoryCourse": "Vui lòng chọn một danh mục hợp lệ"
+      "errorCategoryCourse": "Vui lòng chọn một danh mục hợp lệ",
+      "error_fetching_payout_history": "Chưa có yêu cầu thanh toán nào"
     },
     "withdrawRequest": {
       "title": "Yêu cầu rút tiền",

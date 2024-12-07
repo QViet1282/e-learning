@@ -750,7 +750,8 @@
       "save": "Create",
       "noPayoutHistory": "No requests yet",
       "errorNameCourse": "Course name must be at least 12 characters",
-      "errorCategoryCourse": "Please select a valid category"
+      "errorCategoryCourse": "Please select a valid category",
+      "error_fetching_payout_history": "No payment requests yet"
     },
     "withdrawRequest": {
       "title": "Withdraw Request",
