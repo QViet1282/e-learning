@@ -17,8 +17,10 @@ import DoExamList from './DoExamList'
 import TargetStudents from './TargetStudents'
 import Notification from './Notification'
 import Statistics from './Statistics'
+import { useTranslation } from 'react-i18next'
 
 export default function CourseDetailPage (): JSX.Element {
+  const { t } = useTranslation()
   const location = useLocation()
   const { courseId } = location.state || {}
   const [course, setCourse] = useState<Course | null>(null)
@@ -115,23 +117,23 @@ export default function CourseDetailPage (): JSX.Element {
       <Box className='col-span-1 '>
         <Accordion defaultExpanded sx={{ backgroundColor: 'rgb(241, 245, 249)' }} className='shadow-xl'>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <div className='font-bold text-lg'>Nội dung khóa học</div>
+            <div className='font-bold text-lg'>{t('courseDetailPage.accordion.courseContent.title')}</div>
           </AccordionSummary>
           <AccordionDetails>
             <div className='flex flex-col gap-4'>
               <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => handleContentSelect('Tổng quan khóa học')}>
-                Tổng quan khóa học
+              {t('courseDetailPage.accordion.courseContent.buttons.courseOverview')}
               </button>
               <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => handleContentSelect('Học viên mục tiêu')}>
-                Học viên mục tiêu
+              {t('courseDetailPage.accordion.courseContent.buttons.targetStudents')}
               </button>
 
               <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => handleContentSelect('Chương trình giảng dạy')}>
-                Chương trình giảng dạy
+              {t('courseDetailPage.accordion.courseContent.buttons.curriculum')}
               </button>
 
               <button className="bg-white rounded py-2 w-full shadow hover:bg-teal-200 focus:outline-none" onClick={() => handleContentSelect('Định giá & Xuất bản')}>
-                Định giá & Xuất bản
+              {t('courseDetailPage.accordion.courseContent.buttons.pricingAndPublishing')}
               </button>
 
             </div>
@@ -139,7 +141,7 @@ export default function CourseDetailPage (): JSX.Element {
         </Accordion>
         <Accordion defaultExpanded sx={{ backgroundColor: 'rgb(241, 245, 249)' }} className='shadow-xl'>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <div className='font-bold text-lg'>Quản lý khóa học</div>
+            <div className='font-bold text-lg'>{t('courseDetailPage.accordion.courseManagement.title')}</div>
           </AccordionSummary>
           <AccordionDetails >
             <Box display="flex" flexDirection="column" gap={2} >
@@ -149,7 +151,7 @@ export default function CourseDetailPage (): JSX.Element {
     ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
                 onClick={() => handleContentSelect('Danh sách học viên')}
               >
-                Danh sách học viên
+                {t('courseDetailPage.accordion.courseManagement.buttons.studentList')}
               </button>
               <button
                 disabled={!isManagement}
@@ -157,7 +159,7 @@ export default function CourseDetailPage (): JSX.Element {
     ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
                 onClick={() => handleContentSelect('Kết quả các bài trắc nghiệm')}
               >
-                Kết quả các bài trắc nghiệm
+                {t('courseDetailPage.accordion.courseManagement.buttons.examResults')}
               </button>
               <button
                 disabled={!isManagement}
@@ -165,7 +167,7 @@ export default function CourseDetailPage (): JSX.Element {
     ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
                 onClick={() => handleContentSelect('Thông báo')}
               >
-                Thông báo
+                {t('courseDetailPage.accordion.courseManagement.buttons.notifications')}
               </button>
               <button
                 disabled={!isManagement}
@@ -173,7 +175,7 @@ export default function CourseDetailPage (): JSX.Element {
     ${isManagement ? 'bg-white hover:bg-teal-200' : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60'}`}
                 onClick={() => handleContentSelect('Thống kê')}
               >
-                Thống kê
+                {t('courseDetailPage.accordion.courseManagement.buttons.statistics')}
               </button>
             </Box>
           </AccordionDetails>

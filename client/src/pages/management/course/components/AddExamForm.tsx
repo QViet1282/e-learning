@@ -75,7 +75,7 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
 
   const handleAddExam = async (): Promise<void> => {
     if (newExam.name.trim() === '') {
-      toast.error('Vui lòng nhập tên bài học hợp lệ!')
+      toast.error('Vui lòng nhập tên bài kiểm tra!')
       return
     }
 

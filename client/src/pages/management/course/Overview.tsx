@@ -24,6 +24,8 @@ import { ImageFormats } from '@xeger/quill-image-formats'
 import { toast } from 'react-toastify'
 import BlotFormatter from 'quill-blot-formatter'
 import { StyledQuill } from './components/ReactQuillConfig'
+import { useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 Quill.register('modules/blotFormatter', BlotFormatter)
 Quill.register('modules/imageActions', ImageActions)
 Quill.register('modules/imageFormats', ImageFormats)
@@ -44,6 +46,7 @@ Block.tagName = 'H3'
 Quill.register(Block, true)
 
 const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, name, summary, locationPath, videoLocationPath, fetchCourse }) => {
+  const { t } = useTranslation()
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const [courseCategories, setCourseCategories] = useState<CategoryCourse[]>([])
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -189,9 +192,9 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
 
         const imageUrl = await uploadImage(resizedImage)
         await editCourse(courseId, { locationPath: imageUrl }).then(() => {
-          toast.success('Cập nhật ảnh đại diện khóa học thành công!')
+          toast.success(t('courseOverview.imageUploadSuccess'))
         }).catch(() => {
-          toast.error('Cập nhật ảnh đại diện khóa học thất bại. Vui lòng thử lại!')
+          toast.error(t('courseOverview.imageUploadFailure'))
         })
         await fetchCourse()
         // setUpdatedCourse(prev => ({ ...prev, locationPath: imageUrl }))
@@ -216,10 +219,14 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
 
   const handleSave = async (): Promise<void> => {
     try {
+      if (updatedCourse.name && updatedCourse.name?.length < 12) {
+        toast.error(t('courseOverview.errorMinLength'))
+        return
+      }
       await editCourse(courseId, updatedCourse).then(() => {
-        toast.success('Cập nhật thông tin khóa học thành công!')
+        toast.success(t('courseOverview.updateSuccess'))
       }).catch(() => {
-        toast.error('Cập nhật thông tin khóa học thất bại. Vui lòng thử lại!')
+        toast.error(t('courseOverview.updateFailure'))
       })
       console.log('Cập nhật thành công:', updatedCourse)
       await fetchCourse()
@@ -240,14 +247,14 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
     <div className="flex flex-col w-full max-w-6xl mx-auto">
       <div className="w-full border-b-2">
         <div className="text-3xl font-bold p-2">
-          Tổng quan khóa học
+          {t('courseOverview.title')}
         </div>
       </div>
       <div className="w-full shadow-2xl mt-6 bg-gradient-to-r from-gray-50 to-gray-100 md:px-8 md:py-8 p-2 rounded-lg">
           <div className='flex flex-wrap pb-6 border-b-2'>
             <div className='flex flex-col w-full items-center xl:w-1/2'>
               <label className="text-xl font-medium mb-2 flex items-center">
-                Hình ảnh khóa học
+              {t('courseOverview.courseImage')}
                 {/* {isEditing && ( */}
                 <div className='ml-2'>
                   <label className="cursor-pointer">
@@ -269,7 +276,7 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
                     src={imagePreview ?? locationPath}
                     alt="Thumbnail"
                     className="w-full h-full" // object-cover nếu cần
-                  />) : (<div className="text-gray-500 italic p-4">Ảnh đại diện là ấn tượng đầu tiên mà học viên có về khóa học của bạn. Một hình ảnh chất lượng, hấp dẫn sẽ thu hút sự chú ý và tăng cơ hội ghi danh.</div>)}
+                  />) : (<div className="text-gray-500 italic p-4">{t('courseOverview.imageDescription')}</div>)}
                   </div>
                 </div>
               </div>
@@ -287,7 +294,7 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
           </div>
           <div className="flex justify-between items-center">
             <div className="flex items-center w-3/4 text-lg font-light my-4 border-r-2 font-sans pr-2">
-              Trang tổng quan khóa học của bạn rất quan trọng đối với thành công của bạn. Hãy nghĩ đến việc tạo trang tổng quan khóa học hấp dẫn thể hiện lý do ai đó muốn ghi danh khóa học của bạn.
+            {t('courseOverview.courseDescriptionHelper')}
             </div>
             {isEditing
               ? (
@@ -299,7 +306,7 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
                       })
                     }}
                   >
-                    Lưu
+                    {t('courseOverview.save')}
                   </div>
                   <div className="cursor-pointer flex justify-center text-white text-lg  mt-2 hover:bg-teal-400 p-1 px-2 bg-teal-500 md:w-28 md:h-10 items-center rounded-md active:scale-95" onClick={() => {
                     setIsEditing(false)
@@ -310,19 +317,19 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
                       summary: summary ?? ''
                     })
                   }}>
-                    Hủy
+                    {t('courseOverview.cancel')}
                   </div>
                 </div>
                 )
               : (
                 <div onClick={() => setIsEditing(true)} className="cursor-pointer flex justify-center mt-2 text-center text-white text-lg hover:bg-teal-400 bg-teal-500 md:w-32 md:h-10 ml-2 md:ml-0 items-center rounded-md active:scale-95">
-                  <p>Chỉnh sửa</p>
+                  <p>{t('courseOverview.edit')}</p>
                 </div>
                 )}
           </div>
 
           <div className="mt-4">
-            <label className="block text-xl font-medium mb-2">Tên khóa học</label>
+            <label className="block text-xl font-medium mb-2">{t('courseOverview.courseName')}</label>
             {!isEditing
               ? (
                 <div className="w-full h-10 px-2 border border-gray-300 bg-white flex items-center">
@@ -341,7 +348,7 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
           </div>
 
           <div className="mt-4 w-1/3">
-            <label className="block text-xl font-medium mb-2">Loại khóa học</label>
+            <label className="block text-xl font-medium mb-2">{t('courseOverview.categoryCourse')}</label>
             {!isEditing
               ? (
                 <div className="w-full mt-1 h-10 p-2 border border-gray-300 bg-white">
@@ -357,7 +364,7 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
                   onChange={handleInputChange}
                   className="w-full mt-1 p-2 border h-10 border-gray-300 bg-white focus:outline-none"
                 >
-                  <option value='0' disabled hidden>Select a category</option>
+                  <option value='0' disabled hidden>{t('courseOverview.selectCategory')}</option>
                   {courseCategories.map((category) => (
                     <option key={category.id} value={category.id}>
                       {category.name}
@@ -368,7 +375,7 @@ const CourseOverview: React.FC<OverviewProps> = ({ courseId, categoryCourseId, n
           </div>
 
           <div className={`mt-4 ${!isEditing ? 'pointer-events-none' : ''}`}>
-            <label className="block mb-2 text-xl font-medium">Mô tả chi tiết</label>
+            <label className="block mb-2 text-xl font-medium">{t('courseOverview.courseDescription')}</label>
             <StyledQuill
               theme='snow'
               // value={isEditing ? updatedCourse?.summary : summary}

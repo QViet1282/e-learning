@@ -138,7 +138,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
 
   const handleSaveCategoryLession = async (): Promise<void> => {
     if (newNameCategory.trim() === '') {
-      toast.error('Tên danh mục không được để trống')
+      toast.error('Vui lòng nhập tên chương')
       return
     }
 
@@ -164,7 +164,10 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
         return
       }
       const response = await deleteCategoryLession(lessionCategoryId)
-      response.status === 200 && setOpenModalDeleteLessionCategory(false)
+      if (response.status === 200) {
+        setOpenModalDeleteLessionCategory(false)
+        toast.success('Xóa thành công')
+      }
     } catch (error) {
       console.error('Error edit category:', error)
     }
@@ -402,11 +405,11 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
           ) : (
             <div className='mb-4 md:ml-20 flex gap-3'>
               <div className={`flex justify-center text-white bg-teal-500 w-36 p-2 rounded-md ${isRequestStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-95'}`}
-              onClick={isRequestStatus ? undefined : () => { setIsAddingLesson(true) }}>
+                onClick={isRequestStatus ? undefined : () => { setIsAddingLesson(true) }}>
                 Thêm bài học
               </div>
               <div className={`flex justify-center text-white bg-teal-500 w-40 p-2 rounded-md ${isRequestStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-95'}`}
-              onClick={isRequestStatus ? undefined : () => { setIsAddingExam(true) }}>
+                onClick={isRequestStatus ? undefined : () => { setIsAddingExam(true) }}>
                 Thêm trắc nghiệm
               </div>
             </div>

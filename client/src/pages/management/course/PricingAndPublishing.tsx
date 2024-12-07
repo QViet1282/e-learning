@@ -18,6 +18,7 @@ import { useNavigate } from 'react-router-dom'
 import ROUTES from 'routes/constant'
 import DeleteModal from '../component/DeleteModal'
 import { useTranslation } from 'react-i18next'
+import { t } from 'i18next'
 
 interface PricingAndPublishingProps {
   courseId?: number
@@ -29,22 +30,11 @@ interface PricingAndPublishingProps {
   fetchCourse: () => Promise<void>
 }
 
-const contentByStatus: Record<number, string> = {
-  0: 'Khóa học của bạn hiện chưa được xuất bản. Hãy kiểm tra và đảm bảo rằng nội dung và giá cả của khóa học đã được hoàn thiện trước khi gửi yêu cầu xuất bản.',
-  1: 'Bạn đang yêu cầu xuất bản khóa học. Quản trị viên sẽ xem xét yêu cầu này trước khi phê duyệt và khóa học sẽ được công khai nếu đạt tiêu chuẩn.',
-  2: 'Khóa học của bạn đã được xuất bản thành công. Người học hiện có thể tìm kiếm và đăng ký khóa học này.',
-  3: 'Khóa học đã được xuất bản nhưng chỉ cho phép tìm kiếm và đăng ký trong một khoảng thời gian giới hạn. Sau khi hết hạn, khóa học sẽ không hiển thị để đăng ký nữa.',
-  4: 'Khóa học này đã được chuyển sang chế độ riêng tư. Chỉ bạn hoặc những người được cấp quyền truy cập mới có thể xem khóa học này.',
-  5: 'Khóa học đang yêu cầu công khai thêm nội dung mới. Quản trị viên cần xem xét và phê duyệt trước khi nội dung được cập nhật.',
-  6: 'Khóa học đang yêu cầu công khai thêm nội dung mới. Quản trị viên cần xem xét và phê duyệt trước khi nội dung được cập nhật.',
-  7: 'Khóa học đang yêu cầu công khai thêm nội dung mới. Quản trị viên cần xem xét và phê duyệt trước khi nội dung được cập nhật.'
-}
-
-const contentDeleteCourse = 'Chúng tôi cam kết học viên có quyền truy cập suốt đời. Vì vậy, bạn không thể xóa khóa học sau khi đã xuất bản.'
+const contentDeleteCourse = t('contentDeleteCourse')
 
 const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
   courseId,
-  price = 0,
+  price,
   status,
   startDateRegister,
   endDateRegister,
@@ -53,7 +43,7 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
 }) => {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  const [coursePrice, setCoursePrice] = useState<number>(price)
+  const [coursePrice, setCoursePrice] = useState<number | undefined>(price)
   const [selectedStatus, setSelectedStatus] = useState<number | undefined>(status)
   const [endDate, setEndDate] = useState<Date | null>(endDateRegister ?? null)
   const tokenInfo = getUserFromLocalStorage()
@@ -64,7 +54,24 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
   const [errorModalOpen, setErrorModalOpen] = useState(false)
   const [modalDeleteCourse, setmodalDeleteCourse] = useState(false)
   const debouncedPrice = useDebounce(coursePrice, 1500)
+
+  const contentByStatus: Record<number, string> = {
+    0: t('contentByStatus.0'),
+    1: t('contentByStatus.1'),
+    2: t('contentByStatus.2'),
+    3: t('contentByStatus.3'),
+    4: t('contentByStatus.4'),
+    5: t('contentByStatus.5'),
+    6: t('contentByStatus.6'),
+    7: t('contentByStatus.7')
+  }
   console.log(isAdmin)
+
+  useEffect(() => {
+    if (price !== undefined) setCoursePrice(price)
+    if (status !== undefined) setSelectedStatus(status)
+    if (endDateRegister !== undefined) setEndDate(endDateRegister ?? null)
+  }, [price, status, endDateRegister])
 
   useEffect(() => {
     setSelectedStatus(status)
@@ -215,17 +222,17 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
   return (
     <div className="flex flex-col w-full max-w-6xl mx-auto">
       <div className="w-full border-b-2">
-        <div className="text-3xl font-bold p-2">Định giá & Xuất bản</div>
+        <div className="text-3xl font-bold p-2">{t('pricingAndPublishing.title')}</div>
       </div>
       <div className="w-full shadow-2xl mt-6 bg-gradient-to-r from-gray-50 to-gray-100 md:px-8 px-4 py-4 rounded-lg">
-        <label className="block text-lg font-bold font-sans text-gray-700 mb-1">Đặt giá cho khóa học của bạn</label>
+        <label className="block text-lg font-bold font-sans text-gray-700 mb-1">{t('pricingAndPublishing.coursePriceLabel')}</label>
         <div className="my-2 text-lg w-3/4 font-sans font-light">
-          Tại đây bạn có thể điều chỉnh giá khóa học của mình. Đảm bảo rằng giá của bạn đã được đặt chính xác trước khi xuất bản. Giá không thể thay đổi sau khi xuất bản!
+          {t('pricingAndPublishing.coursePriceDescription')}
         </div>
 
         <div className="flex flex-row flex-wrap items-center justify-start mb-4 gap-4">
           <div className="">
-            <label className="block text-lg font-bold  font-sans text-gray-700 mb-1">Giá khóa học</label>
+            <label className="block text-lg font-bold  font-sans text-gray-700 mb-1">{t('pricingAndPublishing.coursePriceInputLabel')}</label>
             <NumericInput
               value={coursePrice}
               step={10000}
@@ -239,7 +246,7 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
             />
           </div>
           <div className="w-1/4">
-            <label className="block text-lg font-bold  font-sans text-gray-700 mb-1">Đơn vị</label>
+            <label className="block text-lg font-bold  font-sans text-gray-700 mb-1">{t('pricingAndPublishing.coursePriceUnitLabel')}</label>
             <select className="border-2 rounded-sm h-12 px-3 bg-white" disabled>
               <option value="vnd">VND</option>
             </select>
@@ -260,7 +267,7 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
         <div className='flex flex-col'>
           <div className=''>
             <div className="mb-4">
-              <label className="block text-lg font-bold font-sans text-gray-700 py-2">Trạng thái</label>
+              <label className="block text-lg font-bold font-sans text-gray-700 py-2">{t('pricingAndPublishing.statusLabel')}</label>
               <div className="mb-2 text-lg font-sans font-light">
                 {status !== undefined ? contentByStatus[status] : ''}
               </div>
@@ -270,23 +277,23 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
                 disabled={[1, 5, 6, 7].includes(Number(status))}
                 onChange={(e) => setSelectedStatus(Number(e.target.value))}
               >
-                <option value={0} hidden={!(status === 0)}>Chưa xuất bản</option>
-                <option value={1} hidden={!(status === 0 && userId === assignedBy)}>Yêu cầu xuất bản</option>
-                <option value={2} hidden={[0, 1].includes(Number(status))}>Đã xuất bản</option>
-                <option value={3} hidden={[0, 1].includes(Number(status))}>Đã xuất bản (Đăng ký giới hạn)</option>
-                <option value={4} hidden={[0, 1].includes(Number(status))}>Riêng tư</option>
-                <option value={5} hidden={([0, 1, 3, 4].includes(Number(status))) || userId !== assignedBy}>Yêu cầu công khai nội dung mới</option>
+                <option value={0} hidden={!(status === 0)}>{t('pricingAndPublishing.unpublished')}</option>
+                <option value={1} hidden={!(status === 0 && userId === assignedBy)}>{t('pricingAndPublishing.publishRequest')}</option>
+                <option value={2} hidden={[0, 1].includes(Number(status))}>{t('pricingAndPublishing.published')}</option>
+                <option value={3} hidden={[0, 1].includes(Number(status))}>{t('pricingAndPublishing.publishedLimited')}</option>
+                <option value={4} hidden={[0, 1].includes(Number(status))}>{t('pricingAndPublishing.private')}</option>
+                <option value={5} hidden={([0, 1, 3, 4].includes(Number(status))) || userId !== assignedBy}>{t('pricingAndPublishing.newContentRequest')}</option>
                 {/* decline return 2 */}
-                <option value={6} hidden={([0, 1, 2, 4].includes(Number(status))) || userId !== assignedBy}>Yêu cầu công khai nội dung mới</option>
+                <option value={6} hidden={([0, 1, 2, 4].includes(Number(status))) || userId !== assignedBy}>{t('pricingAndPublishing.newContentRequest')}</option>
                 {/* decline return 3 */}
-                <option value={7} hidden={([0, 1, 2, 3].includes(Number(status))) || userId !== assignedBy}>Yêu cầu công khai nội dung mới</option>
+                <option value={7} hidden={([0, 1, 2, 3].includes(Number(status))) || userId !== assignedBy}>{t('pricingAndPublishing.newContentRequest')}</option>
               </select>
             </div>
 
             {(selectedStatus === 3) && (
               <div className="flex flex-col gap-4 mb-4">
                 <div>
-                  <label className="block text-base font-bold text-gray-700 mb-1">Ngày kết thúc</label>
+                  <label className="block text-base font-bold text-gray-700 mb-1">{t('pricingAndPublishing.endDate')}</label>
                   <DatePicker
                     selected={endDate}
                     onChange={(date: Date | null) => {
@@ -318,7 +325,7 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
                         })
                       }}
                     >
-                      {status === selectedStatus ? <p>Request sented</p> : <p>Submit a publication request</p>}
+                      {status === selectedStatus ? <p>{t('pricingAndPublishing.requestSended')}</p> : <p>{t('pricingAndPublishing.request')}</p>}
                     </button>
                   </div>
                 </div>)
@@ -331,7 +338,7 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
                         })
                       }}
                     >
-                      Change status
+                      {t('pricingAndPublishing.changeStatusButtonLabel')}
                     </button>
                   </div>
                 </div>)}
@@ -346,14 +353,14 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
                         void AcceptOrDeclineCourseStatus(false)
                       }}
                     >
-                      <p>Decline</p>
+                      <p>{t('pricingAndPublishing.decline')}</p>
                     </button>
                     <button className='hover:bg-teal-400 bg-teal-500 text-white px-4 py-2 rounded-md transition active:scale-95 mb-4'
                       onClick={() => {
                         void AcceptOrDeclineCourseStatus(true)
                       }}
                     >
-                      <p>Accept</p>
+                      <p>{t('pricingAndPublishing.accept')}</p>
                     </button>
                   </div>
                 </div>)
@@ -366,7 +373,7 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
                         })
                       }}
                     >
-                      Change status
+                      {t('pricingAndPublishing.changeStatusButtonLabel')}
                     </button>
                   </div>
                 </div>)}
@@ -375,12 +382,12 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
           <div>
             <div className="mb-4 border-t">
               <div className="mb-2 mt-2 text-lg font-sans font-light">
-                {contentDeleteCourse}
+                {t('contentDeleteCourse')}
               </div>
               <div className="flex items-center gap-4">
                 <button className={`hover:bg-teal-400 bg-teal-500 text-white px-4 py-2 rounded-md transition ${(Number(status) > 1) ? 'cursor-not-allowed opacity-50' : 'active:scale-95'}`}
                   onClick={(Number(status) > 1) ? undefined : () => setmodalDeleteCourse(true)}>
-                  Xóa khóa học
+                  {t('pricingAndPublishing.deleteCourseButtonLabel')}
                 </button>
               </div>
             </div>
@@ -391,36 +398,36 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-5/6 max-w-xl md:max-h-96 lg:max-h-screen overflow-y-scroll">
             <h2 className="text-xl font-bold text-red-600 mb-4 text-center">
-              Khóa học không thể public
+              {t('pricingAndPublishing.modalErrorHeader')}
             </h2>
             <p className="text-gray-700 mb-4">
-              Vui lòng kiểm tra lại các thông tin sau để đảm bảo khóa học đáp ứng các yêu cầu:
+              {t('pricingAndPublishing.modalErrorDescription')}
             </p>
             <div className="text-gray-700 space-y-4">
               <p>
-                <strong>1. Giá khóa học:</strong> Giá không được để trống. Vui lòng đảm bảo rằng bạn đã nhập giá cho khóa học.
+                {t('pricingAndPublishing.modalErrorPrice')}
               </p>
               <p>
-                <strong>2. Video giới thiệu:</strong> Khóa học phải có một video giới thiệu, không được để trống.
+                {t('pricingAndPublishing.modalErrorIntroVideo')}
               </p>
               <p>
-                <strong>3. Ảnh đại diện:</strong> Vui lòng thêm một ảnh đại diện cho khóa học để người học dễ nhận diện nội dung.
+                {t('pricingAndPublishing.modalErrorImage')}
               </p>
 
               <p>
-                <strong>4. Mục tiêu và yêu cầu:</strong> Phần mục tiêu khóa học và yêu cầu học viên của khóa học phải thêm ít nhất 1 mục.
+                {t('pricingAndPublishing.modalErrorGoals')}
               </p>
               <p>
-                <strong>5. Danh mục bài học:</strong> Khóa học phải có ít nhất 1 danh mục bài học.
+                {t('pricingAndPublishing.modalErrorCategory')}
               </p>
               <p>
-                <strong>6. Bài học trong danh mục:</strong> Mỗi danh mục bài học phải chứa ít nhất 1 bài học (Lesson), và nội dung bài học (Video hoặc Pdf) không được để trống.
+                {t('pricingAndPublishing.modalErrorLessons')}
               </p>
               <p>
-                <strong>7. Kiểm tra bài thi:</strong> Nếu có bài thi (Exam), bài thi phải có ít nhất 1 câu hỏi.
+                {t('pricingAndPublishing.modalErrorExam')}
               </p>
               <p>
-                <strong>8. Thời lượng video khóa học:</strong> Thời lượng tổng các video trong khóa học phải đạt tối thiểu **30 phút** để đảm bảo chất lượng và nội dung đầy đủ.
+                {t('pricingAndPublishing.modalErrorVideoDuration')}
               </p>
 
             </div>
@@ -429,7 +436,7 @@ const PricingAndPublishing: React.FC<PricingAndPublishingProps> = ({
                 onClick={() => setErrorModalOpen(false)}
                 className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md transition-colors duration-200"
               >
-                Đóng
+                {t('pricingAndPublishing.close')}
               </button>
             </div>
           </div>

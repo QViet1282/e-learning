@@ -19,10 +19,12 @@ import GroupIcon from '@mui/icons-material/Group'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import StarIcon from '@mui/icons-material/Star'
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney'
+import { useTranslation } from 'react-i18next'
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 
 const Statistics = ({ courseId }: { courseId: number }) => {
+  const { t } = useTranslation()
   const currentYear = new Date().getFullYear()
   const currentMonth = new Date().getMonth() + 1
   const [monthlyData, setMonthlyData] = useState<any>({})
@@ -210,7 +212,7 @@ const Statistics = ({ courseId }: { courseId: number }) => {
 
   // Dữ liệu cho biểu đồ tròn
   const pieData = {
-    labels: ['1 sao', '2 sao', '3 sao', '4 sao', '5 sao'],
+    labels: ['1', '2', '3', '4', '5'],
     datasets: [
       {
         label: 'Đánh giá',
@@ -234,7 +236,7 @@ const Statistics = ({ courseId }: { courseId: number }) => {
   return (
     <div className="flex flex-col w-full max-w-6xl mx-auto">
       <div className="w-full border-b-2 mb-4">
-        <div className="text-3xl font-bold p-2">Thống kê</div>
+        <div className="text-3xl font-bold p-2">{t('statistics.title')}</div>
       </div>
       {/* Biểu đồ kết hợp */}
       <div className="w-full bg-white md:p-6 p-4 rounded-lg shadow-lg">
@@ -244,14 +246,14 @@ const Statistics = ({ courseId }: { courseId: number }) => {
             <GroupIcon className="text-blue-600 mr-4" fontSize="large" />
             <div>
               <div className="text-xl font-bold">{courseStats.totalStudents ?? 0}</div>
-              <div className="text-gray-600">Học Viên Đăng Kí</div>
+              <div className="text-gray-600">{t('statistics.studentStats.totalStudents')}</div>
             </div>
           </div>
           <div className="bg-green-100 p-4 rounded-lg shadow-md flex items-center">
             <CheckCircleIcon className="text-green-600 mr-4" fontSize="large" />
             <div>
               <div className="text-xl font-bold">{courseStats.completedEnrollments ?? 0}</div>
-              <div className="text-gray-600">Hoàn Thành khóa học</div>
+              <div className="text-gray-600">{t('statistics.studentStats.completedEnrollments')}</div>
             </div>
           </div>
 
@@ -259,7 +261,7 @@ const Statistics = ({ courseId }: { courseId: number }) => {
             <StarIcon className="text-yellow-600 mr-4" fontSize="large" />
             <div>
               <div className="text-xl font-bold">{courseStats.averageRating ?? 'N/A'}</div>
-              <div className="text-gray-600">Đánh Giá Trung Bình</div>
+              <div className="text-gray-600">{t('statistics.studentStats.averageRating')}</div>
             </div>
           </div>
 
@@ -267,7 +269,7 @@ const Statistics = ({ courseId }: { courseId: number }) => {
             <AttachMoneyIcon className="text-orange-600 mr-4" fontSize="large" />
             <div>
               <div className="text-xl font-bold">{courseStats.totalRevenue?.toLocaleString('vi-VN') ?? 0}₫</div>
-              <div className="text-gray-600">Tổng Doanh Thu</div>
+              <div className="text-gray-600">{t('statistics.studentStats.totalRevenue')}</div>
             </div>
           </div>
         </div>
@@ -275,9 +277,9 @@ const Statistics = ({ courseId }: { courseId: number }) => {
         <div className="flex flex-wrap justify-between w-full">
           <div className="w-full md:w-8/12">
             <div className="flex justify-between items-center mb-4 flex-wrap">
-              <h3 className="text-xl font-semibold">Lượt đăng ký và Doanh thu</h3>
+              <h3 className="text-xl font-semibold">{t('statistics.chart.registrationAndRevenue.label')}</h3>
               <div className="flex items-center justify-center">
-                <label className="mr-4 font-semibold">Chọn năm:</label>
+                <label className="mr-4 font-semibold">{t('statistics.chart.registrationAndRevenue.selectYear')}</label>
                 <select
                   value={selectedYear}
                   onChange={handleYearChange}
@@ -291,16 +293,16 @@ const Statistics = ({ courseId }: { courseId: number }) => {
                 </select>
                 {selectedYear && (
                   <>
-                    <label className="ml-6 mr-4 font-semibold">Tháng:</label>
+                    <label className="ml-6 mr-4 font-semibold">{t('statistics.chart.registrationAndRevenue.selectMonth')}</label>
                     <select
                       value={selectedMonth ?? undefined}
                       onChange={handleMonthChange}
                       className="p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                     >
-                      <option value={undefined}>Tháng 1-12</option>
+                      <option value={undefined}>1-12</option>
                       {[...Array(12)].map((_, i) => (
                         <option key={i + 1} value={i + 1}>
-                          Tháng {i + 1}
+                          {i + 1}
                         </option>
                       ))}
                     </select>
@@ -311,7 +313,7 @@ const Statistics = ({ courseId }: { courseId: number }) => {
             <Bar data={combinedData} options={chartOptions} />
           </div>
           <div className="w-full md:w-4/12 flex flex-col items-center justify-center">
-            <h3 className="text-xl font-semibold mb-4 text-center">Phân tích đánh giá</h3>
+            <h3 className="text-xl font-semibold mb-4 text-center">{t('statistics.ratingAnalysis.title')}</h3>
             <Pie data={pieData} options={pieOptions} />
           </div>
         </div>

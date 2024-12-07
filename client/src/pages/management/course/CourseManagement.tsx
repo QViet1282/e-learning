@@ -13,24 +13,10 @@ import CourseCard from './components/CourseCard'
 import { AddCircle, AddCircleOutline, Close, Search } from '@mui/icons-material'
 import { toast } from 'react-toastify'
 import Pagination from '../component/Pagination'
-
-const priceRanges = [
-  { label: 'Min-Max Price', min: undefined, max: undefined },
-  { label: '0 - 500.000 vnđ', min: 0, max: 500000 },
-  { label: '500.000 - 1.000.000 vnđ', min: 500000, max: 1000000 },
-  { label: '1.000.000 - 2.000.000 vnđ', min: 1000000, max: 2000000 }
-  // Thêm nhiều tùy chọn nếu cần
-]
-
-const durationRanges = [
-  { label: 'Min-Max Duration', min: undefined, max: undefined },
-  { label: 'Dưới 1 hour', min: 0, max: 59 },
-  { label: '1 đến 5 hour', min: 60, max: 300 },
-  { label: '5 đến 15 hour', min: 300, max: 900 },
-  { label: '15 hour trở lên', min: 900, max: undefined }
-]
+import { useTranslation } from 'react-i18next'
 
 const CourseManagementPage = (): JSX.Element => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [courses, setCourses] = useState<Course[]>([])
   const [open, setOpen] = useState(false)
@@ -50,6 +36,22 @@ const CourseManagementPage = (): JSX.Element => {
   const [priceRange, setPriceRange] = useState<{ min: number | undefined, max: number | undefined }>({ min: undefined, max: undefined })
   const [durationRange, setDurationRange] = useState<{ min: number | undefined, max: number | undefined }>({ min: undefined, max: undefined })
   const [searchTerm, setSearchTerm] = useState<string>()
+
+  const priceRanges = [
+    { label: t('courseManagement.minMaxPrice'), min: undefined, max: undefined },
+    { label: t('courseManagement.priceRange.0_500k'), min: 0, max: 500000 },
+    { label: t('courseManagement.priceRange.500k_1M'), min: 500000, max: 1000000 },
+    { label: t('courseManagement.priceRange.1M_2M'), min: 1000000, max: 2000000 }
+    // Thêm nhiều tùy chọn nếu cần
+  ]
+
+  const durationRanges = [
+    { label: t('courseManagement.minMaxDuration'), min: undefined, max: undefined },
+    { label: t('courseManagement.durationRange.under1Hour'), min: 0, max: 59 },
+    { label: t('courseManagement.durationRange.1to5Hours'), min: 60, max: 300 },
+    { label: t('courseManagement.durationRange.5to15Hours'), min: 300, max: 900 },
+    { label: t('courseManagement.durationRange.above15Hours'), min: 900, max: undefined }
+  ]
 
   useEffect(() => {
     void fetchCourseCategories()
@@ -143,10 +145,10 @@ const CourseManagementPage = (): JSX.Element => {
   return (
     <div className="ml-0 py-8 md:px-8 px-2 bg-sky-100 border-x-2">
       <h2 className="text-4xl font-semibold text-center text-transparent bg-clip-text bg-gradient-to-r from-green-500 via-teal-400 to-blue-500 mb-8">
-        Course Management
+        {t('courseManagement.title')}
       </h2>
       <div>
-        <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <div className="flex items-center justify-between mb-4 flex-wrap gap-1">
           {/* Select for price range */}
           <select
             onChange={(e) => handleRangeChange(e, 'price')}
@@ -178,7 +180,7 @@ const CourseManagementPage = (): JSX.Element => {
             onChange={(e) => setSelectedCategory(Number(e.target.value))}
             className="border-2 rounded-md h-12 w-full md:w-52 items-center px-2"
           >
-            <option value={0}>All Courses</option>
+            <option value={0}>{t('courseManagement.allCourses')}</option>
             {courseCategories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -191,21 +193,21 @@ const CourseManagementPage = (): JSX.Element => {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="border-2 rounded-md h-12 w-full md:w-52 items-center px-2"
           >
-            <option value="all">All Status</option>
-            <option value={0} >Chưa xuất bản</option>
-            <option value={1} >Yêu cầu xuất bản</option>
-            <option value={2} >Đã xuất bản</option>
-            <option value={3} >Đã xuất bản (Đăng ký giới hạn)</option>
-            <option value={4} >Riêng tư</option>
-            <option value={5} >Yêu cầu công khai nội dung mới</option>
+            <option value="all">{t('courseManagement.allStatus')}</option>
+            <option value={0} >{t('courseManagement.unpublished')}</option>
+            <option value={1} >{t('courseManagement.publishRequest')}</option>
+            <option value={2} >{t('courseManagement.published')}</option>
+            <option value={3} >{t('courseManagement.publishedLimited')}</option>
+            <option value={4} >{t('courseManagement.private')}</option>
+            <option value={5} >{t('courseManagement.newContentRequest')}</option>
             {/* <option value={6} >Yêu cầu công khai nội dung mới</option>
             <option value={7} >Yêu cầu công khai nội dung mới</option> */}
           </select>
           <input
-            placeholder="Search by course name"
+            placeholder={t('courseManagement.searchByCourseName').toString()}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="md:w-72 h-12 w-full bg-white border-2 rounded-md items-center px-2 focus:outline-none"
+            className="md:w-64 h-12 w-full bg-white border-2 rounded-md items-center px-2 focus:outline-none"
           />
           <button
             className="w-2/5 md:w-20 h-12 font-sans bg-white rounded-md border-2 items-center justify-center flex active:scale-95 hover:bg-slate-50"
@@ -218,7 +220,7 @@ const CourseManagementPage = (): JSX.Element => {
             className="bg-teal-300 px-4 h-12 font-sans text-white font-bold rounded hover:bg-teal-500 items-center justify-center flex gap-2 active:scale-95"
             onClick={() => setOpen(true)}
           >
-            <AddCircleOutline className="" /><p>Add New Course</p>
+            <AddCircleOutline className="" /><p>{t('courseManagement.addCourse')}</p>
           </button>
         </div>
 
@@ -239,7 +241,7 @@ const CourseManagementPage = (): JSX.Element => {
               )
             : (
               <div className="flex items-center justify-center h-96">
-                <p className="text-gray-500 text-lg">Không có khóa học nào được tìm thấy.</p>
+                <p className="text-gray-500 text-lg">{t('courseManagement.noCoursesFound')}</p>
               </div>
               )}
         </div>
@@ -256,13 +258,13 @@ const CourseManagementPage = (): JSX.Element => {
         <div className="flex items-center justify-center min-h-screen p-2">
           <div className="bg-white w-96 p-6 rounded-md shadow-lg">
             <div className='flex items-center justify-between mb-4'>
-              <h2 className="text-xl font-semibold">Add New Course</h2>
+              <h2 className="text-xl font-semibold">{t('courseManagement.addNewCourse')}</h2>
               <IconButton onClick={() => setOpen(false)}>
                 <Close />
               </IconButton>
             </div>
             <label className="block text-sm font-medium text-gray-700">
-              Course Name
+            {t('courseManagement.courseNameLabel')}
             </label>
             <input
               type="text"
@@ -273,7 +275,7 @@ const CourseManagementPage = (): JSX.Element => {
             />
             <div className="mt-4">
               <label className="block text-sm font-medium text-gray-700">
-                Category
+              {t('courseManagement.courseCategoryLabel')}
               </label>
               <select
                 name="categoryCourseId"
@@ -282,7 +284,7 @@ const CourseManagementPage = (): JSX.Element => {
                 className="w-full mt-1 p-2 border border-gray-300 rounded-md"
               >
                 <option value="0" disabled hidden>
-                  Select a category
+                {t('courseManagement.selectCategory')}
                 </option>
                 {courseCategories.map((category) => (
                   <option key={category.id} value={category.id}>
@@ -297,7 +299,7 @@ const CourseManagementPage = (): JSX.Element => {
                   console.error('Save failed:', error)
                 })
               }} className='bg-teal-300 hover:bg-teal-500 text-white px-4 py-2 rounded-md flex items-center gap-2 active:scale-95'>
-                Save
+                {t('courseManagement.saveButton')}
               </button>
             </div>
           </div>

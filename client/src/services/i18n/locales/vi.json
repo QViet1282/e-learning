@@ -747,7 +747,10 @@
       "search_bank": "Nhập tên ngân hàng...",
       "category": "Loại khóa học",
       "select_category": "Chọn loại khóa học",
-      "save": "Tạo"
+      "save": "Tạo",
+      "noPayoutHistory": "Chưa có yêu cầu nào",
+      "errorNameCourse": "Tên khóa học ít nhất 12 ký tự",
+      "errorCategoryCourse": "Vui lòng chọn một danh mục hợp lệ"
     },
     "withdrawRequest": {
       "title": "Yêu cầu rút tiền",
@@ -777,6 +780,228 @@
       "title": "404",
       "subtitle": "Không Tìm Thấy Trang",
       "description": "Trang bạn tìm kiếm có thể đã bị xóa, tên đã được thay đổi, hoặc tạm thời không khả dụng."
+    },
+    "courseManagement": {
+      "title": "Quản lý khóa học",
+      "addCourse": "Thêm khóa học",
+      "searchByCourseName": "Tìm kiếm theo tên khóa học",
+      "noCoursesFound": "Không có khóa học nào được tìm thấy.",
+      "courseCategory": "Danh mục",
+      "courseDuration": "Thời lượng",
+      "courseStatus": "Trạng thái",
+      "coursePrice": "Giá",
+      "minMaxPrice": "Giá Min-Max",
+      "priceRange": {
+        "0_500k": "0 - 500.000 vnđ",
+        "500k_1M": "500.000 - 1.000.000 vnđ",
+        "1M_2M": "1.000.000 - 2.000.000 vnđ"
+      },
+      "minMaxDuration": "Thời gian Min-Max",
+      "durationRange": {
+        "under1Hour": "Dưới 1 giờ",
+        "1to5Hours": "1 đến 5 giờ",
+        "5to15Hours": "5 đến 15 giờ",
+        "above15Hours": "15 giờ trở lên"
+      },
+      "filterCategory": "Chọn danh mục",
+      "filterStatus": "Chọn trạng thái",
+      "allCourses": "Tất cả khóa học",
+      "allStatus": "Tất cả trạng thái",
+      "unpublished": "Chưa xuất bản",
+      "publishRequest": "Yêu cầu xuất bản",
+      "published": "Đã xuất bản",
+      "publishedLimited": "Đã xuất bản (Đăng ký giới hạn)",
+      "private": "Riêng tư",
+      "newContentRequest": "Yêu cầu công khai nội dung mới",
+      "courseNameError": "Tên khóa học phải có ít nhất 12 ký tự",
+      "categoryError": "Vui lòng chọn một danh mục hợp lệ",
+      "courseCreatedSuccessfully": "Tạo thành công",
+      "addNewCourse": "Thêm khóa học mới",
+      "courseNameLabel": "Tên khóa học",
+      "courseCategoryLabel": "Danh mục khóa học",
+      "selectCategory": "Chọn danh mục",
+      "saveButton": "Lưu",
+      "closeButton": "Đóng"
+    },
+    "courseOverview": {
+      "title": "Tổng quan khóa học",
+      "courseImage": "Hình ảnh khóa học",
+      "uploadImage": "Tải ảnh lên",
+      "imageDescription": "Ảnh đại diện là ấn tượng đầu tiên mà học viên có về khóa học của bạn. Một hình ảnh chất lượng, hấp dẫn sẽ thu hút sự chú ý và tăng cơ hội ghi danh.",
+      "videoOverview": "Xem video giới thiệu",
+      "courseSummary": "Mô tả chi tiết",
+      "edit": "Chỉnh sửa",
+      "save": "Lưu",
+      "cancel": "Hủy",
+      "courseName": "Tên khóa học",
+      "categoryCourse": "Loại khóa học",
+      "selectCategory": "Chọn một danh mục",
+      "categoryPlaceholder": "Chọn một danh mục khóa học",
+      "courseDescription": "Mô tả chi tiết khóa học",
+      "courseDescriptionHelper": "Trang tổng quan khóa học của bạn rất quan trọng đối với thành công của bạn. Hãy nghĩ đến việc tạo trang tổng quan khóa học hấp dẫn thể hiện lý do ai đó muốn ghi danh khóa học của bạn.",
+      "errorMinLength": "Tên khóa học ít nhất 12 ký tự",
+      "updateSuccess": "Cập nhật thông tin khóa học thành công!",
+      "updateFailure": "Cập nhật thông tin khóa học thất bại. Vui lòng thử lại!",
+      "imageUploadSuccess": "Cập nhật ảnh đại diện khóa học thành công!",
+      "imageUploadFailure": "Cập nhật ảnh đại diện khóa học thất bại. Vui lòng thử lại!"
+    },
+    "videoOverview": {
+      "title": "Video giới thiệu / học thử",
+      "uploadVideo": "Tải video lên",
+      "uploadProgress": "Đang tải lên",
+      "cancelUpload": "Hủy",
+      "noVideoMessage": "Học viên quan tâm đến khóa học của bạn có nhiều khả năng ghi danh hơn nếu video giới thiệu của bạn được thực hiện tốt.",
+      "videoUploadSuccess": "Cập nhật video đại diện khóa học thành công!",
+      "videoUploadFailure": "Cập nhật video đại diện khóa học thất bại. Vui lòng thử lại!"
+    },
+    "targetStudents": {
+      "title": "Học viên mục tiêu",
+      "description": "Các mô tả sau sẽ hiển thị công khai trên Trang tổng quan khóa học của bạn và sẽ tác động trực tiếp việc một học viên quyết định khóa học đó có phù hợp với họ hay không.",
+      "learnWhat": "Học viên sẽ học được gì trong khóa học của bạn?",
+      "requirements": "Yêu cầu hoặc điều kiện tiên quyết để tham gia khóa học của bạn là gì?",
+      "addNewItem": "+ Thêm mục mới",
+      "saveUpdates": "Lưu cập nhật",
+      "updateSuccess": "Cập nhật thông tin khóa học thành công!",
+      "updateFailure": "Cập nhật thông tin khóa học thất bại. Vui lòng thử lại!"
+    },
+    "contentByStatus": {
+      "0": "Khóa học của bạn hiện chưa được xuất bản. Hãy kiểm tra và đảm bảo rằng nội dung và giá cả của khóa học đã được hoàn thiện trước khi gửi yêu cầu xuất bản.",
+      "1": "Bạn đang yêu cầu xuất bản khóa học. Quản trị viên sẽ xem xét yêu cầu này trước khi phê duyệt và khóa học sẽ được công khai nếu đạt tiêu chuẩn.",
+      "2": "Khóa học của bạn đã được xuất bản thành công. Người học hiện có thể tìm kiếm và đăng ký khóa học này.",
+      "3": "Khóa học đã được xuất bản nhưng chỉ cho phép tìm kiếm và đăng ký trong một khoảng thời gian giới hạn. Sau khi hết hạn, khóa học sẽ không hiển thị để đăng ký nữa.",
+      "4": "Khóa học này đã được chuyển sang chế độ riêng tư. Chỉ bạn hoặc những người được cấp quyền truy cập mới có thể xem khóa học này.",
+      "5": "Khóa học đang yêu cầu công khai thêm nội dung mới. Quản trị viên cần xem xét và phê duyệt trước khi nội dung được cập nhật.",
+      "6": "Khóa học đang yêu cầu công khai thêm nội dung mới. Quản trị viên cần xem xét và phê duyệt trước khi nội dung được cập nhật.",
+      "7": "Khóa học đang yêu cầu công khai thêm nội dung mới. Quản trị viên cần xem xét và phê duyệt trước khi nội dung được cập nhật."
+    },
+    "contentDeleteCourse": "Chúng tôi cam kết học viên có quyền truy cập suốt đời. Vì vậy, bạn không thể xóa khóa học sau khi đã xuất bản.",
+    "pricingAndPublishing": {
+      "title": "Định giá & Xuất bản",
+      "coursePriceLabel": "Đặt giá cho khóa học của bạn",
+      "coursePriceDescription": "Tại đây bạn có thể điều chỉnh giá khóa học của mình. Đảm bảo rằng giá của bạn đã được đặt chính xác trước khi xuất bản. Giá không thể thay đổi sau khi xuất bản!",
+      "coursePriceInputLabel": "Giá khóa học",
+      "coursePriceUnitLabel": "Đơn vị",
+      "vndOption": "VND",
+      "savePriceButtonLabel": "Lưu giá",
+      "statusLabel": "Trạng thái",
+      "statusDescription": "Trạng thái của khóa học hiện tại.",
+      "changeStatusButtonLabel": "Thay đổi trạng thái",
+      "deleteCourseWarning": "Chúng tôi cam kết học viên có quyền truy cập suốt đời. Vì vậy, bạn không thể xóa khóa học sau khi đã xuất bản.",
+      "deleteCourseButtonLabel": "Xóa khóa học",
+      "modalErrorHeader": "Khóa học không thể public",
+      "modalErrorDescription": "Vui lòng kiểm tra lại các thông tin sau để đảm bảo khóa học đáp ứng các yêu cầu:",
+      "modalErrorPrice": "1. Giá khóa học: Giá không được để trống. Vui lòng đảm bảo rằng bạn đã nhập giá cho khóa học.",
+      "modalErrorIntroVideo": "2. Video giới thiệu: Khóa học phải có một video giới thiệu, không được để trống.",
+      "modalErrorImage": "3. Ảnh đại diện: Vui lòng thêm một ảnh đại diện cho khóa học để người học dễ nhận diện nội dung.",
+      "modalErrorGoals": "4. Mục tiêu và yêu cầu: Phần mục tiêu khóa học và yêu cầu học viên của khóa học phải thêm ít nhất 1 mục.",
+      "modalErrorCategory": "5. Danh mục bài học: Khóa học phải có ít nhất 1 danh mục bài học.",
+      "modalErrorLessons": "6. Bài học trong danh mục: Mỗi danh mục bài học phải chứa ít nhất 1 bài học (Lesson), và nội dung bài học (Video hoặc Pdf) không được để trống.",
+      "modalErrorExam": "7. Kiểm tra bài thi: Nếu có bài thi (Exam), bài thi phải có ít nhất 1 câu hỏi.",
+      "modalErrorVideoDuration": "8. Thời lượng video khóa học: Thời lượng tổng các video trong khóa học phải đạt tối thiểu **30 phút** để đảm bảo chất lượng và nội dung đầy đủ.",
+      "unpublished": "Chưa xuất bản",
+      "publishRequest": "Yêu cầu xuất bản",
+      "published": "Đã xuất bản",
+      "publishedLimited": "Đã xuất bản (Đăng ký giới hạn)",
+      "private": "Riêng tư",
+      "newContentRequest": "Yêu cầu công khai nội dung mới",
+      "endDate": "Ngày kết thúc",
+      "requestSended": "Yêu cầu đã gửi",
+      "request": "Gửi yêu cầu công khai khóa học",
+      "decline": "Từ chối",
+      "accept": "Chấp nhận",
+      "close": "Đóng"
+    },
+    "studentList": {
+      "title": "Danh sách học viên",
+      "totalStudents": "Tổng số học viên:",
+      "searchPlaceholder": "Tìm kiếm học viên...",
+      "noStudents": "Không có học viên nào.",
+      "enrollmentDateLabel": "Đăng ký:",
+      "progressLabel": "Tiến độ học:",
+      "progressPercentage": "{percentage}%",
+      "reloadButton": "Tải lại",
+      "searchButton": "Tìm kiếm",
+      "searchQueryLog": "Tìm kiếm học viên với từ khóa: {searchQuery}"
+    },
+    "examList": {
+      "title": "Danh sách bài kiểm tra",
+      "totalExams": "Tổng số bài kiểm tra:",
+      "searchPlaceholder": "Tìm kiếm bài kiểm tra...",
+      "noExamsFound": "Không có bài kiểm tra nào được tìm thấy.",
+      "examDetails": {
+        "score": "Điểm:",
+        "totalQuestions": "Tổng số câu hỏi:",
+        "attempts": "Lần làm bài:",
+        "student": "Học viên:"
+      },
+      "reloadButton": "Tải lại",
+      "searchButton": "Tìm kiếm",
+      "searchQueryLog": "Tìm kiếm bài kiểm tra với từ khóa: {searchQuery}"
+    },
+    "statistics": {
+      "title": "Thống kê",
+      "studentStats": {
+        "totalStudents": "Học viên đăng ký",
+        "completedEnrollments": "Hoàn thành khóa học",
+        "averageRating": "Đánh giá trung bình",
+        "totalRevenue": "Tổng doanh thu"
+      },
+      "chart": {
+        "registrationAndRevenue": {
+          "label": "Lượt đăng ký và Doanh thu",
+          "selectYear": "Chọn năm",
+          "selectMonth": "Tháng",
+          "monthSelection": "Tháng 1-12"
+        }
+      },
+      "ratingAnalysis": {
+        "title": "Phân tích đánh giá",
+        "ratingLabels": [
+          "1 sao",
+          "2 sao",
+          "3 sao",
+          "4 sao",
+          "5 sao"
+        ]
+      },
+      "reloadButton": "Tải lại",
+      "searchButton": "Tìm kiếm"
+    },
+    "courseDetailPage": {
+      "accordion": {
+        "courseContent": {
+          "title": "Nội dung khóa học",
+          "buttons": {
+            "courseOverview": "Tổng quan khóa học",
+            "targetStudents": "Học viên mục tiêu",
+            "curriculum": "Chương trình giảng dạy",
+            "pricingAndPublishing": "Định giá & Xuất bản"
+          }
+        },
+        "courseManagement": {
+          "title": "Quản lý khóa học",
+          "buttons": {
+            "studentList": "Danh sách học viên",
+            "examResults": "Kết quả các bài trắc nghiệm",
+            "notifications": "Thông báo",
+            "statistics": "Thống kê"
+          }
+        }
+      },
+      "selectedContent": {
+        "overview": "Tổng quan khóa học",
+        "targetStudents": "Học viên mục tiêu",
+        "curriculum": "Chương trình giảng dạy",
+        "pricingAndPublishing": "Định giá & Xuất bản",
+        "studentList": "Danh sách học viên",
+        "examResults": "Kết quả các bài trắc nghiệm",
+        "notifications": "Thông báo",
+        "statistics": "Thống kê"
+      },
+      "courseDetails": {
+        "courseId": "Mã khóa học",
+        "isManagement": "Quản lý khóa học"
+      }
     }
   }
 }

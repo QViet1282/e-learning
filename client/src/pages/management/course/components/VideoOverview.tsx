@@ -5,6 +5,7 @@ import { CloudUpload } from '@mui/icons-material'
 import axios from 'axios'
 import { editCourse } from 'api/put/put.api'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
 
 interface VideoOverviewProps {
   videoLocationPath: string
@@ -28,6 +29,7 @@ const VideoOverview: React.FC<VideoOverviewProps> = ({
   courseId,
   fetchCourse
 }) => {
+  const { t } = useTranslation()
   const [isUploading, setIsUploading] = useState<boolean>(false)
   const [uploadProgress, setUploadProgress] = useState<number>(0)
   const [videoFile, setVideoFile] = useState<File | null>(null)
@@ -68,9 +70,9 @@ const VideoOverview: React.FC<VideoOverviewProps> = ({
       // Cập nhật videoLocationPath trong state của khóa học
       //   setUpdatedCourse({ videoLocationPath: response.data.secure_url })
       await editCourse(courseId, { videoLocationPath: response.data.secure_url }).then(() => {
-        toast.success('Cập nhật video đại diện khóa học thành công!')
+        toast.success(t('videoOverview.videoUploadSuccess'))
       }).catch(() => {
-        toast.error('Cập nhật video đại diện khóa học thất bại. Vui lòng thử lại!')
+        toast.error(t('videoOverview.videoUploadFailure'))
       })
       await fetchCourse()
       setIsUploading(false)
@@ -87,7 +89,7 @@ const VideoOverview: React.FC<VideoOverviewProps> = ({
   return (
     <div>
   <label className="flex items-center text-xl font-medium justify-center">
-    Video giới thiệu / học thử
+    {t('videoOverview.title')}
     <div className="ml-2">
       <label className="cursor-pointer">
         {/* {isEditing && ( */}
@@ -102,12 +104,12 @@ const VideoOverview: React.FC<VideoOverviewProps> = ({
     <div className="md:w-96 md:h-52 flex justify-center items-center"> {/* Đặt chiều cao cố định */}
       {isUploading ? (
         <div className="flex flex-col justify-center items-center w-full h-full">
-          <p className="text-gray-700 mb-2">Đang tải lên: {uploadProgress}%</p>
+          <p className="text-gray-700 mb-2">{t('videoOverview.uploadProgress')}: {uploadProgress}%</p>
           <button
             onClick={handleCancelUpload}
             className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400 active:scale-95"
           >
-            Hủy
+            {t('videoOverview.cancelUpload')}
           </button>
         </div>
       ) : (videoLocationPath !== '') ? (
@@ -117,7 +119,7 @@ const VideoOverview: React.FC<VideoOverviewProps> = ({
           className="w-full h-full object-cover"
         />
       ) : (
-        <div className="text-gray-500 italic p-4">Học viên quan tâm đến khóa học của bạn có nhiều khả năng ghi danh hơn nếu video giới thiệu của bạn được thực hiện tốt.</div> // Nội dung thay thế
+        <div className="text-gray-500 italic p-4">{t('videoOverview.noVideoMessage')}</div> // Nội dung thay thế
       )}
     </div>
   </div>
