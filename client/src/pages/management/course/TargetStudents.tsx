@@ -8,6 +8,7 @@ import { Add, Delete, DragIndicator } from '@mui/icons-material'
 import { editCourseItem } from 'api/put/put.interface'
 import { editCourse } from 'api/put/put.api'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
 
 interface TargetStudentsProps {
   courseId?: number
@@ -22,6 +23,7 @@ const TargetStudents: React.FC<TargetStudentsProps> = ({
   prepare = '',
   fetchCourse
 }) => {
+  const { t } = useTranslation()
   const filterValidLines = (line: string) => line.trim() !== ''
   const [updatedCourse, setUpdatedCourse] = useState<editCourseItem | null>(null)
   const [descriptions, setDescriptions] = useState<string[]>(description.split('.').filter(Boolean))
@@ -112,7 +114,7 @@ const TargetStudents: React.FC<TargetStudentsProps> = ({
           <div className="flex items-center space-x-2">
             <input
               readOnly
-              value="+ Thêm mục mới"
+              value={t('targetStudents.addNewItem').toString()}
               className="w-full h-9 px-2 text-sm text-gray-500 border-2 border-dashed border-gray-300 cursor-pointer focus:outline-none"
               onClick={() => handleAddItemAt(items.length - 1, setState)}
             />
@@ -128,26 +130,26 @@ const TargetStudents: React.FC<TargetStudentsProps> = ({
     console.log('Saved Descriptions:', validDescriptions)
     console.log('Saved Preparations:', validPreparations)
     await editCourse(courseId, { ...updatedCourse, description: validDescriptions, prepare: validPreparations }).then(() => {
-      toast.success('Cập nhật thông tin khóa học thành công!')
+      toast.success(t('targetStudents.updateSuccess'))
     }).catch(() => {
-      toast.error('Cập nhật thông tin khóa học thất bại. Vui lòng thử lại!')
+      toast.error(t('targetStudents.updateFailure'))
     })
-    void fetchCourse()
+    await fetchCourse()
   }
 
   return (
     <div className="flex flex-col w-full max-w-6xl mx-auto min-h-screen">
       <div className="w-full border-b-2">
-        <div className="text-3xl font-bold p-2">Học viên mục tiêu</div>
+        <div className="text-3xl font-bold p-2">{t('targetStudents.title')}</div>
       </div>
 
       <div className="w-full shadow-2xl mt-6 bg-gradient-to-r from-gray-50 to-gray-100 md:px-8 px-4 py-4 rounded-lg">
-        <div className="text-lg font-light font-sans my-6">Các mô tả sau sẽ hiển thị công khai trên Trang tổng quan khóa học của bạn và sẽ tác động trực tiếp việc một học viên quyết định khóa học đó có phù hợp với họ hay không.</div>
-        <div className="text-xl font-semibold mb-4">Học viên sẽ học được gì trong khóa học của bạn?</div>
+        <div className="text-lg font-light font-sans my-6">{t('targetStudents.description')}</div>
+        <div className="text-xl font-semibold mb-4">{t('targetStudents.learnWhat')}</div>
         <DragDropContext onDragEnd={(result) => handleDragEnd(result, descriptions, setDescriptions)}>
           {renderList(descriptions, setDescriptions)}
         </DragDropContext>
-        <div className="text-xl font-semibold mt-8 mb-4">Yêu cầu hoặc điều kiện tiên quyết để tham gia khóa học của bạn là gì?</div>
+        <div className="text-xl font-semibold mt-8 mb-4">{t('targetStudents.requirements')}</div>
         <DragDropContext onDragEnd={(result) => handleDragEnd(result, preparations, setPreparations)}>
           {renderList(preparations, setPreparations)}
         </DragDropContext>
@@ -156,7 +158,7 @@ const TargetStudents: React.FC<TargetStudentsProps> = ({
           onClick={handleSave}
           className="hover:bg-teal-400 bg-teal-500 text-white px-4 py-2 rounded-md flex items-center gap-2 mt-4"
         >
-          Lưu cập nhật
+          {t('targetStudents.saveUpdates')}
         </button>
       </div>
     </div>

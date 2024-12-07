@@ -75,7 +75,7 @@ const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, l
 
   const handleAddExam = async (): Promise<void> => {
     if (dataExam.name.trim() === '') {
-      toast.error('Vui lòng nhập tên bài học hợp lệ!')
+      toast.error('Vui lòng nhập tên bài kiểm tra!')
       return
     }
 

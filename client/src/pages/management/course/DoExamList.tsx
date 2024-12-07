@@ -7,6 +7,7 @@ import { IconButton } from '@mui/material'
 import { Refresh, Search } from '@mui/icons-material'
 import Pagination from '../component/Pagination'
 import { PacmanLoader } from 'react-spinners'
+import { useTranslation } from 'react-i18next'
 
 interface DoExamProps {
   courseId?: number
@@ -21,6 +22,7 @@ interface DoExamItem {
 }
 
 const DoExamList: React.FC<DoExamProps> = ({ courseId }) => {
+  const { t } = useTranslation()
   const [exams, setExams] = useState<DoExamItem[]>([])
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
@@ -69,12 +71,12 @@ const DoExamList: React.FC<DoExamProps> = ({ courseId }) => {
   return (
     <div className="flex flex-col w-full max-w-6xl mx-auto">
       <div className="w-full border-b-2">
-        <div className="text-3xl font-bold p-2">Danh sách bài kiểm tra</div>
+        <div className="text-3xl font-bold p-2">{t('examList.title')}</div>
       </div>
       <div className="w-full shadow-2xl mt-6 bg-gradient-to-r from-gray-50 to-gray-100 md:px-8 px-4 py-4 rounded-lg">
         <div className="flex flex-wrap justify-between items-center mb-4">
           <div className="flex items-center">
-            <span className="text-lg mr-4">Tổng số bài kiểm tra: {totalExams}</span>
+            <span className="text-lg mr-4">{t('examList.totalExams')} {totalExams}</span>
             <IconButton onClick={handleReload} color="primary">
               <Refresh className='text-teal-400 hover:text-teal-300'/>
             </IconButton>
@@ -82,7 +84,7 @@ const DoExamList: React.FC<DoExamProps> = ({ courseId }) => {
           <div className="flex items-center">
             <input
               type="text"
-              placeholder="Tìm kiếm bài kiểm tra..."
+              placeholder={t('examList.searchPlaceholder').toString()}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="border-2 p-2 rounded flex-grow mr-2 focus:outline-none"
@@ -124,17 +126,17 @@ const DoExamList: React.FC<DoExamProps> = ({ courseId }) => {
                       </div>
                     </div>
                     <div className="flex flex-col w-full md:w-1/3">
-                      <p className="text-sm text-gray-500 whitespace-nowrap">Điểm: <span className="font-semibold text-gray-800">{exam.overAllScore}</span></p>
-                      <p className="text-sm text-gray-500 whitespace-nowrap">Tổng số câu hỏi: <span className="font-semibold text-gray-800">{exam.countQuestion}</span></p>
-                      <p className="text-sm text-gray-500 whitespace-nowrap">Lần làm bài: <span className="font-semibold text-gray-800">{exam.attempt}</span></p>
-                      <p className="text-sm text-gray-500 whitespace-nowrap">Học viên: <span className="font-semibold text-gray-800">{exam.userName}</span></p>
+                      <p className="text-sm text-gray-500 whitespace-nowrap">{t('examList.examDetails.score')} <span className="font-semibold text-gray-800">{exam.overAllScore}</span></p>
+                      <p className="text-sm text-gray-500 whitespace-nowrap">{t('examList.examDetails.totalQuestions')} <span className="font-semibold text-gray-800">{exam.countQuestion}</span></p>
+                      <p className="text-sm text-gray-500 whitespace-nowrap">{t('examList.examDetails.attempts')} <span className="font-semibold text-gray-800">{exam.attempt}</span></p>
+                      <p className="text-sm text-gray-500 whitespace-nowrap">{t('examList.examDetails.student')} <span className="font-semibold text-gray-800">{exam.userName}</span></p>
                     </div>
                   </div>
                 ))}
               </>
             ) : (
               <div className="text-center py-4 text-gray-500 items-center justify-center flex h-96">
-                Không có bài kiểm tra nào được tìm thấy.
+                {t('examList.examDetails.noExamsFound')}
               </div>
             )}
           </div>

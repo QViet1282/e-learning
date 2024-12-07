@@ -7,7 +7,6 @@ import React, { useEffect, useState } from 'react'
 import { Search, AddCircle, AddCircleOutline } from '@mui/icons-material'
 import { getAllNotification } from 'api/get/get.api'
 import Pagination from '../component/Pagination'
-import NotificationItem from '../notification/components/notificationItem'
 import { createAndReplicateNotification } from 'api/post/post.api'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -15,6 +14,7 @@ import { PacmanLoader } from 'react-spinners'
 import { deleteNotification } from 'api/put/put.api'
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
+import NotificationCourseItem from '../notification/components/notificationCourseItem'
 
 interface Notification {
   id: number
@@ -189,7 +189,7 @@ const Notification = ({ courseId }: { courseId: number }) => {
                 : (
                   <div className="grid grid-cols-1 md:grid-cols-3 md:grid-rows-3 gap-4 w-full">
                     {notifications.map((notification) => (
-                      <NotificationItem
+                      <NotificationCourseItem
                         key={notification.id}
                         notification={notification}
                         handleDelete={handleDelete}

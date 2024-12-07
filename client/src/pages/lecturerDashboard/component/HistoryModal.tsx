@@ -110,7 +110,7 @@ function HistoryModal ({ isOpen, onClose }: HistoryModalProps) {
                     ))
                   )
                 : (
-                  <p className="text-center text-gray-500">{t('lectureDashboard.no_payout_history')}</p>
+                  <p className="text-center text-gray-500">{t('lectureDashboard.noPayoutHistory')}</p>
                   )}
         </div>
 

@@ -279,10 +279,9 @@
       "continue_message": "Do you want to continue learning now?",
       "continue": "Continue",
       "needToCompleteAllPreviousLessons": "You need to complete all previous lessons before continuing",
-      "courseCompleted":"Congratulations! Course completed!",
+      "courseCompleted": "Congratulations! Course completed!",
       "notEnrolled": "You have enrolled in this course yet",
       "completeCurrentLesson": "You have to complete the current lesson before moving to the next one"
-
     },
     "profile": {
       "editProfile": "Edit Profile",
@@ -630,9 +629,9 @@
         "view": "Go to",
         "close": "Close"
       },
-      "toast_removed_all_notifications":"All notifications have been removed",
-      "toast_mark_all_as_read":"All notifications have been marked as readdd",
-      "toast_mark_all_as_unread":"All notifications have been marked as unread"
+      "toast_removed_all_notifications": "All notifications have been removed",
+      "toast_mark_all_as_read": "All notifications have been marked as readdd",
+      "toast_mark_all_as_unread": "All notifications have been marked as unread"
     },
     "userManagement": {
       "title": "User Management",
@@ -748,7 +747,10 @@
       "search_bank": "Search for a bank...",
       "category": "Category",
       "select_category": "Select Category",
-      "save": "Create"
+      "save": "Create",
+      "noPayoutHistory": "No requests yet",
+      "errorNameCourse": "Course name must be at least 12 characters",
+      "errorCategoryCourse": "Please select a valid category"
     },
     "withdrawRequest": {
       "title": "Withdraw Request",
@@ -778,6 +780,228 @@
       "title": "404",
       "subtitle": "Page Not Found",
       "description": "The page you are looking for might have been removed, had its name changed, or is temporarily unavailable."
+    },
+    "courseManagement": {
+      "title": "Course Management",
+      "addCourse": "Add Course",
+      "searchByCourseName": "Search by Course Name",
+      "noCoursesFound": "No courses found.",
+      "courseCategory": "Category",
+      "courseDuration": "Duration",
+      "courseStatus": "Status",
+      "coursePrice": "Price",
+      "minMaxPrice": "Min-Max Price",
+      "priceRange": {
+        "0_500k": "0 - 500,000 VND",
+        "500k_1M": "500,000 - 1,000,000 VND",
+        "1M_2M": "1,000,000 - 2,000,000 VND"
+      },
+      "minMaxDuration": "Min-Max Duration",
+      "durationRange": {
+        "under1Hour": "Under 1 hour",
+        "1to5Hours": "1 to 5 hours",
+        "5to15Hours": "5 to 15 hours",
+        "above15Hours": "Above 15 hours"
+      },
+      "filterCategory": "Select Category",
+      "filterStatus": "Select Status",
+      "allCourses": "All Courses",
+      "allStatus": "All Status",
+      "unpublished": "Unpublished",
+      "publishRequest": "Publish Request",
+      "published": "Published",
+      "publishedLimited": "Published (Limited Registration)",
+      "private": "Private",
+      "newContentRequest": "Request for New Content to be Public",
+      "courseNameError": "Course name must be at least 12 characters long",
+      "categoryError": "Please select a valid category",
+      "courseCreatedSuccessfully": "Course created successfully",
+      "addNewCourse": "Add New Course",
+      "courseNameLabel": "Course Name",
+      "courseCategoryLabel": "Course Category",
+      "selectCategory": "Select Category",
+      "saveButton": "Save",
+      "closeButton": "Close"
+    },
+    "courseOverview": {
+      "title": "Course Overview",
+      "courseImage": "Course Image",
+      "uploadImage": "Upload Image",
+      "imageDescription": "The course image is the first impression that students will have of your course. A high-quality, attractive image will capture attention and increase the chances of enrollment.",
+      "videoOverview": "Watch Video Overview",
+      "courseSummary": "Course Summary",
+      "edit": "Edit",
+      "save": "Save",
+      "cancel": "Cancel",
+      "courseName": "Course Name",
+      "categoryCourse": "Course Category",
+      "selectCategory": "Select a Category",
+      "categoryPlaceholder": "Select a course category",
+      "courseDescription": "Course Description",
+      "courseDescriptionHelper": "Your course overview page is very important for your success. Consider creating an engaging course overview that shows why someone should enroll in your course.",
+      "errorMinLength": "Course name must be at least 12 characters",
+      "updateSuccess": "Course information updated successfully!",
+      "updateFailure": "Failed to update course information. Please try again!",
+      "imageUploadSuccess": "Course image updated successfully!",
+      "imageUploadFailure": "Failed to update course image. Please try again!"
+    },
+    "videoOverview": {
+      "title": "Intro / Preview Video",
+      "uploadVideo": "Upload Video",
+      "uploadProgress": "Uploading",
+      "cancelUpload": "Cancel",
+      "noVideoMessage": "Students interested in your course are more likely to enroll if your intro video is well made.",
+      "videoUploadSuccess": "Course representative video updated successfully!",
+      "videoUploadFailure": "Failed to update course representative video. Please try again!"
+    },
+    "targetStudents": {
+      "title": "Target Students",
+      "description": "The following descriptions will be publicly displayed on your course dashboard and will directly influence a student’s decision on whether the course is suitable for them.",
+      "learnWhat": "What will students learn in your course?",
+      "requirements": "What are the requirements or prerequisites to join your course?",
+      "addNewItem": "+ Add new item",
+      "saveUpdates": "Save updates",
+      "updateSuccess": "Course information updated successfully!",
+      "updateFailure": "Failed to update course information. Please try again!"
+    },
+    "contentByStatus": {
+      "0": "Your course has not been published yet. Please check and make sure that the content and price of your course are completed before submitting the publication request.",
+      "1": "You are requesting to publish the course. The administrator will review this request before approval, and the course will be made public if it meets the standards.",
+      "2": "Your course has been successfully published. Learners can now search for and enroll in this course.",
+      "3": "Your course has been published but only allows searching and enrollment for a limited period. After the expiration, the course will no longer be available for registration.",
+      "4": "Your course has been set to private mode. Only you or those with granted access can view this course.",
+      "5": "Your course is requesting the publication of additional new content. The administrator needs to review and approve before the content is published.",
+      "6": "Your course is requesting the publication of additional new content. The administrator needs to review and approve before the content is published.",
+      "7": "Your course is requesting the publication of additional new content. The administrator needs to review and approve before the content is published."
+    },
+    "contentDeleteCourse": "We are committed to lifelong access for learners. Therefore, you cannot delete the course once it has been published.",
+    "pricingAndPublishing": {
+      "title": "Pricing & Publishing",
+      "coursePriceLabel": "Set the price for your course",
+      "coursePriceDescription": "Here, you can adjust the price of your course. Ensure that your price is set correctly before publishing. The price cannot be changed after publishing!",
+      "coursePriceInputLabel": "Course Price",
+      "coursePriceUnitLabel": "Unit",
+      "vndOption": "VND",
+      "savePriceButtonLabel": "Save Price",
+      "statusLabel": "Status",
+      "statusDescription": "The current status of the course.",
+      "changeStatusButtonLabel": "Change Status",
+      "deleteCourseWarning": "We are committed to lifelong access for learners. Therefore, you cannot delete the course once it has been published.",
+      "deleteCourseButtonLabel": "Delete Course",
+      "modalErrorHeader": "The course cannot be published",
+      "modalErrorDescription": "Please check the following information to ensure the course meets the requirements:",
+      "modalErrorPrice": "1. Course price: The price must not be empty. Please ensure you have entered a price for the course.",
+      "modalErrorIntroVideo": "2. Introductory video: The course must have an introductory video, it cannot be empty.",
+      "modalErrorImage": "3. Course image: Please add an image for the course to help learners easily identify the content.",
+      "modalErrorGoals": "4. Goals and requirements: The course’s goals and learner requirements must contain at least one item.",
+      "modalErrorCategory": "5. Lesson categories: The course must have at least one lesson category.",
+      "modalErrorLessons": "6. Lessons in the category: Each lesson category must contain at least one lesson (Lesson), and the lesson content (Video or Pdf) must not be empty.",
+      "modalErrorExam": "7. Exam: If there is an exam, the exam must contain at least one question.",
+      "modalErrorVideoDuration": "8. Course video duration: The total video duration in the course must be at least **30 minutes** to ensure quality and completeness of the content.",
+      "unpublished": "Not Published",
+      "publishRequest": "Publish Request",
+      "published": "Published",
+      "publishedLimited": "Published (Limited Enrollment)",
+      "private": "Private",
+      "newContentRequest": "Request for new content publication",
+      "endDate": "End Date",
+      "requestSended": "Request Sent",
+      "request": "Submit course publication request",
+      "decline": "Decline",
+      "accept": "Accept",
+      "close": "Close"
+    },
+    "studentList": {
+      "title": "Student List",
+      "totalStudents": "Total Students:",
+      "searchPlaceholder": "Search students...",
+      "noStudents": "No students found.",
+      "enrollmentDateLabel": "Enrollment Date:",
+      "progressLabel": "Learning Progress:",
+      "progressPercentage": "{percentage}%",
+      "reloadButton": "Reload",
+      "searchButton": "Search",
+      "searchQueryLog": "Searching students with keyword: {searchQuery}"
+    },
+    "examList": {
+      "title": "Exam List",
+      "totalExams": "Total Exams:",
+      "searchPlaceholder": "Search for exams...",
+      "noExamsFound": "No exams found.",
+      "examDetails": {
+        "score": "Score:",
+        "totalQuestions": "Total Questions:",
+        "attempts": "Attempts:",
+        "student": "Student:"
+      },
+      "reloadButton": "Reload",
+      "searchButton": "Search",
+      "searchQueryLog": "Searching exams with keyword: {searchQuery}"
+    },
+    "statistics": {
+      "title": "Statistics",
+      "studentStats": {
+        "totalStudents": "Enrolled Students",
+        "completedEnrollments": "Completed Courses",
+        "averageRating": "Average Rating",
+        "totalRevenue": "Total Revenue"
+      },
+      "chart": {
+        "registrationAndRevenue": {
+          "label": "Registrations and Revenue",
+          "selectYear": "Select Year",
+          "selectMonth": "Month",
+          "monthSelection": "Month 1-12"
+        }
+      },
+      "ratingAnalysis": {
+        "title": "Rating Analysis",
+        "ratingLabels": [
+          "1 star",
+          "2 stars",
+          "3 stars",
+          "4 stars",
+          "5 stars"
+        ]
+      },
+      "reloadButton": "Reload",
+      "searchButton": "Search"
+    },
+    "courseDetailPage": {
+      "accordion": {
+        "courseContent": {
+          "title": "Course Content",
+          "buttons": {
+            "courseOverview": "Course Overview",
+            "targetStudents": "Target Students",
+            "curriculum": "Curriculum",
+            "pricingAndPublishing": "Pricing & Publishing"
+          }
+        },
+        "courseManagement": {
+          "title": "Course Management",
+          "buttons": {
+            "studentList": "Student List",
+            "examResults": "Exam Results",
+            "notifications": "Notifications",
+            "statistics": "Statistics"
+          }
+        }
+      },
+      "selectedContent": {
+        "overview": "Course Overview",
+        "targetStudents": "Target Students",
+        "curriculum": "Curriculum",
+        "pricingAndPublishing": "Pricing & Publishing",
+        "studentList": "Student List",
+        "examResults": "Exam Results",
+        "notifications": "Notifications",
+        "statistics": "Statistics"
+      },
+      "courseDetails": {
+        "courseId": "Course ID",
+        "isManagement": "Course Management"
+      }
     }
   }
 }

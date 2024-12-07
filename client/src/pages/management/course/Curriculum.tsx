@@ -101,7 +101,7 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId, courseStatus }) => {
 
   const handleSaveClick = async (): Promise<void> => {
     if (newCategoryName.trim() === '') {
-      toast.error('Vui lòng nhập tên danh mục hợp lệ!')
+      toast.error('Vui lòng nhập tên chương!')
       return
     }
 

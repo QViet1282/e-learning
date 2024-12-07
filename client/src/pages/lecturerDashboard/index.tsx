@@ -136,17 +136,18 @@ const LecturerDashboard = () => {
 
   const handleSave = async (): Promise<void> => {
     if (newCourse.name.length < 12) {
-      toast.error('Tên khóa học ít nhất 12 ký tự')
+      toast.error(t('lectureDashboard.errorNameCourse')) // Tên khóa học ít nhất 12 ký tự
       return
     }
     if (newCourse.categoryCourseId === 0) {
-      toast.error('Vui lòng chọn một danh mục hợp lệ')
+      toast.error(t('lectureDashboard.errorCategoryCourse')) // Vui lòng chọn một danh mục hợp lệ
       return
     }
     try {
       const response = await createCourse(newCourse)
       console.log('Course Data:', newCourse)
       setIsCreateCourseModalOpen(false)
+      toast.success('Tạo thành công')
       void fetchCourses()
       navigate(ROUTES.detailCourse, {
         state: { courseId: response.data.id }

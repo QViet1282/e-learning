@@ -92,7 +92,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
 
   const handleAddLesson = async (): Promise<void> => {
     if (newLesson.name.trim() === '') {
-      toast.error('Vui lòng nhập tên bài học hợp lệ!')
+      toast.error('Vui lòng nhập tên bài học!')
       return
     }
 

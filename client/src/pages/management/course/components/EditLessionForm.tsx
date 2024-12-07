@@ -112,7 +112,7 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
 
   const handleUpdateLesson = async (): Promise<void> => {
     if (lesson.name.trim() === '') {
-      toast.error('Vui lòng nhập tên bài học hợp lệ!')
+      toast.error('Vui lòng nhập tên bài học!')
       return
     }
 
