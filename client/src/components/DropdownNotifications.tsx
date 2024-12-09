@@ -307,7 +307,13 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
                </div>
              </div>
              <ul className="h-128 overflow-y-auto" onScroll={handleScroll}>
-               {notifications.map((notification) => (
+               {
+               notifications.length === 0
+                 ? (
+                <li className="text-center py-4 my-auto">{t('notification.no_notifications')}</li>
+                   )
+                 : (
+                     notifications.map((notification) => (
                  <li key={notification.id} className={`duration-300 border-b border-slate-200  ${isLoading ? '' : 'last:border-0'} flex items-center ${notification.status ? 'bg-white hover:bg-slate-100' : 'bg-slate-100'}`}>
                    <div
                      className='block py-2 px-4 transition w-5/6 space-y-2'
@@ -393,7 +399,8 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
                      )}
                    </div>
                  </li>
-               ))}
+                     ))
+                   )}
              </ul>
              {isLoading && (
                <PulseLoader

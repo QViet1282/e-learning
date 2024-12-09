@@ -34,6 +34,7 @@
     "crypto-js": "^4.2.0",
     "date-fns": "2.29.2",
     "export-to-csv": "^0.2.1",
+    "firebase": "^11.0.2",
     "flag-icon-css": "^4.1.7",
     "googleapis": "^134.0.0",
     "i18next": "^22.0.2",

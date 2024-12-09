@@ -11,7 +11,9 @@ import { newCategory, DataListCourse, ListCourseParams, newQuestion, newStudyIte
 export const login = async (payload: any): Promise<AxiosResponse<any>> => {
   return await requestWithoutJwt.post<any>('/auth/login', { data: payload }, { withCredentials: true })
 }
-
+export const registerCheck = async (payload: any): Promise<AxiosResponse<any>> => {
+  return await requestWithoutJwt.post<any>('/auth/register/check', { data: payload }, { withCredentials: true })
+}
 export const register = async (payload: any): Promise<AxiosResponse<any>> => {
   return await requestWithoutJwt.post<any>('/auth/register', { data: payload }, { withCredentials: true })
 }
