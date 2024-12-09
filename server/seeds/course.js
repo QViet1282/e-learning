@@ -364,53 +364,23 @@ const sampleSummaies = [
   'This course provides a comprehensive introduction to programming concepts and practices for beginners. Topics covered include variables, data types, control structures, functions, and more.'
 ]
 
-// const generateName = () => {
-//   if (sampleNames.length === 0) {
-//     throw new Error('No more names available')
-//   }
-//   const randomIndex = Math.floor(Math.random() * sampleNames.length)
-//   const name = sampleNames[randomIndex]
-//   sampleNames.splice(randomIndex, 1)
-//   return name
-// }
-
-// const generateSummary = () => {
-//   if (sampleSummaies.length === 0) {
-//     throw new Error('No more summaries available')
-//   }
-//   const randomIndex = Math.floor(Math.random() * sampleSummaies.length)
-//   const summary = sampleSummaies[randomIndex]
-//   sampleSummaies.splice(randomIndex, 1)
-//   return summary
-// }
-
-// const generateDescription = () => {
-//   if (sampleDescriptions.length === 0) {
-//     throw new Error('No more descriptions available')
-//   }
-//   const randomIndex = Math.floor(Math.random() * sampleDescriptions.length)
-//   const description = sampleDescriptions[randomIndex]
-//   sampleDescriptions.splice(randomIndex, 1)
-//   return description
-// }
-// const generateCourses = async () => {
-//   return await Promise.all(Array.from({ length: 10 }, async () => ({
-
-//     name: generateName(),
-//     summary: generateSummary(),
-//     assignedBy: await generateUserId(),
-//     durationInMinute: faker.number.int({ min: 30, max: 120 }),
-//     startDate: faker.date.future(),
-//     endDate: faker.date.future(),
-//     description: generateDescription(),
-//     createAt: faker.date.past(),
-//     updatedAt: faker.date.recent()
-//   })))
-// }
-const sampleImage = ['course1.png', 'course2.png', 'course3.png', 'course4.png', 'course5.png', 'course6.png',
-  'course7.png', 'course8.png', 'course9.png', 'course10.png', 'course11.png', 'course12.png',
-  'course13.png', 'course14.png', 'course15.png']
-
+const sampleImage = ['https://res.cloudinary.com/dessdbtlz/image/upload/v1729434656/elearning/gko8dircln5xfgnrcvyz.webp',
+  'https://res.cloudinary.com/dessdbtlz/image/upload/v1729434666/elearning/qct0gm4h1zlvf59cbigv.webp',
+  'https://res.cloudinary.com/dessdbtlz/image/upload/v1729434677/elearning/rqubgwek1f5w46ghqoaf.webp',
+  'https://res.cloudinary.com/dessdbtlz/image/upload/v1729434688/elearning/w4wzfydnnd7kv7hkc9jo.webp',
+  'https://res.cloudinary.com/dessdbtlz/image/upload/v1729434700/elearning/sximwcpzwwusfnpjnntn.webp',
+  'https://res.cloudinary.com/dessdbtlz/image/upload/v1729434707/elearning/zep4kfzwhtriiir1wd9x.webp',
+  'https://res.cloudinary.com/dessdbtlz/image/upload/v1729434716/elearning/pp3ytywct1oe2wqnuzqs.webp',
+  'https://res.cloudinary.com/dessdbtlz/image/upload/v1729434724/elearning/vk96hrwozt3gicbe6ivo.webp',
+  'https://res.cloudinary.com/dessdbtlz/image/upload/v1729434731/elearning/jhunoxxwu7eeykornvlk.webp',
+  'https://res.cloudinary.com/dessdbtlz/image/upload/v1729434741/elearning/twzhzhrdvuxvluvvwgvw.webp',
+  'https://res.cloudinary.com/dessdbtlz/image/upload/v1729434748/elearning/qzxvsnhxlzfapygq7fw4.webp',
+  'https://res.cloudinary.com/dessdbtlz/image/upload/v1729434756/elearning/ggdaosrhorsojzogaysc.webp',
+  'https://res.cloudinary.com/dessdbtlz/image/upload/v1729434763/elearning/yuvucx8i8d93ps1zgybh.webp',
+  'https://res.cloudinary.com/dessdbtlz/image/upload/v1729434771/elearning/vvrntafntpaf2o6bnjvb.webp',
+  'https://res.cloudinary.com/dessdbtlz/image/upload/v1729434777/elearning/obcby39cjwf4mn6ky751.webp'
+]
+const samplevideolocationPath = 'https://res.cloudinary.com/dessdbtlz/video/upload/v1729437635/elearning/lrbylpgz09jld7jutzdw.mp4'
 const generateCourses = async () => {
   const courses = []
 
@@ -419,7 +389,7 @@ const generateCourses = async () => {
     const summary = sampleSummaies[i]
     const description = sampleDescriptions[i]
     const randomImage = sampleImage[Math.floor(Math.random() * sampleImage.length)]
-    const price = Math.random() < 0.5 ? 0 : faker.finance.amount({ min: 100, max: 1000, decimal: 2 })
+    const price = 10000
     courses.push({
       categoryCourseId: await generateCategoryCourseId(),
       name,
@@ -427,12 +397,14 @@ const generateCourses = async () => {
       description,
       assignedBy: await generateUserId(),
       durationInMinute: faker.number.int({ min: 30, max: 120 }),
+      status: 2,
       startDate: faker.date.future(),
-      endDate: faker.date.future(),
+      endDate: null,
       createAt: faker.date.past(),
       updatedAt: faker.date.recent(),
       // locationPath: 'course/course' + (i + 1) + '.png',
       locationPath: randomImage,
+      videoLocationPath: samplevideolocationPath,
       prepare: faker.lorem.paragraph(),
       price
     })

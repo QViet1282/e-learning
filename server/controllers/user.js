@@ -1,6 +1,8 @@
+/* eslint-disable no-unused-vars */
 const express = require('express')
 const { models } = require('../models')
 const { isAuthenticated } = require('../middlewares/authentication')
+const { Op } = require('sequelize')
 const bcrypt = require('bcrypt')
 const {
   SALT_KEY
@@ -124,6 +126,243 @@ async function checkAndUpdateUserRole (req, res, next) {
   }
 }
 
+router.get('/getEnrollmentUserByCourseId/:courseId', isAuthenticated, async (req, res) => {
+  try {
+    const courseId = req.params.courseId
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 10
+    const offset = (page - 1) * limit
+    const searchQuery = req.query.search?.trim() || ''
+
+    let searchConditions = []
+    if (searchQuery) {
+      const tokens = searchQuery.split(' ')
+      searchConditions = tokens.map((token) => ({
+        [Op.or]: [
+          { firstName: { [Op.like]: `%${token}%` } },
+          { lastName: { [Op.like]: `%${token}%` } },
+          { email: { [Op.like]: `%${token}%` } }
+        ]
+      }))
+    }
+
+    const { rows, count } = await models.User.findAndCountAll({
+      where: {
+        [Op.and]: searchConditions.length > 0
+          ? {
+              [Op.or]: searchConditions.flatMap(condition => condition[Op.or])
+            }
+          : {}
+      },
+      include: [
+        {
+          model: models.Order,
+          attributes: ['id'],
+          include: [
+            {
+              model: models.Enrollment,
+              attributes: ['id', 'enrollmentDate'],
+              required: true,
+              where: {
+                courseId,
+                status: 1
+              }
+            }
+          ]
+        }
+      ],
+      limit,
+      offset,
+      attributes: ['id', 'avatar', 'firstName', 'lastName', 'email'],
+      distinct: true
+    })
+
+    const lessonCounts = await fetchLessonCounts(courseId)
+
+    console.log('vvvvvvvvvvvvvvvvvvvvv', lessonCounts)
+
+    const users = await Promise.all(rows.map(async (user) => {
+      const enrollment = user.Orders?.[0]?.Enrollments?.[0] || {}
+      const courseProgressCount = await models.CourseProgress.count({ where: { enrollmentId: enrollment.id } })
+      return {
+        id: user.id,
+        avatar: user.avatar,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        enrollmentDate: enrollment.enrollmentDate || null,
+        processPercentage: ((courseProgressCount / lessonCounts) * 100).toFixed(1)
+      }
+    }))
+
+    const totalPages = Math.ceil((count < users.length && users.length < 10) ? count : users.length / limit)
+
+    res.json({
+      totalItems: (count < users.length && users.length < 10) ? count : users.length,
+      totalPages,
+      currentPage: page,
+      users
+    })
+  } catch (error) {
+    logError(req, error)
+    res.status(500).json({ message: MASSAGE.USER_NOT_FOUND })
+  }
+})
+
+async function fetchLessonCounts (courseId) {
+  // Lấy tất cả các khóa học
+  const listLessonCategories = await models.CategoryLession.findAll({
+    where: { courseId },
+    include: [{
+      model: models.StudyItem,
+      include: [{
+        model: models.Lession,
+        attributes: ['studyItemId']
+      }, {
+        model: models.Exam,
+        attributes: ['studyItemId']
+      }]
+    }]
+  })
+
+  const itemCount = listLessonCategories.reduce((sum, lessonCategory) => {
+    return sum + lessonCategory.StudyItems.length
+  }, 0)
+
+  return itemCount
+}
+
+router.put('/:id/avatar', isAuthenticated, async (req, res) => {
+  try {
+    const { id } = req.params
+    const { avatarUrl } = req.body
+    console.log('check avatarUrl', avatarUrl)
+    const user = await models.User.findByPk(id)
+    if (!user) {
+      logError(req, MASSAGE.USER_NOT_FOUND)
+      return res.status(404).json({ message: MASSAGE.USER_NOT_FOUND })
+    }
+
+    user.avatar = avatarUrl
+    await user.save()
+
+    logInfo(req, user)
+    res.json(user)
+  } catch (error) {
+    logError(req, error)
+    res.status(500).json({ message: MASSAGE.NO_UPDATE_USER })
+  }
+})
+
+// New API to update user role to teacher (roleId = 2)
+router.put('/:id/role/teacher', isAuthenticated, async (req, res) => {
+  try {
+    const { id } = req.params
+    const user = await models.User.findByPk(id)
+    if (!user) {
+      logError(req, MASSAGE.USER_NOT_FOUND)
+      return res.status(404).json({ message: MASSAGE.USER_NOT_FOUND })
+    }
+    user.roleId = 2 // Update role to teacher
+    await user.save()
+    logInfo(req, user)
+    res.json(user)
+  } catch (error) {
+    logError(req, error)
+    res.status(500).json({ message: MASSAGE.NO_UPDATE_USER })
+  }
+})
+
+router.get('/getUsers', isAuthenticated, async (req, res) => {
+  try {
+    const { page = 1, limit = 10, search = '', role } = req.query
+
+    const pageNumber = parseInt(page, 10)
+    const limitNumber = parseInt(limit, 10)
+    const offset = (pageNumber - 1) * limitNumber
+
+    const searchConditions = search
+      ? {
+          [Op.or]: [
+            { firstName: { [Op.like]: `%${search}%` } },
+            { lastName: { [Op.like]: `%${search}%` } },
+            { email: { [Op.like]: `%${search}%` } }
+          ]
+        }
+      : undefined
+
+    const roleCondition = role ? { id: role } : {}
+
+    const totalUsers = await models.User.count({
+      where: searchConditions,
+      include: [
+        {
+          model: models.Role,
+          where: roleCondition || undefined,
+          required: roleCondition !== undefined
+        }
+      ]
+    })
+
+    const totalPages = Math.ceil(totalUsers / limitNumber)
+
+    const users = await models.User.findAll({
+      where: searchConditions,
+      attributes: ['id', 'firstName', 'lastName', 'email', 'avatar', 'gender', 'age'],
+      include: [
+        {
+          model: models.Role,
+          attributes: ['id', 'name', 'description'],
+          where: roleCondition,
+          required: roleCondition !== undefined
+        }
+      ],
+      offset,
+      limit: limitNumber,
+      order: [['firstName', 'ASC']]
+    })
+
+    res.json({
+      data: users,
+      meta: {
+        currentPage: pageNumber,
+        totalPages: totalPages > 1 ? totalPages : 1,
+        totalUsers
+      }
+    })
+  } catch (error) {
+    logError(req, error)
+    res.status(500).json({ message: MASSAGE.USER_NOT_FOUND })
+  }
+})
+
+// Find PendingRevenue
+router.get('/getPendingRevenue', isAuthenticated, async (req, res) => {
+  try {
+    const id = req.user.id
+
+    const user = await models.User.findByPk(id, {
+      attributes: ['id', 'pendingRevenue']
+    })
+
+    if (!user) {
+      logError(req, MASSAGE.USER_NOT_FOUND)
+      return res.status(404).json({ message: MASSAGE.USER_NOT_FOUND })
+    }
+
+    const result = {
+      id: user.id,
+      pendingRevenue: user.pendingRevenue
+    }
+
+    logInfo(req, result)
+    res.json(result)
+  } catch (error) {
+    logError(req, error)
+    res.status(500).json({ message: MASSAGE.USER_NOT_FOUND })
+  }
+})
+
 // edit user
 router.put('/:id', isAuthenticated, checkAndUpdateUserRole)
 
@@ -131,7 +370,14 @@ router.put('/:id', isAuthenticated, checkAndUpdateUserRole)
 router.get('/:id', isAuthenticated, async (req, res) => {
   try {
     const { id } = req.params
-    const user = await models.User.findByPk(id)
+    const user = await models.User.findByPk(id, {
+      include: [
+        {
+          model: models.Role,
+          attributes: ['id', 'name', 'description']
+        }
+      ]
+    })
     if (!user) {
       logError(req, MASSAGE.USER_NOT_FOUND)
       return res.status(404).json({ message: MASSAGE.USER_NOT_FOUND })

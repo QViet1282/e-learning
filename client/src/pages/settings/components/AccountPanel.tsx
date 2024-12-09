@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+/* eslint-disable @typescript-eslint/prefer-optional-chain */
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable @typescript-eslint/no-misused-promises */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
@@ -8,11 +10,14 @@
    ========================================================================== */
 import React, { useEffect, useState, useRef } from 'react'
 import ImageCover from '../../../assets/images/profiler/cover-image.png'
-import { findUserById, updateUser } from '../../../api/post/post.api'
+import { findUserById, updateUser, updateAvatar } from '../../../api/post/post.api'
 import { getFromLocalStorage } from 'utils/functions'
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts'
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
+import AvatarEditor from 'react-avatar-editor'
+import CameraAltIcon from '@mui/icons-material/CameraAlt'
+import axios from 'axios'
 
 interface User {
   id: string
@@ -25,6 +30,8 @@ interface User {
   password?: string
   newPassword?: string
   currentPassword?: string
+  googleId: string
+  avatar?: string
 }
 
 interface PayloadType {
@@ -52,7 +59,8 @@ function AccountPanel () {
     username: '',
     password: '',
     newPassword: '',
-    currentPassword: ''
+    currentPassword: '',
+    googleId: ''
   })
   const [originalUser, setOriginalUser] = useState<User>(user)
 
@@ -62,9 +70,12 @@ function AccountPanel () {
       const userId = tokens?.id
       if (userId) {
         const response = await findUserById(userId)
-        setUser(response.data)
-        setOriginalUser(response.data)
-        console.log(response.data)
+        const userData = {
+          ...response.data,
+          googleId: response.data.googleId || ''
+        }
+        setUser(userData)
+        setOriginalUser(userData)
       } else {
         console.error('User not found')
       }
@@ -79,7 +90,12 @@ function AccountPanel () {
   }
   const handleCancelEdit = () => {
     setIsEditing(false)
-    setUser(originalUser)
+    // Preserve the current avatar while resetting other fields
+    const currentAvatar = user.avatar
+    setUser({
+      ...originalUser,
+      avatar: currentAvatar
+    })
     setObjCheckInput({ ...defaultObjCheckInput })
     setIsSettingNewPassword(false)
   }
@@ -114,7 +130,7 @@ function AccountPanel () {
   const isValidInputs = () => {
     setObjCheckInput(defaultObjCheckInput)
     if (user.firstName === '' || user.firstName === null) {
-      toast.error('FirstName is required')
+      toast.error('Tên là bắt buộc')
       setObjCheckInput({ ...defaultObjCheckInput, isValidFirstName: false })
       if (firstNameRef.current) {
         firstNameRef.current.focus()
@@ -123,7 +139,7 @@ function AccountPanel () {
     }
     const regxFirstName = /^[a-zA-Z\u00C0-\u017F\u1E00-\u1EFF\s]*$/
     if (!regxFirstName.test(user.firstName)) {
-      toast.error('FirstName must be a string')
+      toast.error('Tên phải là chuỗi')
       setObjCheckInput({ ...defaultObjCheckInput, isValidFirstName: false })
       if (firstNameRef.current) {
         firstNameRef.current.focus()
@@ -132,7 +148,7 @@ function AccountPanel () {
     }
     const regxLastName = /^[a-zA-Z\u00C0-\u017F\u1E00-\u1EFF\s]*$/
     if (!regxLastName.test(user.lastName)) {
-      toast.error('LastName must be a string')
+      toast.error('Họ phải là chuỗi')
       setObjCheckInput({ ...defaultObjCheckInput, isValidLastName: false })
       if (lastNameRef.current) {
         lastNameRef.current.focus()
@@ -140,7 +156,7 @@ function AccountPanel () {
       return false
     }
     if (user.lastName === '' || user.lastName === null) {
-      toast.error('LastName is required')
+      toast.error('Họ là bắt buộc')
       setObjCheckInput({ ...defaultObjCheckInput, isValidLastName: false })
       if (lastNameRef.current) {
         lastNameRef.current.focus()
@@ -148,7 +164,7 @@ function AccountPanel () {
       return false
     }
     if (user.gender === '' || user.gender === null) {
-      toast.error('Gender is required')
+      toast.error('Giới tính là bắt buộc')
       setObjCheckInput({ ...defaultObjCheckInput, isValidGender: false })
       if (genderRef.current) {
         genderRef.current.focus()
@@ -156,7 +172,7 @@ function AccountPanel () {
       return false
     }
     if (user.age === '' || user.age === null) {
-      toast.error('Age is required')
+      toast.error('Tuổi là bắt buộc')
       setObjCheckInput({ ...defaultObjCheckInput, isValidAge: false })
       if (ageRef.current) {
         ageRef.current.focus()
@@ -164,7 +180,7 @@ function AccountPanel () {
       return false
     }
     if (isNaN(Number(user.age))) {
-      toast.error('Age must be a number')
+      toast.error('Tuổi phải là số nguyên dương')
       setObjCheckInput({ ...defaultObjCheckInput, isValidAge: false })
       if (ageRef.current) {
         ageRef.current.focus()
@@ -172,7 +188,7 @@ function AccountPanel () {
       return false
     }
     if (Number(user.age) > 150) {
-      toast.error('Invalid age')
+      toast.error('Tuổi không hợp lệ')
       setObjCheckInput({ ...defaultObjCheckInput, isValidAge: false })
       if (ageRef.current) {
         ageRef.current.focus()
@@ -181,7 +197,7 @@ function AccountPanel () {
     }
     const regxs = /^[0-9]*$/
     if (!regxs.test(user.age)) {
-      toast.error('Age must be a positive integer')
+      toast.error('Tuổi phải là số nguyên dương')
       setObjCheckInput({ ...defaultObjCheckInput, isValidAge: false })
       if (ageRef.current) {
         ageRef.current.focus()
@@ -189,7 +205,7 @@ function AccountPanel () {
       return false
     }
     if (user.email === '' || user.email === null) {
-      toast.error('Email is required')
+      toast.error('Email là bắt buộc')
       setObjCheckInput({ ...defaultObjCheckInput, isValidEmail: false })
       if (emailRef.current) {
         emailRef.current.focus()
@@ -198,7 +214,7 @@ function AccountPanel () {
     }
     const regx = /\S+@\S+\.\S+/
     if (!regx.test(user.email)) {
-      toast.error('Email is invalid')
+      toast.error('Email không hợp lệ')
       setObjCheckInput({ ...defaultObjCheckInput, isValidEmail: false })
       if (emailRef.current) {
         emailRef.current.focus()
@@ -207,7 +223,7 @@ function AccountPanel () {
     }
     const regxPassword = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
     if (user.newPassword && !regxPassword.test(user.newPassword)) {
-      toast.error('Password at least 8 characters')
+      toast.error('Mật khẩu phải chứa ít nhất 8 ký tự, bao gồm chữ cái và số')
       setObjCheckInput({ ...defaultObjCheckInput, isValidPassword: false })
       if (passwordRef.current) {
         passwordRef.current.focus()
@@ -215,7 +231,7 @@ function AccountPanel () {
       return false
     }
     if (isSettingNewPassword && (user.currentPassword === '' || user.currentPassword === null || user.currentPassword === undefined)) {
-      toast.error('Current password is required')
+      toast.error('Mật khẩu hiện tại là bắt buộc')
       setObjCheckInput({ ...defaultObjCheckInput, isValidCurrentPassword: false })
       if (currentPasswordRef.current) {
         currentPasswordRef.current.focus()
@@ -223,7 +239,7 @@ function AccountPanel () {
       return false
     }
     if (isSettingNewPassword && (user.newPassword === '' || user.newPassword === null || user.newPassword === undefined)) {
-      toast.error('New password is required')
+      toast.error('Mật khẩu mới là bắt buộc')
       setObjCheckInput({ ...defaultObjCheckInput, isValidPassword: false })
       if (passwordRef.current) {
         passwordRef.current.focus()
@@ -235,12 +251,25 @@ function AccountPanel () {
 
   const [isSettingNewPassword, setIsSettingNewPassword] = useState(false)
 
+  // Handles enabling new password setting mode.
   const handleSetNewPasswordClick = () => {
+    if (user.googleId) {
+      toast.warning('Bạn đang dùng tài khoản Google để đăng nhập, vui lòng truy cập Google để thay đổi mật khẩu')
+      return
+    }
     setIsSettingNewPassword(true)
+  }
+
+  const isUserChanged = () => {
+    return JSON.stringify(user) !== JSON.stringify(originalUser)
   }
 
   const handleSaveChanges = async () => {
     try {
+      if (!isUserChanged()) {
+        toast.info('Không có thay đổi nào được thực hiện')
+        return
+      }
       if (isValidInputs()) {
         const { id, newPassword, password, ...payload } = user
         let finalPayload: PayloadType = payload
@@ -249,7 +278,7 @@ function AccountPanel () {
         }
         const response = await updateUser(parseInt(id), finalPayload)
         if (response.status === 200) {
-          toast.success('Update successfully')
+          toast.success('Cập nhật thành công')
           setIsEditing(false)
           setIsSettingNewPassword(false)
           const tokens = getFromLocalStorage<any>('tokens')
@@ -258,12 +287,13 @@ function AccountPanel () {
           tokens.email = response.data.email
           localStorage.setItem('tokens', JSON.stringify(tokens))
           window.dispatchEvent(new Event('storage'))
+          setOriginalUser(user)
         } else {
-          toast.error('Update failed 1')
+          toast.error('Cập nhật thất bại')
         }
       }
     } catch (error: any) {
-      toast.error(error.message)
+      // toast.error(error.message)
       if (error.field) {
         setErrorField(error.field)
         if (error.field === 'currentPassword') {
@@ -272,16 +302,131 @@ function AccountPanel () {
       }
     }
   }
+
+  // Thêm các biến trạng thái mới cho việc chỉnh sửa avatar
+  const [isAvatarEditing, setIsAvatarEditing] = useState(false)
+  const [avatarImage, setAvatarImage] = useState<File | null>(null)
+  const [avatarScale, setAvatarScale] = useState<number>(1)
+  const [editor, setEditor] = useState<AvatarEditor | null>(null)
+  const [avatarRotate, setAvatarRotate] = useState<number>(0)
+  const [isUploading, setIsUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const uploadImage = async (image: File): Promise<string> => {
+    const formData = new FormData()
+    const uniqueId = `avatar_${Date.now()}` // Generate unique ID using current date and time
+    formData.append('file', image)
+    formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
+    formData.append('folder', 'avatar')
+    formData.append('public_id', uniqueId) // Add unique public_id
+
+    const response = await axios.post(
+      `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/image/upload`,
+      formData
+    )
+
+    return response.data.secure_url
+  }
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setAvatarImage(e.target.files[0])
+      setIsAvatarEditing(true)
+
+      // Reset giá trị của input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
+    }
+  }
+
+  const handleAvatarSave = async () => {
+    setIsUploading(true)
+    if (editor) {
+      const canvasScaled = editor.getImageScaledToCanvas().toDataURL()
+      // Chuyển đổi data URL thành Blob
+      const blob = await fetch(canvasScaled).then(async (res) => await res.blob())
+      const file = new File([blob], 'avatar.png', { type: 'image/png' })
+
+      try {
+        const avatarUrl = await uploadImage(file) // Tải lên Cloudinary và lấy URL
+
+        const response = await updateAvatar(user.id, avatarUrl)
+        if (response.status === 200) {
+          toast.success('Cập nhật avatar thành công')
+          const updatedAvatar = response.data.avatar
+          setUser({ ...user, avatar: updatedAvatar })
+          setIsAvatarEditing(false)
+          setAvatarRotate(0)
+          setAvatarScale(1)
+
+          // Cập nhật avatar trong localStorage
+          const tokens = getFromLocalStorage<any>('tokens')
+          tokens.avatar = updatedAvatar
+          localStorage.setItem('tokens', JSON.stringify(tokens))
+          window.dispatchEvent(new Event('storage'))
+
+          await findUserById(user.id)
+        } else {
+          toast.error('Cập nhật avatar thất bại')
+        }
+      } catch (error) {
+        toast.error('Lỗi khi cập nhật avatar')
+      } finally {
+        setIsUploading(false)
+      }
+    }
+  }
+
+  const setEditorRef = (editorInstance: AvatarEditor | null) => {
+    setEditor(editorInstance)
+  }
+  const getAvatarUrl = (avatarPath?: string) => {
+    return avatarPath ?? 'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png'
+  }
+  const getDisplayName = () => {
+    return `${originalUser?.firstName || ''} ${originalUser?.lastName || ''}`
+  }
   return (
        <div className="bg-white shadow-lg rounded-sm border border-slate-200 w-full">
          <div className="relative">
            <img className="w-full h-48 sm:h-56 md:h-64 lg:h-72 xl:h-80 object-cover" src={ImageCover} alt="User cover" />
            <div className="absolute left-4 sm:left-8 md:left-10 -bottom-14 sm:-bottom-16 md:-bottom-20 flex items-center">
-             <div className="rounded-full border-4 border-teal-400 overflow-hidden w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-40 lg:h-40 flex-shrink-0">
-               <img className="w-full h-full object-cover" src={'https://cdn.icon-icons.com/icons2/1378/PNG/512/avatardefault_92824.png'} alt="User upload" />
+             <div className="relative">
+               <div className="rounded-full border-4 border-teal-400 overflow-hidden w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-40 lg:h-40 flex-shrink-0">
+                 <img
+                   className="w-full h-full object-cover"
+                   src={getAvatarUrl(user.avatar)}
+                   alt="User avatar"
+                 />
+               </div>
+                 <label
+                   htmlFor="avatar-upload"
+                   className="absolute bottom-[10%] right-[10%] inline-flex items-center bg-gray-800 text-white p-1 rounded-full cursor-pointer"
+                 >
+                   <input
+                     type="file"
+                     id="avatar-upload"
+                     accept="image/*"
+                     onChange={handleAvatarChange}
+                     className="hidden"
+                     ref={fileInputRef}
+                   />
+                   <CameraAltIcon
+                     sx={{
+                       fontSize: {
+                         xs: 10,
+                         sm: 12,
+                         md: 14,
+                         lg: 18,
+                         xl: 20
+                       }
+                     }}
+                   />
+                 </label>
              </div>
              <div className="mt-16 ml-4 sm:ml-6 flex flex-col justify-center w-36 sm:w-44 md:w-64 lg:w-72 xl:w-80">
-               <p className='font-semibold text-base sm:text-lg md:text-xl overflow-hidden overflow-ellipsis whitespace-nowrap'>{user?.firstName + ' ' + user?.lastName}</p>
+               <p className='font-semibold text-base sm:text-lg md:text-xl overflow-hidden overflow-ellipsis whitespace-nowrap'>{getDisplayName()}</p>
                <p className='text-gray-500 text-xs sm:text-sm md:text-base overflow-hidden overflow-ellipsis whitespace-nowrap'>{user?.email}</p>
              </div>
            </div>
@@ -294,9 +439,8 @@ function AccountPanel () {
          </div>
 
          <div className='p-5'>
-         <div className="my-16 bg-white border border-gray-200 rounded-lg shadow p-5">
+         <div className="my-16 bg-white p-5">
            <div>
-             <h2 className="text-2xl text-slate-800 font-bold mb-6">{t('profile.myProfile')}</h2>
              <div className="grid gap-5 md:grid-cols-4">
                <div>
                  {/* Start */}
@@ -387,24 +531,17 @@ function AccountPanel () {
              <div className="grid gap-5 md:grid-cols-2 mt-5">
                {/* Start */}
                <div>
-                 <label className={`block text-sm font-medium mb-1 ${isEditing ? '' : 'text-neutral-400'}`} htmlFor="email">
-                   {t('profile.email')}
-                 </label>
-                 <input id="email"
-                   className={objCheckInput.isValidEmail ? `form-input w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-1 focus:ring-teal-400 ${isEditing ? '' : 'disabled:opacity-50 cursor-not-allowed'}` : 'form-input w-full border p-2 rounded-md focus:outline-none border-red-500'}
-                   type="email"
-                   required
-                   value={user?.email ?? ''}
-                   onChange={(e) => {
-                     setUser({ ...user, email: e.target.value })
-                     setObjCheckInput({ ...objCheckInput, isValidEmail: true })
-                   }}
-                   disabled={!isEditing}
-                 />
-               </div>
+                <label className={`block text-sm font-medium mb-1 ${isEditing ? '' : 'text-neutral-400'}`}>
+                  {t('profile.email')}
+                </label>
+                <input
+                  className='form-input w-full border border-gray-300 p-2 rounded-md focus:outline-none focus:ring-1 focus:ring-teal-400 disabled:opacity-50 cursor-not-allowed'
+                  value={user?.email ?? ''}
+                  disabled={true}
+                />
+              </div>
                {/* End */}
              </div>
-             {user?.password && (
              <div className="grid gap-5 md:grid-cols-1 mt-5">
                {/* Start */}
                <div>
@@ -461,7 +598,6 @@ function AccountPanel () {
                </div>
                {/* End */}
              </div>
-             )}
              {isEditing
                ? (
                  <div className="flex justify-end mt-6">
@@ -473,6 +609,77 @@ function AccountPanel () {
            </div>
          </div>
          </div>
+         {/* Modal chỉnh sửa Avatar */}
+         {isAvatarEditing && (
+           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+             <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md mx-auto">
+               <h2 className="text-2xl font-semibold mb-4 text-center">Chỉnh sửa Avatar</h2>
+               <div className="flex flex-col items-center">
+                 <div className="w-64 h-64 mb-4 relative">
+                   <AvatarEditor
+                     ref={setEditorRef}
+                     image={avatarImage!}
+                     width={250}
+                     height={250}
+                     border={0}
+                     borderRadius={125}
+                     color={[255, 255, 255, 0.6]} // RGBA
+                     scale={avatarScale}
+                     rotate={avatarRotate}
+                     className="editor-canvas"
+                   />
+                   <div className="absolute inset-0 rounded-full border-4 border-teal-400 pointer-events-none"></div>
+                 </div>
+                 <div className="w-full">
+                   <label className="block text-sm font-medium mb-2">Phóng to/Thu nhỏ</label>
+                   <input
+                     type="range"
+                     min="1"
+                     max="3"
+                     step="0.01"
+                     value={avatarScale}
+                     onChange={(e) => setAvatarScale(parseFloat(e.target.value))}
+                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                     style={{ accentColor: '#14b8a6' }}
+                   />
+                 </div>
+                 <div className="w-full mt-4">
+                   <label className="block text-sm font-medium mb-2">Góc xoay: {avatarRotate}°</label>
+                   <input
+                     type="range"
+                     min="0"
+                     max="360"
+                     step="1"
+                     value={avatarRotate}
+                     onChange={(e) => setAvatarRotate(parseInt(e.target.value))}
+                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                     style={{ accentColor: '#14b8a6' }}
+                   />
+                 </div>
+                 <div className="flex justify-end mt-6 w-full">
+                   <button
+                     className="bg-gray-300 text-black px-4 py-2 rounded-md mr-2 hover:bg-gray-400 transition duration-200"
+                     onClick={() => {
+                       setIsAvatarEditing(false)
+                       setAvatarImage(null)
+                       setAvatarRotate(0)
+                       setAvatarScale(1)
+                     }}
+                   >
+                     Hủy bỏ
+                   </button>
+                   <button
+                     className={`bg-teal-500 text-white px-4 py-2 rounded-md hover:bg-teal-600 transition duration-200 ${isUploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                     onClick={handleAvatarSave}
+                     disabled={isUploading}
+                   >
+                     {isUploading ? 'Đang lưu...' : 'Lưu'}
+                   </button>
+                 </div>
+               </div>
+             </div>
+           </div>
+         )}
        </div >
   )
 }

@@ -24,11 +24,8 @@ const Order = sequelize.define(
       allowNull: false
     },
     status: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    paymentMethod: {
-      type: DataTypes.STRING,
+      type: DataTypes.TINYINT,
+      defaultValue: 0,
       allowNull: false
     },
     createdAt: {

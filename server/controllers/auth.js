@@ -79,7 +79,7 @@ router.get('/google/callback', (req, res, next) => {
         maxAge: 30 * 24 * 60 * 60 * 1000
       })
       // Redirect to the login page with the necessary information
-      const redirectUrl = `${process.env.FRONTEND_URL}/login?googleAuthSuccess=true&accessToken=${accessToken}&id=${user.id}&firstName=${encodeURIComponent(user.firstName)}&lastName=${encodeURIComponent(user.lastName)}&email=${encodeURIComponent(user.email)}&key=${encodeURIComponent(key)}&avatar=${encodeURIComponent(user.avatar)}`
+      const redirectUrl = `${process.env.FRONTEND_URL}/login?googleAuthSuccess=true&accessToken=${accessToken}&id=${user.id}&firstName=${encodeURIComponent(user.firstName)}&lastName=${encodeURIComponent(user.lastName)}&email=${encodeURIComponent(user.email)}&key=${encodeURIComponent(key)}&avatar=${encodeURIComponent(user.avatar)}&username=${encodeURIComponent(user.username)}`
       res.redirect(redirectUrl)
     } catch (err) {
       // If an error occurs, redirect to the login page with the error code LOGIN_ERROR
@@ -89,11 +89,49 @@ router.get('/google/callback', (req, res, next) => {
     }
   })(req, res, next)
 })
+router.post('/register/check', async (req, res) => {
+  try {
+    const { username, email, password } = req.body.data
+    console.log(username, email, password, 'check----------------------------1')
 
+    const userByUsername = await models.User.findOne({
+      where: { username }
+    })
+
+    const userByEmail = await models.User.findOne({
+      where: { email }
+    })
+
+    if (userByUsername) {
+      return res.status(409).json({
+        code: 409,
+        message: 'Username already exists'
+      })
+    }
+
+    if (userByEmail) {
+      return res.status(409).json({
+        code: 409,
+        message: 'Email already exists'
+      })
+    }
+    return res.json({
+      username,
+      email,
+      status: 'Register success!'
+    })
+  } catch (error) {
+    console.error('Error during user registration:', error)
+    return res.status(500).json({
+      code: 500,
+      message: 'Internal server error. Please try again later'
+    })
+  }
+})
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body.data
-    console.log(username, email)
+    console.log(username, email, password, 'check---------------1')
 
     const userByUsername = await models.User.findOne({
       where: { username }
@@ -339,7 +377,8 @@ router.post('/refresh', async (req, res, next) => {
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,
-      email: user.email
+      email: user.email,
+      avatar: user.avatar
     })
   } catch (error) {
     console.log(error, 'DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDĐ')

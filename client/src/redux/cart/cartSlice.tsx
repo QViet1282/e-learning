@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
+/* eslint-disable @typescript-eslint/promise-function-async */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
 import { getCart, addToCartApi, removeCourseFromCartApi, processPaymentApi } from 'api/post/post.api'
@@ -16,19 +19,34 @@ interface CartState {
   totalItems: number
   totalPrice: number
   cartItems: Course[]
+  isLoading: boolean
+  isAdding: boolean
+  isRemoving: number[]
 }
 
 const initialState: CartState = {
   totalItems: 0,
   totalPrice: 0,
-  cartItems: []
+  cartItems: [],
+  isLoading: false,
+  isAdding: false,
+  isRemoving: []
 }
 
 // Thunk to fetch the cart data from the backend
-export const fetchCart = createAsyncThunk('cart/fetchCart', async (userId: number) => {
-  const response = await getCart(userId.toString())
-  return response.data
-})
+export const fetchCart = createAsyncThunk(
+  'cart/fetchCart',
+  async ({ userId, forceReload = false }: { userId: number, forceReload?: boolean }, { dispatch }) => {
+    if (forceReload) {
+      // Xóa giỏ hàng trong Redux trước khi load dữ liệu mới
+      dispatch(cartSlice.actions.clearCart())
+    }
+    // Tiếp tục lấy dữ liệu giỏ hàng mới từ API
+    const response = await getCart(userId.toString())
+    console.log('fetchCart response:', response.data)
+    return response.data
+  }
+)
 
 // Thunk to add a course to the cart
 export const addCourseToCart = createAsyncThunk(
@@ -84,12 +102,27 @@ export const cartSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      // Handle fetchCart
+      .addCase(fetchCart.pending, (state) => {
+        state.isLoading = true
+      })
       .addCase(fetchCart.fulfilled, (state, action) => {
-        state.cartItems = action.payload.Enrollments.map((enrollment: any) => enrollment.Course)
+        state.isLoading = false
+        const enrollments = action.payload?.Enrollments || []
+        state.cartItems = enrollments.map((enrollment: any) => enrollment.Course)
         state.totalItems = state.cartItems.length
         state.totalPrice = state.cartItems.reduce((total, course) => total + Number(course.price), 0)
       })
+      .addCase(fetchCart.rejected, (state) => {
+        state.isLoading = false
+      })
+
+      // Xử lý addCourseToCart
+      .addCase(addCourseToCart.pending, (state) => {
+        state.isAdding = true
+      })
       .addCase(addCourseToCart.fulfilled, (state, action) => {
+        state.isAdding = false
         const course = action.payload
         const existingCourse = state.cartItems.find((c) => c.id === course.id)
         if (existingCourse == null) {
@@ -98,14 +131,29 @@ export const cartSlice = createSlice({
           state.totalPrice += Number(course.price)
         }
       })
+      .addCase(addCourseToCart.rejected, (state) => {
+        state.isAdding = false
+        // Xử lý lỗi nếu cần
+      })
+      // Xử lý removeCourseFromCart
+      .addCase(removeCourseFromCart.pending, (state, action) => {
+        const courseId = action.meta.arg.courseId
+        state.isRemoving.push(courseId)
+      })
       .addCase(removeCourseFromCart.fulfilled, (state, action) => {
         const courseId = action.payload
+        state.isRemoving = state.isRemoving.filter(id => id !== courseId)
         const itemIndex = state.cartItems.findIndex((course) => course.id === courseId)
         if (itemIndex !== -1) {
           state.totalPrice -= state.cartItems[itemIndex].price
           state.totalItems -= 1
           state.cartItems.splice(itemIndex, 1)
         }
+      })
+      .addCase(removeCourseFromCart.rejected, (state, action) => {
+        const courseId = action.meta.arg.courseId
+        state.isRemoving = state.isRemoving.filter(id => id !== courseId)
+        // Xử lý lỗi nếu cần
       })
   }
 })

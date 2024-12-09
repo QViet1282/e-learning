@@ -6,6 +6,7 @@ interface NotificationDetails {
   title: string
   message: string
   url: string
+  notifyAt: Date
   createdAt: Date
   updatedAt: Date
 }
@@ -38,10 +39,10 @@ export const notifySlice = createSlice({
       state.notifications.push(action.payload)
       // state.total += 1
     },
-    addNotification: (state, action: PayloadAction<Notification>) => {
-      state.notifications.unshift(action.payload)
-      state.total += 1
-    },
+    // addNotification: (state, action: PayloadAction<Notification>) => {
+    //   state.notifications.unshift(action.payload)
+    //   state.total += 1
+    // },
     updateNotification: (state, action: PayloadAction<{ id: number, changes: Partial<NotificationDetails> }>) => {
       const { id, changes } = action.payload
       const notification = state.notifications.find(n => n.id === id.toString())
@@ -81,7 +82,7 @@ export const notifySlice = createSlice({
   }
 })
 
-export const { setNotification, addNotification, updateNotification, updateStatus, deleteNotification, updateAllStatus, removeAllNotificationsSlice, setTotal } = notifySlice.actions
+export const { setNotification, updateNotification, updateStatus, deleteNotification, updateAllStatus, removeAllNotificationsSlice, setTotal } = notifySlice.actions
 
 export const selectNotifications = (state: { notify: NotifyState }) => state.notify.notifications
 export const selectTotalNotifications = (state: { notify: NotifyState }) => state.notify.total

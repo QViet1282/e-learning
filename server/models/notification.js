@@ -16,7 +16,7 @@ const Notification = sequelize.define(
       allowNull: true
     },
     message: {
-      type: DataTypes.STRING,
+      type: DataTypes.TEXT,
       allowNull: true
     },
     url: {
@@ -27,6 +27,13 @@ const Notification = sequelize.define(
     isDeleted: {
       type: DataTypes.TINYINT,
       defaultValue: 0
+    },
+    notifyAt: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
+    },
+    courseId: {
+      type: DataTypes.BIGINT
     }
   },
   {

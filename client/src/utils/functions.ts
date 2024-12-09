@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 /* GLOBAL FUNCTIONS
    ========================================================================== */
@@ -7,6 +8,7 @@
  * It only works in Client Side Render, because window always existed
  * For Server Side Render, please check window first before any window's methods calls
  */
+import CryptoJS from 'crypto-js'
 export const reload = () => {
   window.location.reload()
 }
@@ -78,5 +80,38 @@ export const removeAllLocalStorage = (): void => {
 
   if (selectedLanguage !== null) {
     window.localStorage.setItem('selectedLanguage', selectedLanguage)
+  }
+}
+
+export const getUserFromLocalStorage = (): { role: string | null, userId: string | null } | null => {
+  const tokensString = localStorage.getItem('tokens')
+  if (tokensString == null) {
+    console.error('No tokens found in localStorage.')
+    return null
+  }
+
+  try {
+    const tokens = JSON.parse(tokensString)
+    const accessToken = tokens.accessToken
+    const key = tokens.key
+    const userId = tokens.id
+
+    if (!accessToken || !key || !userId) {
+      console.error('No accessToken, key, or userId found in tokens.')
+      return null
+    }
+
+    const secretKey = 'Access_Token_Secret_#$%_ExpressJS_Authentication'
+    const decryptedKey = CryptoJS.AES.decrypt(key, secretKey).toString(CryptoJS.enc.Utf8)
+
+    if (!decryptedKey) {
+      console.error('Decryption failed.')
+      return null
+    }
+
+    return { role: decryptedKey, userId }
+  } catch (error) {
+    console.error('Error parsing tokens or decrypting key:', error)
+    return null
   }
 }

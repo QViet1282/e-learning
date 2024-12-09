@@ -20,9 +20,6 @@ const User = sequelize.define('User', {
   lastName: {
     type: DataTypes.STRING
   },
-  description: {
-    type: DataTypes.STRING
-  },
   email: {
     type: DataTypes.STRING,
     allowNull: true,
@@ -68,6 +65,11 @@ const User = sequelize.define('User', {
   },
   otpExpires: {
     type: DataTypes.DATE
+  },
+  pendingRevenue: {
+    type: DataTypes.DECIMAL(15, 2),
+    allowNull: false,
+    defaultValue: 0
   }
 }, {
   tableName: 'users',

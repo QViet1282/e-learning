@@ -14,12 +14,13 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import Question, { QUESTION_TYPE } from './components/question/Question'
 import { getDetailExams, markExam, saveTempAnswer } from 'api/post/post.api'
 import React, { useCallback, useEffect, useState, useMemo } from 'react'
-import { t } from 'i18next'
+import { useTranslation } from 'react-i18next'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import ModalComponent from 'components/Modal'
 import CountDownTimer from './components/timer/CountDownTimer'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
+import { ClipLoader } from 'react-spinners'
 
 enum Mode {
   VIEW = 'view',
@@ -32,6 +33,7 @@ export enum ModalType {
 }
 
 export interface Question {
+  order: any
   a: string | null
   b: string | null
   c: string | null
@@ -92,7 +94,8 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
   const [formPayload, setFormPayload] = useState({})
   const [payload, setPayload] = useState({})
   const [reload, setReload] = useState(false)
-
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const { t } = useTranslation()
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0) // New state variable
 
   const handleOpenModal = () => {
@@ -106,12 +109,15 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
 
   const onSubmit = useCallback(
     async (payload: any) => {
+      setIsLoading(true)
       try {
         await markExam(data.id as string, payload)
         setIsOpenModal(false)
         onSubmitComplete()
       } catch (e) {
         // Handle error if needed
+      } finally {
+        setIsLoading(false)
       }
     },
     [data.id, onSubmitComplete]
@@ -119,12 +125,18 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
 
   const getData = useCallback(
     async (id?: string, attempt?: number) => {
+      setIsLoading(true)
       try {
         const status = mode
         const listExamsResponse = await getDetailExams({ id, attempt: attempt?.toString(), status })
         if (listExamsResponse?.data) {
-          setData(listExamsResponse.data)
-          listExamsResponse.data.questions?.forEach((i: { id: { toString: () => any }, userAnswer: any }) => {
+          let questions = listExamsResponse.data.questions
+          // Chỉ hoán đổi vị trí câu hỏi khi ở chế độ TEST
+          if (mode === Mode.TEST) {
+            questions = questions?.sort(() => Math.random() - 0.5)
+          }
+          setData({ ...listExamsResponse.data, questions })
+          questions?.forEach((i: { id: { toString: () => any }, userAnswer: any }) => {
             if (i.userAnswer) {
               method.setValue(i.id.toString(), i.userAnswer)
               if (status === 'test') {
@@ -137,6 +149,8 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
         }
       } catch (e) {
         // Handle error if needed
+      } finally {
+        setIsLoading(false)
       }
     },
     [mode]
@@ -171,7 +185,7 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
       )
     }
     return t('homepage.filter.pending')
-  }, [data.attempted, data.numberOfAttempt])
+  }, [data.attempted, data.numberOfAttempt, t])
 
   const haveMoreAttempt = useMemo(() => {
     if (!data.numberOfAttempt) {
@@ -190,7 +204,7 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
     else if (modalType === ModalType.FAIL) {
       return t('detail.not_enough_field')
     } else return t('detail.modal_test_description')
-  }, [modalType])
+  }, [modalType, t])
 
   const validEndTime: Date | null = useMemo(() => {
     if (data?.enterTime != null && data?.durationInMinute != null && data?.exitTime == null) {
@@ -244,9 +258,14 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
   }
 
   return (
+    isLoading ? (
+    <div className="flex justify-center items-center h-[40vh]">
+      <ClipLoader color="red" loading={isLoading} size={50} />
+    </div>
+    ) : (
     <FormProvider {...method}>
-      <form className="w-11/12 mx-auto" onSubmit={method.handleSubmit(onSubmit)}>
-        <div className="bg-[#00a6d8] w-full sticky top-0 flex justify-between p-2 flex-wrap mb-2 z-10 text-white min-h-32">
+      <form className="w-11/12 mx-auto pb-6" onSubmit={method.handleSubmit(onSubmit)}>
+        <div className="bg-[#00a6d8] w-full top-0 flex justify-between p-2 flex-wrap mb-2 z-10 text-white min-h-32">
           <div className="flex flex-col items-start w-full md:w-1/2">
             <button
               type="button"
@@ -257,7 +276,12 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
               <p className="ml-2">{t('detail.back')}</p>
             </button>
             <div className="text-2xl font-bold">{data?.name}</div>
-            <div className="text-lg break-words">{data?.description}</div>
+            {/* <div className="text-lg break-words">{data?.description}</div> */}
+            <div
+              className="ql-editor"
+              data-gramm="false"
+              dangerouslySetInnerHTML={{ __html: data?.description ?? '' }}
+            />
           </div>
           {validEndTime && (
             <CountDownTimer targetDate={validEndTime.getTime()}></CountDownTimer>
@@ -440,6 +464,7 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
         onClose={() => setIsOpenModal(false)}
       />
     </FormProvider>
+    )
   )
 }
 

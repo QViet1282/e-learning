@@ -48,6 +48,10 @@ const HomeCourseCard = ({
 }: Props): ReactElement => {
   const [isEnrolled, setIsEnrolled] = useState(false)
   const navigate = useNavigate()
+
+  // Kiểm tra nếu người dùng đã đăng nhập dựa trên token trong localStorage
+  const isAuthenticated = !!getFromLocalStorage<any>('tokens')?.accessToken
+
   const courseDetailView = useMemo(() => {
     return `/courses/${id}`
   }, [id])
@@ -55,8 +59,15 @@ const HomeCourseCard = ({
   const handleCourseClick = () => {
     navigate(courseDetailView, { state: { assignedBy: assignedBy } })
   }
+  const formatCurrency = (value: number) => {
+    return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
+  }
+
   const priceText = useMemo(() => {
-    return Number(price) !== 0 ? `${price}` : t('homepage.free')
+    if (Number(price) !== 0) {
+      return formatCurrency(Number(price))
+    }
+    return t('homepage.free')
   }, [price])
 
   // Tạo các sao dựa trên giá trị `rating`
@@ -138,8 +149,10 @@ const HomeCourseCard = ({
         }
       }
     }
-    checkEnrollment()
-  }, [id])
+    if (isAuthenticated) {
+      checkEnrollment()
+    }
+  }, [id, isAuthenticated])
   // useEffect(() => {
   //   const checkEnrollment = async () => {
   //     if (id) {
@@ -175,15 +188,38 @@ const HomeCourseCard = ({
   //   }
   //   checkEnrollment()
   // }, [id, dataLoaded])
+  const [remainingDays, setRemainingDays] = useState<number | null>(null)
+  // Tính số ngày còn lại
+  useEffect(() => {
+    if (endDate) {
+      const today = new Date()
+      const end = new Date(endDate)
+      const diffTime = end.getTime() - today.getTime()
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+      setRemainingDays(diffDays > 0 ? diffDays : null) // Chỉ hiển thị nếu còn thời gian
+    }
+  }, [endDate])
   return (
     <div className="mt-4 cursor-pointer col-span-full sm:col-span-6 md:col-span-4 lg:col-span-3 bg-white shadow-lg rounded-lg border border-slate-200 overflow-hidden transition-all duration-200 ease-in-out" onClick={handleCourseClick}>
       <div className="flex flex-col h-full">
         {/* Image */}
-        <div className='w-full rounded-t-md h-40 overflow-hidden'>
-          {/* <img className="w-full h-full object-cover rounded-t-md transition-transform duration-700 hover:scale-110" src={locationPath ? `assets/image/${locationPath}` : 'https://picsum.photos/200/300'} width="286" height="160" alt="CourseImage" /> */}
-
-          <img className="w-full h-full object-cover rounded-t-md transition-transform duration-700 hover:scale-110" src={locationPath ? require(`../../../../assets/images/uploads/courses/${locationPath}`) : 'https://picsum.photos/200/300'} width="286" height="160" alt="CourseImage" />
+        <div className="relative">
+        {/* Image */}
+        <div className="w-full rounded-t-md h-40 overflow-hidden">
+          <img
+            className="w-full h-full object-cover rounded-t-md transition-transform duration-700 hover:scale-110"
+            src={locationPath ?? 'https://picsum.photos/200/300'}
+            alt="CourseImage"
+          />
+          {/* Overlay for remaining days */}
+          {remainingDays !== null && (
+            <div className="absolute top-0 left-0 bg-red-600 bg-opacity-75 text-white font-bold px-3 py-2 text-sm flex items-center">
+              <AccessTimeIcon className="mr-2" />
+              {t('course.remainingDays', { days: remainingDays })}
+            </div>
+          )}
         </div>
+      </div>
         {/* Card Content */}
         <div className="grow flex flex-col p-5">
           { }
@@ -199,7 +235,7 @@ const HomeCourseCard = ({
                 <div className="inline-flex text-sm font-medium text-amber-600 mt-1">{averageRating.toFixed(1)}</div>
               </div>
               <div>
-                <div className="inline-flex text-sm font-bold bg-emerald-100 text-emerald-600 rounded-full text-center px-2 py-0.5">  {Number(price) === 0 ? t('homepage.free') : `${price} VND`}</div>
+                <div className="inline-flex text-sm font-bold bg-emerald-100 text-emerald-600 rounded-full text-center px-2 py-0.5"> {Number(priceText) === 0 ? t('homepage.free') : `${priceText}`}</div>
               </div>
             </div>
             {/* Features list */}
