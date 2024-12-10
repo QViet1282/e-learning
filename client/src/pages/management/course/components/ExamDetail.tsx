@@ -59,10 +59,10 @@ const ExamDetail: React.FC<DetailProps> = ({ studyItem, load, userId, courseStat
     if (selectedDeleteQuestion != null) {
       await deleteQuestion(selectedDeleteQuestion).then(() => {
         setSelectedQuestion(null)
-        toast.success('Xóa thành công')
+        toast.success(t('curriculum.successDeleteStudyItem'))
         void fetchQuestions()
       }).catch((error) => {
-        toast.error('Có lỗi xảy ra khi xóa câu hỏi')
+        toast.error(t('curriculum.errorDeleteQuestion'))
         console.error(error)
       })
     }
@@ -108,10 +108,10 @@ const ExamDetail: React.FC<DetailProps> = ({ studyItem, load, userId, courseStat
   return (
     <div className="border-t-2 border-gray-200">
       <div className="flex">
-        <p className="text-base sm:text-base font-medium w-1/4 border-2 border-t-0 p-2 text-center"> Điểm đạt yêu cầu: {studyItem.Exam?.pointToPass} %</p>
-        <p className="text-base sm:text-base font-medium w-1/4 border-2 border-t-0 p-2 text-center"> Thời gian làm bài: {studyItem.Exam?.durationInMinute} phút</p>
-        <p className="text-base sm:text-base font-medium w-1/4 border-2 border-t-0 p-2 text-center"> Số lần thử: {studyItem.Exam?.numberOfAttempt}</p>
-        <p className="text-base sm:text-base font-medium w-1/4 border-2 border-t-0 p-2 text-center border-b-0"> Mô tả </p>
+        <p className="text-base sm:text-base font-medium w-1/4 border-2 border-t-0 p-2 text-center"> {t('curriculum.requiredPoints')}: {studyItem.Exam?.pointToPass} %</p>
+        <p className="text-base sm:text-base font-medium w-1/4 border-2 border-t-0 p-2 text-center"> {t('curriculum.examDuration')}: {studyItem.Exam?.durationInMinute} {t('curriculum.minutes')}</p>
+        <p className="text-base sm:text-base font-medium w-1/4 border-2 border-t-0 p-2 text-center"> {t('curriculum.attemptsNumber')}: {studyItem.Exam?.numberOfAttempt}</p>
+        <p className="text-base sm:text-base font-medium w-1/4 border-2 border-t-0 p-2 text-center border-b-0"> {t('curriculum.description')} </p>
       </div>
       <div className="text-base border-x-2 p-2">
         <QuillEditor
@@ -141,7 +141,7 @@ const ExamDetail: React.FC<DetailProps> = ({ studyItem, load, userId, courseStat
                       >
                         <div className="flex items-center flex-wrap">
                           <div className='font-medium text-sm w-auto'>
-                            Câu {question.order}:
+                          {t('curriculum.question')} {question.order}:
                           </div>
                           <div className='ml-2 flex justify-between items-center' >
                             <QuillEditorQuestion
@@ -212,7 +212,7 @@ const ExamDetail: React.FC<DetailProps> = ({ studyItem, load, userId, courseStat
             className={`flex justify-center text-white bg-teal-500 w-32 py-1.5 mt-2 rounded-md ${isExamPublic ? 'hidden' : ''} ${isRequestStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-95'}`}
             onClick={(isRequestStatus || isExamPublic) ? undefined : () => setIsAddingQuestion(true)}
           >
-            Thêm câu hỏi
+            {t('curriculum.addQuestion')}
           </div>
         )}
       </div>

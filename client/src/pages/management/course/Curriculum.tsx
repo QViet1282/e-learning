@@ -15,6 +15,8 @@ import { categoryLessionOrderItem } from 'api/put/put.interface'
 import { updateCategoryLessionOrder } from 'api/put/put.api'
 import { Category } from 'api/get/get.interface'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
+import { Save } from '@mui/icons-material'
 
 interface DraggableCategory extends Category {
   dragHandleProps?: React.HTMLAttributes<HTMLDivElement> | undefined
@@ -36,6 +38,7 @@ interface Tokens {
 }
 
 const Curriculum: React.FC<CurriculumProps> = ({ courseId, courseStatus }) => {
+  const { t } = useTranslation()
   const [isAddingCategory, setIsAddingCategory] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
@@ -101,7 +104,7 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId, courseStatus }) => {
 
   const handleSaveClick = async (): Promise<void> => {
     if (newCategoryName.trim() === '') {
-      toast.error('Vui lòng nhập tên chương!')
+      toast.error(t('curriculum.errorCategoryName'))
       return
     }
 
@@ -114,15 +117,15 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId, courseStatus }) => {
 
     try {
       await createCategoryLession(newCategory).then(() => {
-        toast.success('Tạo thành công')
+        toast.success(t('curriculum.successCreateCategory'))
       }).catch(() => {
-        toast.error('Lỗi trong quá trình tạo. Xin hãy thử lại!')
+        toast.error(t('curriculum.errorCreateCategory'))
       })
       fetchCategories()
       setIsAddingCategory(false)
       setNewCategoryName('')
     } catch (error) {
-      toast.error('Lỗi trong quá trình tạo. Xin hãy thử lại!')
+      toast.error(t('curriculum.errorCreateCategory'))
     }
   }
 
@@ -130,7 +133,7 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId, courseStatus }) => {
     <div className='flex flex-col w-full max-w-6xl mx-auto'>
       <div className='w-full border-b-2'>
         <div className="text-3xl font-bold p-2">
-          Chương trình giảng dạy
+          {t('curriculum.title')}
         </div>
       </div>
 
@@ -170,7 +173,7 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId, courseStatus }) => {
         ? (
           <div className="flex flex-col flex-1 p-2 md:w-1/3 relative border-4 bg-white">
             <div className="w-full flex justify-between items-center">
-              <p className='font-bold py-2'>Thêm chương học mới</p>
+              <p className='font-bold py-2'>{t('curriculum.addNewCategoryTitle')}</p>
               <GridCloseIcon onClick={handleCancelClick} />
             </div>
             <input
@@ -179,11 +182,12 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId, courseStatus }) => {
               onChange={(e) => setNewCategoryName(e.target.value)}
               className='w-full h-10 items-center justify-center px-2 border-solid border-gray-300 focus:outline-none'
               style={{ borderWidth: '1px' }}
-              placeholder='Tên chương'
+              placeholder={t('curriculum.categoryNamePlaceholder').toString()}
             />
             <div className='w-full space-x-2 justify-end flex'>
-              <div className="mt-2 py-1 px-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95" onClick={handleSaveClick} >
-                <p>Lưu chương</p>
+              <div className="mt-2 py-1 px-2 cursor-pointer flex justify-center items-center gap-1 text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95" onClick={handleSaveClick} >
+                <p>{t('curriculum.button.save')}</p>
+                <Save fontSize='small'/>
               </div>
             </div>
           </div>
@@ -192,7 +196,7 @@ const Curriculum: React.FC<CurriculumProps> = ({ courseId, courseStatus }) => {
           <div className='w-56'>
             <div className={`flex justify-center text-white bg-teal-500 w-full p-2 rounded-md ${isRequestStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-95'}`}
              onClick={isRequestStatus ? undefined : handleAddClick}>
-              Add new category lesson
+              {t('curriculum.addNewCategoryButton')}
             </div>
           </div>
 

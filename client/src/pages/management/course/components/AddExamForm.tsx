@@ -6,13 +6,14 @@ import { IconButton } from '@mui/material'
 import ReactQuill, { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import axios from 'axios'
-import { Add, Close, Remove } from '@mui/icons-material'
+import { Add, Close, Remove, Save } from '@mui/icons-material'
 import { newStudyItemAndExam } from 'api/post/post.interface'
 
 import 'quill-image-uploader/dist/quill.imageUploader.min.css'
 import { createStudyItemAndExam } from 'api/post/post.api'
 import { QuillEditor } from './QuillEditor'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
 
 interface AddExamFormProps {
   userId: number
@@ -21,6 +22,7 @@ interface AddExamFormProps {
   fetchStudyItems: () => Promise<void>
 }
 const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, lessionCategoryId, fetchStudyItems }): JSX.Element => {
+  const { t } = useTranslation()
   const [newExam, setNewExam] = useState<newStudyItemAndExam>({
     lessionCategoryId,
     name: '',
@@ -75,12 +77,12 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
 
   const handleAddExam = async (): Promise<void> => {
     if (newExam.name.trim() === '') {
-      toast.error('Vui lòng nhập tên bài kiểm tra!')
+      toast.error(t('curriculum.enterExamName'))
       return
     }
 
     await createStudyItemAndExam(newExam).then(async () => {
-      toast.success('Tạo thành công')
+      toast.success(t('curriculum.createSuccess'))
       await fetchStudyItems()
       setNewExam({
         lessionCategoryId,
@@ -94,14 +96,14 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
       })
       setIsAddingExam(false)
     }).catch(() => {
-      toast.error('Lỗi trong quá trình tạo. Xin hãy thử lại!')
+      toast.error(t('curriculum.createError'))
     })
   }
 
   return (
     <div className="flex flex-col flex-1 h-auto p-2 mb-4 md:ml-20 relative border-4 gap-2 bg-white">
       <div className="w-full flex justify-between items-center p-2">
-        <p className="font-bold text-xl">Thêm bài kiểm tra</p>
+        <p className="font-bold text-xl">{t('curriculum.addExamTitle')}</p>
         <IconButton
           onClick={() => {
             setIsAddingExam(false)
@@ -123,7 +125,7 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
 
       {/* Tên bài kiểm tra */}
       <div className="flex flex-1 items-center flex-wrap justify-between md:pr-2">
-        <p className="ml-2">Tên bài kiểm tra</p>
+        <p className="ml-2">{t('curriculum.examName')}</p>
         <input
           value={newExam.name}
           onChange={(e) => setNewExam({ ...newExam, name: e.target.value })}
@@ -136,7 +138,7 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
       <div className="flex flex-col md:flex-row items-center md:justify-between gap-4 mt-4 p-2">
         {/* Điểm đạt yêu cầu */}
         <div className="flex-1">
-          <p>Điểm đạt yêu cầu (%)</p>
+          <p>{t('curriculum.requiredPoints')} (%)</p>
           <div className="flex items-center">
             <IconButton
               onMouseDown={() => startHolding(() => handleDecrease('pointToPass', 0))}
@@ -168,7 +170,7 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
 
         {/* Thời gian làm bài */}
         <div className="flex-1">
-          <p>Thời gian làm bài (phút)</p>
+          <p>{t('curriculum.examDuration')} ({t('curriculum.minutes')})</p>
           <div className="flex items-center">
             <IconButton
               onMouseDown={() => startHolding(() => handleDecrease('durationInMinute', 0))}
@@ -200,7 +202,7 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
 
         {/* Số lần thử */}
         <div className="flex-1">
-          <p>Số lần thử</p>
+          <p>{t('curriculum.attemptsNumber')}</p>
           <div className="flex items-center">
             <IconButton
               onMouseDown={() => startHolding(() => handleDecrease('numberOfAttempt', 0))}
@@ -233,7 +235,7 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
 
       {/* Mô tả */}
       <div className="flex flex-1 h-auto flex-col justify-between md:pr-2 mt-4">
-        <p className="mb-2 ml-2 w-20">Mô tả</p>
+        <p className="mb-2 ml-2 w-20">{t('curriculum.description')}</p>
         <QuillEditor
           theme="snow"
           value={newExam.description}
@@ -246,9 +248,10 @@ const AddExamForm: React.FC<AddExamFormProps> = ({ setIsAddingExam, userId, less
       {/* Nút lưu */}
       <div className='w-full space-x-2 justify-end flex'>
         <div
-          className="p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95" onClick={handleAddExam}
+          className="p-2 cursor-pointer flex justify-center items-center gap-1 text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95" onClick={handleAddExam}
         >
-          Lưu bài kiểm tra
+          {t('curriculum.button.save')}
+          <Save fontSize='small'/>
         </div>
       </div>
     </div>

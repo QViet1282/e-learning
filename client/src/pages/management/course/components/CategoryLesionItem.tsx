@@ -20,7 +20,7 @@ import 'react-quill/dist/quill.snow.css'
 import axios from 'axios'
 import { StudyItemOrderItem } from 'api/put/put.interface'
 import { editCategoryLession, updateStudyItemOrder } from 'api/put/put.api'
-import { Quiz, QuizOutlined, VideoLibraryOutlined, Add, Remove, Edit, EditOutlined, EditTwoTone, Close, DeleteOutline, VideoLibrary, PictureAsPdfRounded, DisabledByDefault, DisabledByDefaultRounded, VideoLibraryRounded, QuizRounded, FiberNewRounded, FiberNewOutlined } from '@mui/icons-material'
+import { Quiz, QuizOutlined, VideoLibraryOutlined, Add, Remove, Edit, EditOutlined, EditTwoTone, Close, DeleteOutline, VideoLibrary, PictureAsPdfRounded, DisabledByDefault, DisabledByDefaultRounded, VideoLibraryRounded, QuizRounded, FiberNewRounded, FiberNewOutlined, Save } from '@mui/icons-material'
 import QuillResizeImage from 'quill-resize-image'
 import ImageUploader from 'quill-image-uploader'
 
@@ -138,7 +138,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
 
   const handleSaveCategoryLession = async (): Promise<void> => {
     if (newNameCategory.trim() === '') {
-      toast.error('Vui lòng nhập tên chương')
+      toast.error(t('curriculum.errorCategoryName'))
       return
     }
 
@@ -147,11 +147,11 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
       order: null
     }
     await editCategoryLession(lessionCategoryId, payload).then(() => {
-      toast.success('Tạo thành công')
+      toast.success(t('curriculum.successCreateCategory'))
       setOpenModalEditCategoryLession(false)
       setNameCategory(newNameCategory)
     }).catch(() => {
-      toast.error('Lỗi trong quá trình tạo. Xin hãy thử lại!')
+      toast.error(t('curriculum.errorCreateCategory'))
     })
   }
 
@@ -160,13 +160,13 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
     try {
       if (studyItems.length > 0) {
         setOpenModalDeleteLessionCategory(false)
-        toast.error('Không thể xóa. Có phần tử liên kết với chương này.')
+        toast.error(t('curriculum.errorDeleteCategory'))
         return
       }
       const response = await deleteCategoryLession(lessionCategoryId)
       if (response.status === 200) {
         setOpenModalDeleteLessionCategory(false)
-        toast.success('Xóa thành công')
+        toast.success(t('curriculum.successDeleteCategory'))
       }
     } catch (error) {
       console.error('Error edit category:', error)
@@ -190,42 +190,6 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
     void fetchStudyItems()
   }
 
-  // const modules = useMemo(() => ({
-  //   toolbar: [
-  //     ['bold', 'italic', 'underline', 'strike'],
-  //     ['blockquote', 'code-block'],
-  //     ['link', 'image', 'formula'],
-  //     [{ 'header': 1 }, { 'header': 2 }],
-  //     [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
-  //     [{ 'script': 'sub' }, { 'script': 'super' }],
-  //     [{ 'indent': '-1' }, { 'indent': '+1' }],
-  //     [{ 'direction': 'rtl' }],
-  //     [{ 'size': ['small', false, 'large', 'huge'] }],
-  //     [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-  //     [{ 'color': [] }, { 'background': [] }],
-  //     [{ 'font': [] }],
-  //     [{ 'align': [] }],
-  //     ['clean']
-  //   ],
-  //   imageUploader: {
-  //     upload: async (file: File) => {
-  //       const formData = new FormData()
-  //       formData.append('file', file)
-  //       formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
-  //       try {
-  //         const response = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/upload`, formData)
-  //         const imageUrl = response.data.secure_url
-  //         return imageUrl // Trả về URL của ảnh sau khi upload thành công
-  //       } catch (error) {
-  //         console.error('Error uploading image:', error)
-  //         throw new Error('Image upload failed')
-  //       }
-  //     }
-  //   },
-  //   resize: {
-  //     locale: {}
-  //   }
-  // }), [])
   console.log(studyItems)
 
   return (
@@ -233,7 +197,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
       <div className="flex items-center justify-between group">
         <div className="flex items-center w-4/5">
           <div className="text-xl font-medium leading-6 tracking-wide mr-2 whitespace-nowrap overflow-hidden break-words text-ellipsis max-w-full">
-            Chương {order}: {nameCategory}
+            {t('curriculum.categoryLession')} {order}: {nameCategory}
           </div>
           <div className='flex opacity-0 group-hover:opacity-100'>
             {(!isPublic || isAllZero) && <IconButton onClick={() => setOpenModalEditCategoryLession(true)}>
@@ -266,7 +230,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
             <div className='flex justify-center items-center md:w-3/12'>
               <div className="flex flex-col flex-1 p-2 mb-4 relative border-4 gap-3 bg-white">
                 <div className="w-full flex justify-between items-center">
-                  <p className='font-bold'>Chỉnh sửa tên chương học</p>
+                  <p className='font-bold'>{t('curriculum.button.edit')}</p>
                   <IconButton onClick={() => {
                     setOpenModalEditCategoryLession(false)
                     setNewNameCategory(nameCategory)
@@ -282,8 +246,9 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
                   placeholder='Tên chương'
                 />
                 <div className='flex justify-end space-x-3'>
-                  <div className="p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95" onClick={async () => await handleSaveCategoryLession()}>
-                    Lưu chương
+                  <div className="p-2 cursor-pointer flex justify-center items-center gap-1 text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95" onClick={async () => await handleSaveCategoryLession()}>
+                  <Save />
+                  {t('curriculum.button.save')}
                   </div>
                 </div>
               </div>
@@ -406,11 +371,11 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
             <div className='mb-4 md:ml-20 flex gap-3'>
               <div className={`flex justify-center text-white bg-teal-500 w-36 p-2 rounded-md ${isRequestStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-95'}`}
                 onClick={isRequestStatus ? undefined : () => { setIsAddingLesson(true) }}>
-                Thêm bài học
+                {t('curriculum.button.addLesson')}
               </div>
               <div className={`flex justify-center text-white bg-teal-500 w-40 p-2 rounded-md ${isRequestStatus ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-95'}`}
                 onClick={isRequestStatus ? undefined : () => { setIsAddingExam(true) }}>
-                Thêm trắc nghiệm
+                {t('curriculum.button.addExam')}
               </div>
             </div>
           )}

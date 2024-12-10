@@ -9,6 +9,7 @@ import { newQuestion, newStudyItemAndLession } from 'api/post/post.interface'
 import { createQuestion } from 'api/post/post.api'
 import { QuillEditor, QuillEditorQuestion } from './QuillEditor'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
 
 interface AddExamFormProps {
   userId: number
@@ -18,6 +19,7 @@ interface AddExamFormProps {
 }
 
 const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, userId, examId, fetchQuestions }): JSX.Element => {
+  const { t } = useTranslation()
   const maxAnswers = 16
 
   const [answers, setAnswers] = useState<Array<{ content: string, isCorrect: boolean }>>(
@@ -32,10 +34,10 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
   })
 
   const instructions = [
-    'Chọn câu trả lời đúng nhất:',
-    'Chọn câu trả lời đúng:',
-    'Hãy chỉ ra sự lựa chọn đúng:',
-    'Chọn những phương án phù hợp nhất:'
+    t('curriculum.dropdown.instructionOptions.0'),
+    t('curriculum.dropdown.instructionOptions.1'),
+    t('curriculum.dropdown.instructionOptions.2'),
+    t('curriculum.dropdown.instructionOptions.3')
   ]
 
   const handleInstructionChange = (event: { target: { value: any } }): void => {
@@ -69,7 +71,7 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
 
   const handleSubmit = async (): Promise<void> => {
     if (!newQuestion.content || newQuestion.content.replace(/<\/?[^>]+(>|$)/g, '').length === 0) {
-      toast.error('Vui lòng viết câu hỏi')
+      toast.error(t('curriculum.toast.error.questionEmpty'))
       return
     }
 
@@ -78,12 +80,12 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
     const filteredAnswers = answers.filter((answer) => answer.content.trim() !== '')
 
     if (filteredAnswers.length < 2) {
-      toast.error('Vui lòng viết ít nhất hai đáp án')
+      toast.error(t('curriculum.toast.error.insufficientAnswers'))
       return
     }
 
     if (!answers.some((answer) => answer.isCorrect)) {
-      toast.error('Vui lòng chọn ít nhất một đáp án đúng')
+      toast.error(t('curriculum.toast.error.noCorrectAnswer'))
       return
     }
 
@@ -93,7 +95,7 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
       .join('::')
 
     if (correctAnswers.length === 0) {
-      toast.error('Vui lòng chọn ít nhất một đáp án đúng')
+      toast.error(t('curriculum.toast.error.noCorrectAnswer'))
       return
     }
 
@@ -126,12 +128,12 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
       })
 
       if (response.status === 201) {
-        toast.success('Câu hỏi đã được tạo thành công')
+        toast.success(t('curriculum.toast.success.questionCreated'))
         await fetchQuestions()
       }
     } catch (error) {
       console.error('Có lỗi xảy ra khi tạo câu hỏi:', error)
-      toast.error('Có lỗi xảy ra khi tạo câu hỏi. Xin vui lòng thử lại!')
+      toast.error(t('curriculum.createError'))
     }
 
     setIsAddingQuestion(false)
@@ -157,7 +159,7 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
   return (
     <div className="flex flex-col px-4 py-2 border-2 border-gray-200 bg-white mt-2">
       <div className="flex justify-between items-center">
-        <p className="font-bold text-lg">Nội dung câu hỏi</p>
+        <p className="font-bold text-lg">{t('curriculum.placeholder.questionContent')}</p>
         <IconButton onClick={() => setIsAddingQuestion(false)}>
           <Close />
         </IconButton>
@@ -168,7 +170,7 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
         onChange={handleInstructionChange}
         className="my-2 border text-sm border-gray-300 h-9 p-2 focus:outline-none"
       >
-        <option value="">Hướng dẫn trả lời (Có thể không chọn)</option>
+        <option value="">{t('curriculum.placeholder.instruction')}</option>
         {instructions.map((instruction, index) => (
           <option key={index} value={instruction}>{index + 1}.{instruction}</option>
         ))}
@@ -182,7 +184,7 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
           }}
           // modules={modules}
           // className="mt-2 text-xl"
-          placeholder='Nội dung câu hỏi'
+          placeholder={t('curriculum.placeholder.questionContent').toString()}
         />
       </div>
 
@@ -202,7 +204,7 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
               </div>
               <input
                 value={answer.content}
-                placeholder={`Đáp án ${1 + index}`}
+                placeholder={`${t('curriculum.label.answer')} ${1 + index}`}
                 onChange={(e) => handleAnswerChange(index, e.target.value)}
                 className='w-10/12 h-9 items-center px-2 border-solid text-sm border-gray-300 focus:outline-none'
                 style={{ borderWidth: '1px' }}
@@ -212,7 +214,7 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
                   key={index}
                   checked={answer.isCorrect}
                   onChange={() => handleCorrectChange(index)} />
-                <label className="hidden md:block">Đúng</label>
+                <label className="hidden md:block">{t('curriculum.label.correctAnswer')}</label>
               </div>
             </div>
           ))}
@@ -221,7 +223,7 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
           <div className="flex items-center w-full mt-1">
             <div className='w-8'></div>
             <textarea
-              placeholder={'Đáp án ...'}
+              placeholder={t('curriculum.placeholder.answer').toString()}
               className='w-10/12 h-9 items-center pt-2 px-2 text-sm border-solid border-gray-300 focus:outline-none'
               style={{ borderWidth: '1px' }}
               readOnly
@@ -233,7 +235,7 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
           </div>
           <textarea
             value={newQuestion.explanation}
-            placeholder={'Giải thích'}
+            placeholder={t('curriculum.placeholder.explanation').toString()}
             onChange={(e) => setNewQuestion({ ...newQuestion, explanation: e.target.value })}
             className='w-full h-14 items-center mt-2 pt-1 px-2 text-sm border-solid border-gray-300 focus:outline-none'
             style={{ borderWidth: '1px' }}
@@ -250,7 +252,7 @@ const AddQuestionForm: React.FC<AddExamFormProps> = ({ setIsAddingQuestion, user
           }}
           className="px-2 py-1 cursor-pointer flex justify-center mt-2 text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95"
         >
-          Lưu câu hỏi
+          {t('curriculum.button.save')}
         </div>
       </div>
 

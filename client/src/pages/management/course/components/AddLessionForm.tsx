@@ -5,13 +5,14 @@ import { IconButton } from '@mui/material'
 // import ReactQuill, { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
 import axios, { AxiosProgressEvent, CancelTokenSource } from 'axios'
-import { Close } from '@mui/icons-material'
+import { Close, Save } from '@mui/icons-material'
 import { newStudyItemAndLession } from 'api/post/post.interface'
 import { createStudyItemAndLession } from 'api/post/post.api'
 import 'quill-image-uploader/dist/quill.imageUploader.min.css'
 import { Document, Page } from 'react-pdf'
 import { QuillEditor } from './QuillEditor'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
 
 interface AddExamFormProps {
   userId: number
@@ -31,6 +32,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
     locationPath: null,
     durationInSecond: 0
   })
+  const { t } = useTranslation()
   const [file, setFile] = useState<File | null>(null)
   const [uploadedUrl, setUploadedUrl] = useState<string>('')
   const [progress, setProgress] = useState<number>(0)
@@ -92,13 +94,13 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
 
   const handleAddLesson = async (): Promise<void> => {
     if (newLesson.name.trim() === '') {
-      toast.error('Vui lòng nhập tên bài học!')
+      toast.error(t('curriculum.errorCreateLesson'))
       return
     }
 
     try {
       await createStudyItemAndLession(newLesson).then(async () => {
-        toast.success('Tạo thành công')
+        toast.success(t('curriculum.successCreateLesson'))
         await fetchStudyItems()
         // Reset thông tin bài học mới
         setNewLesson({
@@ -113,7 +115,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
         })
         setIsAddingLession(false)
       }).catch(() => {
-        toast.error('Lỗi trong quá trình tạo. Xin hãy thử lại!')
+        toast.error(t('curriculum.errorCreateLessonRetry'))
       })
     } catch (error) {
       console.error('Error create new category:', error)
@@ -127,7 +129,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
   return (
     <div className="flex flex-col flex-1 h-auto p-2 mb-4 md:ml-20 relative border-4 gap-2 bg-white">
       <div className="w-full flex justify-between items-center p-2">
-        <p className='font-bold text-xl'>Thêm bài học</p>
+        <p className='font-bold text-xl'>{t('curriculum.addLesson')}</p>
         <IconButton onClick={() => {
           setIsAddingLession(false)
           setNewLesson({
@@ -146,7 +148,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
       </div>
 
       <div className='flex flex-1 items-center flex-wrap justify-between md:pr-2'>
-        <p className='ml-2'>Tên bài học </p>
+        <p className='ml-2'>{t('curriculum.lessonName')} </p>
         <input
           type="text"
           value={newLesson.name}
@@ -157,7 +159,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
       </div>
 
       <div className="flex flex-1 h-auto flex-col justify-between md:pr-2">
-        <p className=' mb-2 ml-2 w-20'>Mô tả</p>
+        <p className=' mb-2 ml-2 w-20'>{t('curriculum.lessonDescription')}</p>
         <QuillEditor
           theme='snow'
           value={newLesson.description}
@@ -167,13 +169,13 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
         />
       </div>
 
-      <p className='mx-2'>Nội dung chính</p>
+      <p className='mx-2'>{t('curriculum.mainContent')}</p>
       <div className="p-2 border-2 rounded">
         {(file == null) && (
           <div className='flex flex-wrap gap-2'>
             <div className='w-28 border-2 bg-teal-500 rounded-md p-2 items-center text-center hover:bg-teal-400'>
               <label className="cursor-pointer text-white">
-                Thêm video
+              {t('curriculum.addVideo')}
                 <input
                   type="file"
                   accept="video/*"
@@ -184,7 +186,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
             </div>
             <div className='w-28 border-2 bg-teal-500 rounded-md p-2 items-center text-center hover:bg-teal-400'>
               <label className="cursor-pointer text-white">
-                Thêm PDF
+              {t('curriculum.addPdf')}
                 <input
                   type="file"
                   accept="application/pdf"
@@ -214,7 +216,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
               ))}
             <div className='border-2 bg-teal-500 rounded-md text-center p-2 hover:bg-teal-400'>
               <label className="cursor-pointer text-white">
-                Thay đổi video
+              {t('curriculum.changeVideo')}
                 <input
                   type="file"
                   accept="video/*"
@@ -225,7 +227,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
             </div>
             <div className='border-2 bg-teal-500 rounded-md text-center p-2 hover:bg-teal-400'>
               <label className="cursor-pointer text-white">
-                Thay đổi PDF
+              {t('curriculum.changePdf')}
                 <input
                   type="file"
                   accept="application/pdf"
@@ -239,19 +241,20 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
 
         {file != null && progress < 100 && (
           <div className='text-center'>
-            <p className="text-gray-700">Đang tải lên: {progress}%</p>
+            <p className="text-gray-700">{t('curriculum.uploadPregress')} {progress}%</p>
             <button
               onClick={handleCancelUpload}
               className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400"
             >
-              Hủy
+              {t('curriculum.button.cancel')}
             </button>
           </div>
         )}
       </div>
       <div className='w-full space-x-2 justify-end flex'>
-        <div className='p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95' onClick={handleAddLesson}>
-          Lưu bài học
+        <div className='p-2 cursor-pointer flex justify-center items-center gap-1 text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95' onClick={handleAddLesson}>
+        {t('curriculum.button.save')}
+        <Save fontSize='small'/>
         </div>
       </div>
     </div>
