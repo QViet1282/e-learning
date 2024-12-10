@@ -15,7 +15,7 @@ router.get('/getNotiByUserId', isAuthenticated, async (req, res) => {
 
   try {
     // Lấy danh sách thông báo với điều kiện notifyAt <= now
-    const notificationsData = await models.NotificationRecipient.findAndCountAll({
+    const notificationsData = await models.AlertRecipientsList.findAndCountAll({
       where: { userId },
       include: [{
         model: models.Notification,
@@ -31,13 +31,13 @@ router.get('/getNotiByUserId', isAuthenticated, async (req, res) => {
     // Biến đổi kết quả để trích xuất notifyAt
     const notifications = notificationsData.rows.map(notification => {
       return {
-        ...notification.get(), // Lấy tất cả các thuộc tính từ NotificationRecipient
+        ...notification.get(), // Lấy tất cả các thuộc tính từ AlertRecipientsList
         notifyAt: notification.Notification.notifyAt // Lấy notifyAt từ bảng Notification
       }
     })
 
     // Đếm số thông báo chưa đọc (status = 0)
-    const countUnread = await models.NotificationRecipient.count({
+    const countUnread = await models.AlertRecipientsList.count({
       where: { userId, status: 0 },
       include: [{
         model: models.Notification,
@@ -70,7 +70,7 @@ router.get('/getNotiByUserId', isAuthenticated, async (req, res) => {
 //       userId,
 //       status: false
 //     }
-//     await models.NotificationRecipient.create(recipients)
+//     await models.AlertRecipientsList.create(recipients)
 //     const notificationWithRecipients = {
 //       ...notification.toJSON(),
 //       recipients
@@ -90,7 +90,7 @@ router.post('/createNotification', isAuthenticated, async (req, res) => {
     console.log(message)
     const notification = await models.Notification.create({ title, message, url })
 
-    const recipient = await models.NotificationRecipient.create({
+    const recipient = await models.AlertRecipientsList.create({
       notificationId: notification.id,
       userId,
       status: false
@@ -115,7 +115,7 @@ router.put('/readNotification', isAuthenticated, async (req, res) => {
   const recipientsId = req.body.data.recipientsId
   console.log(req.body.data)
   try {
-    const notification = await models.NotificationRecipient.findByPk(recipientsId)
+    const notification = await models.AlertRecipientsList.findByPk(recipientsId)
     console.log(notification)
     if (!notification) {
       return res.status(404).json({ message: 'Notification not found' })
@@ -130,7 +130,7 @@ router.put('/readNotification', isAuthenticated, async (req, res) => {
 router.put('/readAllNotification', isAuthenticated, async (req, res) => {
   const userId = req.user.id
   try {
-    await models.NotificationRecipient.update({ status: true }, { where: { userId } })
+    await models.AlertRecipientsList.update({ status: true }, { where: { userId } })
     res.json({ message: 'All notifications have been read' })
   } catch (err) {
     console.error(err)
@@ -140,7 +140,7 @@ router.put('/readAllNotification', isAuthenticated, async (req, res) => {
 router.delete('/removeNotification', isAuthenticated, async (req, res) => {
   const recipientsId = req.body.recipientsId
   try {
-    const notification = await models.NotificationRecipient.findByPk(recipientsId)
+    const notification = await models.AlertRecipientsList.findByPk(recipientsId)
     if (!notification) {
       return res.status(404).json({ message: 'Notification not found' })
     }
@@ -154,7 +154,7 @@ router.delete('/removeNotification', isAuthenticated, async (req, res) => {
 router.delete('/removeAllNotification', isAuthenticated, async (req, res) => {
   const userId = req.user.id
   try {
-    await models.NotificationRecipient.destroy({ where: { userId } })
+    await models.AlertRecipientsList.destroy({ where: { userId } })
     res.json({ message: 'All notifications have been removed' })
   } catch (err) {
     console.error(err)
@@ -164,7 +164,7 @@ router.delete('/removeAllNotification', isAuthenticated, async (req, res) => {
 router.put('/markAsUnread', isAuthenticated, async (req, res) => {
   const recipientsId = req.body.data.recipientsId
   try {
-    const notification = await models.NotificationRecipient.findByPk(recipientsId)
+    const notification = await models.AlertRecipientsList.findByPk(recipientsId)
     if (!notification) {
       return res.status(404).json({ message: 'Notification not found' })
     }
@@ -178,7 +178,7 @@ router.put('/markAsUnread', isAuthenticated, async (req, res) => {
 router.put('/markAllAsUnread', isAuthenticated, async (req, res) => {
   const userId = req.user.id
   try {
-    await models.NotificationRecipient.update({ status: false }, { where: { userId } })
+    await models.AlertRecipientsList.update({ status: false }, { where: { userId } })
     res.json({ message: 'All notifications have been marked as unread' })
   } catch (err) {
     console.error(err)
@@ -225,7 +225,7 @@ router.post('/createAndReplicateNotification', isAuthenticated, async (req, res)
       status: 0
     }))
 
-    await models.NotificationRecipient.bulkCreate(recipients)
+    await models.AlertRecipientsList.bulkCreate(recipients)
 
     const notificationWithRecipients = {
       ...notification.toJSON(),

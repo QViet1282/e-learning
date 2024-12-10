@@ -47,30 +47,6 @@ const Question = sequelize.define(
     h: {
       type: DataTypes.TEXT
     },
-    i: {
-      type: DataTypes.TEXT
-    },
-    j: {
-      type: DataTypes.TEXT
-    },
-    k: {
-      type: DataTypes.TEXT
-    },
-    l: {
-      type: DataTypes.TEXT
-    },
-    m: {
-      type: DataTypes.TEXT
-    },
-    n: {
-      type: DataTypes.TEXT
-    },
-    o: {
-      type: DataTypes.TEXT
-    },
-    p: {
-      type: DataTypes.TEXT
-    },
     answer: {
       type: DataTypes.TEXT
     },

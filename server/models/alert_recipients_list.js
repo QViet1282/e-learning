@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize')
 const sequelize = require('./init')
 
-const NotificationRecipient = sequelize.define(
-  'NotificationRecipient',
+const AlertRecipientsList = sequelize.define(
+  'AlertRecipientsList',
   {
     id: {
       type: DataTypes.BIGINT,
@@ -25,9 +25,9 @@ const NotificationRecipient = sequelize.define(
     }
   },
   {
-    tableName: 'notification_recipients',
+    tableName: 'alert_recipients_list',
     timestamps: true
   }
 )
 
-module.exports = NotificationRecipient
+module.exports = AlertRecipientsList
