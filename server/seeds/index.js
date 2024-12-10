@@ -16,7 +16,7 @@ const seedTempUserAnswers = require('./tempUserAnswer')
 const seedUserEnterExitExamRooms = require('./userEnterExitExamRoom')
 const seedCategoryCourses = require('./category_course')
 const seedNotifications = require('./notification')
-const seedNotificationRecipient = require('./notification_recipient')
+const seedNotificationRecipient = require('./alert_recipients_list')
 const seedDatabase = async () => {
   try {
     await seedCategoryCourses()

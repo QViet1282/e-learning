@@ -33,9 +33,6 @@ router.post('/process', async (req, res) => {
       price: parseFloat(item.Course.price) // Đảm bảo giá là một số hợp lệ
     }))
 
-    // Tạo orderSnapshot dưới dạng chuỗi các id khóa học cách nhau bằng dấu phẩy
-    const orderSnapshot = order.Enrollments.map(item => item.Course.id).join(',')
-
     const body = {
       orderCode: Number(String(Date.now()).slice(-6)), // Generate orderCode dựa trên timestamp
       amount,
@@ -62,8 +59,7 @@ router.post('/process', async (req, res) => {
       paymentMethod: 'PayOS',
       paymentDate: new Date(),
       status: 'PENDING', // Trạng thái ban đầu là chờ
-      transactionId: paymentLinkResponse.paymentLinkId,
-      orderSnapshot // Lưu chuỗi id của các khóa học
+      transactionId: paymentLinkResponse.paymentLinkId
     })
 
     // Trả về URL thanh toán
@@ -76,7 +72,7 @@ router.post('/process', async (req, res) => {
 
 router.get('/check-cancel/:transactionId', async (req, res) => {
   try {
-    // Lấy thông tin thanh toán từ PayOS bằng transactionId
+    // Fetch payment information from PayOS
     const paymentInfo = await payOS.getPaymentLinkInformation(req.params.transactionId)
     console.log('Payment info:', paymentInfo)
     if (!paymentInfo) {
@@ -87,26 +83,68 @@ router.get('/check-cancel/:transactionId', async (req, res) => {
       })
     }
 
-    // Kiểm tra nếu trạng thái là "CANCELLED"
+    // Check if the status is "CANCELLED"
     const { status, id: transactionId } = paymentInfo
     if (status === 'CANCELLED') {
-      // Tìm bản ghi Payment trong cơ sở dữ liệu dựa trên transactionId
+      // Find the Payment record in the database based on transactionId
       const payment = await models.Payment.findOne({ where: { transactionId } })
       if (!payment) {
         return res.status(404).json({ message: 'Payment not found' })
       }
-      // Tìm đơn hàng liên kết với Payment
-      const order = await models.Order.findOne({ where: { id: payment.orderId, status: 2 } })
-      if (!order) {
+      // Find the order associated with the Payment
+      const oldOrder = await models.Order.findOne({ where: { id: payment.orderId, status: 2 } })
+      if (!oldOrder) {
         return res.status(404).json({ message: 'Order not found or already processed' })
       }
 
+      // Fetch Enrollments from the old order, including Course information
+      const oldEnrollments = await models.Enrollment.findAll({
+        where: { orderId: oldOrder.id },
+        include: [
+          {
+            model: models.Course,
+            attributes: ['price']
+          }
+        ]
+      })
+
+      // Create a new order
+      const newOrder = await models.Order.create({
+        userId: oldOrder.userId,
+        orderDate: new Date(),
+        status: 0, // Pending payment
+        totalAmount: 0
+      })
+
+      // Create new enrollments associated with the new order
+      let totalAmount = 0
+      for (const oldEnrollment of oldEnrollments) {
+        if (oldEnrollment.Course) {
+          // Create a new enrollment
+          await models.Enrollment.create({
+            courseId: oldEnrollment.courseId,
+            orderId: newOrder.id,
+            enrollmentDate: new Date(),
+            status: oldEnrollment.status,
+            progress: oldEnrollment.progress
+          })
+          totalAmount += parseFloat(oldEnrollment.Course.price)
+        } else {
+          console.warn(`Enrollment ID ${oldEnrollment.id} does not have an associated Course.`)
+        }
+      }
+
+      // Update total amount for the new order
+      newOrder.totalAmount = totalAmount.toFixed(2)
+      await newOrder.save()
+
+      // Update the old order status to indicate payment was canceled
       await models.Order.update(
-        { status: 0 }, // Đặt lại trạng thái đơn hàng về "Chưa thanh toán"
-        { where: { id: order.id } }
+        { status: 3 }, // Payment canceled status
+        { where: { id: oldOrder.id } }
       )
 
-      // Cập nhật trạng thái Payment và Order trong database
+      // Update the Payment status in the database
       await models.Payment.update(
         { status: 'CANCELED' },
         { where: { id: payment.id } }
@@ -114,8 +152,8 @@ router.get('/check-cancel/:transactionId', async (req, res) => {
 
       return res.json({
         error: 0,
-        message: 'Payment was canceled',
-        data: paymentInfo
+        message: 'Payment was canceled and a new order was created',
+        data: { oldOrder, newOrder }
       })
     } else {
       return res.json({
@@ -133,7 +171,6 @@ router.get('/check-cancel/:transactionId', async (req, res) => {
     })
   }
 })
-
 // Lấy lịch sử mua hàng cho từng user
 router.get('/purchase-history/:userId', async (req, res) => {
   try {
