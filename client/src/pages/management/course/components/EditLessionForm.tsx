@@ -8,7 +8,7 @@ import React, { ChangeEvent, useEffect, useState } from 'react'
 import { IconButton } from '@mui/material'
 import 'react-quill/dist/quill.snow.css'
 import axios, { AxiosProgressEvent, CancelTokenSource } from 'axios'
-import { Close, Remove } from '@mui/icons-material'
+import { Close, Remove, Save } from '@mui/icons-material'
 
 import 'quill-image-uploader/dist/quill.imageUploader.min.css'
 import { Cloudinary } from '@cloudinary/url-gen'
@@ -18,6 +18,8 @@ import { editStudyItemAndLession } from 'api/put/put.api'
 import { Document, Page } from 'react-pdf'
 import { QuillEditor } from './QuillEditor'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
+import { useMediaQuery } from 'react-responsive'
 
 interface EditExamFormProps {
   userId: number
@@ -34,12 +36,14 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
   fetchStudyItems,
   studyItem
 }): JSX.Element => {
+  const { t } = useTranslation()
   const [lesson, setLesson] = useState<StudyItem>(studyItem)
   const [file, setFile] = useState<File | null>(null)
   const [uploadedUrl, setUploadedUrl] = useState<string>(studyItem?.Lession?.locationPath ?? '')
   const [progress, setProgress] = useState<number>(0)
   const [cancelToken, setCancelToken] = useState<CancelTokenSource | null>(null)
   const [numPages, setNumPages] = useState<number | null>(null)
+  const isSmallScreen = useMediaQuery({ maxWidth: 767 })
 
   useEffect(() => {
     if (studyItem.Lession != null) {
@@ -112,7 +116,7 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
 
   const handleUpdateLesson = async (): Promise<void> => {
     if (lesson.name.trim() === '') {
-      toast.error('Vui lòng nhập tên bài học!')
+      toast.error(t('curriculum.errorCreateLesson'))
       return
     }
 
@@ -125,11 +129,11 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
       durationInSecond: lesson.Lession?.durationInSecond ?? null
     }
     await editStudyItemAndLession(studyItem.id, payload).then(async () => {
-      toast.success('Lưu thành công')
+      toast.success(t('curriculum.successCreateLesson'))
       await fetchStudyItems()
       setIsEditingLession(false)
     }).catch(() => {
-      toast.error('Lỗi trong quá trình tạo. Xin hãy thử lại!')
+      toast.error(t('curriculum.errorCreateLessonRetry'))
     })
   }
 
@@ -140,7 +144,7 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
   return (
     <div className="flex flex-col flex-1 h-auto p-2 mb-4 md:ml-20 relative border-4 gap-2 bg-white">
       <div className="w-full flex justify-between items-center p-2">
-        <p className='font-bold text-xl'>Chỉnh sửa bài học</p>
+        <p className='font-bold text-xl'>{t('curriculum.addLesson')}</p>
         <IconButton onClick={() => {
           setIsEditingLession(false)
           setLesson(studyItem) // Đặt lại lesson về giá trị ban đầu
@@ -150,7 +154,7 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
       </div>
 
       <div className='flex flex-1 items-center flex-wrap justify-between md:pr-2'>
-        <p className='ml-2'>Tên bài học </p>
+        <p className='ml-2'>{t('curriculum.lessonName')} </p>
         <input
           type="text"
           value={lesson.name}
@@ -161,7 +165,7 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
       </div>
 
       <div className="flex flex-1 h-auto flex-col justify-between md:pr-2">
-        <p className=' mb-2 ml-2 w-20'>Mô tả</p>
+        <p className=' mb-2 ml-2 w-20'>{t('curriculum.lessonDescription')}</p>
         <QuillEditor
           theme='snow'
           value={lesson.description}
@@ -171,13 +175,13 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
         />
       </div>
 
-      <p className='mx-2'>Nội dung chính</p>
+      <p className='mx-2'>{t('curriculum.mainContent')}</p>
       <div className="p-2 border-2 rounded">
         {!isUploadedUrlValid(uploadedUrl) && (
           <div className='flex flex-wrap gap-2'>
             <div className='w-28 border-2 bg-teal-500 rounded-md p-2 items-center text-center hover:bg-teal-400'>
               <label className="cursor-pointer text-white">
-                Thêm video
+              {t('curriculum.addVideo')}
                 <input
                   type="file"
                   accept="video/*"
@@ -188,7 +192,7 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
             </div>
             <div className='w-28 border-2 bg-teal-500 rounded-md p-2 items-center text-center hover:bg-teal-400'>
               <label className="cursor-pointer text-white">
-                Thêm PDF
+              {t('curriculum.addPdf')}
                 <input
                   type="file"
                   accept="application/pdf"
@@ -209,16 +213,25 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
                   <Document
                     file={uploadedUrl}
                     onLoadSuccess={onDocumentLoadSuccess}
+                    onLoadError={console.error}
                   >
                     {(numPages != null) && Array.from(new Array(numPages), (el, index) => (
-                      <Page key={`page_${index + 1}`} pageNumber={index + 1} scale={1.5} />
+                      <React.Fragment key={`page_${index + 1}`}>
+                        <Page
+                          pageNumber={index + 1}
+                          scale={isSmallScreen ? 0.7 : 1.5}
+                          className="pdf-page"
+                          renderMode="canvas"
+                        />
+                        {index < numPages - 1 && <div className="border-t border-gray-200 my-2" />}
+                      </React.Fragment>
                     ))}
                   </Document>
                 </div>
                 ))}
             <div className='border-2 bg-teal-500 rounded-md text-center p-2 hover:bg-teal-400'>
               <label className="cursor-pointer text-white">
-                Thay đổi video
+              {t('curriculum.changeVideo')}
                 <input
                   type="file"
                   accept="video/*"
@@ -229,7 +242,7 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
             </div>
             <div className='border-2 bg-teal-500 rounded-md text-center p-2 hover:bg-teal-400'>
               <label className="cursor-pointer text-white">
-                Thay đổi PDF
+              {t('curriculum.changePdf')}
                 <input
                   type="file"
                   accept="application/pdf"
@@ -243,19 +256,20 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
 
         {file != null && progress < 100 && (
           <div className='text-center'>
-            <p className="text-gray-700">Đang tải lên: {progress}%</p>
+            <p className="text-gray-700">{t('curriculum.uploadPregress')} {progress}%</p>
             <button
               onClick={handleCancelUpload}
               className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-400"
             >
-              Hủy
+              {t('curriculum.button.cancel')}
             </button>
           </div>
         )}
       </div>
       <div className='w-full space-x-2 justify-end flex'>
-        <div className='p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95' onClick={handleUpdateLesson}>
-          Lưu bài học
+        <div className='p-2 cursor-pointer flex justify-center items-center gap-1 text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95' onClick={handleUpdateLesson}>
+        {t('curriculum.button.save')}
+        <Save fontSize='small'/>
         </div>
       </div>
 

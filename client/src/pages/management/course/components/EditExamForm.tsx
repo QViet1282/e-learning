@@ -5,7 +5,7 @@ import { IconButton } from '@mui/material'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 // import ReactQuill, { Quill } from 'react-quill'
 import 'react-quill/dist/quill.snow.css'
-import { Add, Close, Remove } from '@mui/icons-material'
+import { Add, Close, Remove, Save } from '@mui/icons-material'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { newStudyItemAndExam } from 'api/post/post.interface'
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -15,6 +15,7 @@ import { editExam } from 'api/put/put.interface'
 import { editStudyItemAndExam } from 'api/put/put.api'
 import { QuillEditor } from './QuillEditor'
 import { toast } from 'react-toastify'
+import { useTranslation } from 'react-i18next'
 
 interface EditExamFormProps {
   userId: number
@@ -24,6 +25,7 @@ interface EditExamFormProps {
   studyItem: StudyItem
 }
 const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, lessionCategoryId, fetchStudyItems, studyItem }): JSX.Element => {
+  const { t } = useTranslation()
   const [dataExam, setDataExam] = useState<newStudyItemAndExam>({
     lessionCategoryId,
     name: studyItem.name,
@@ -75,7 +77,7 @@ const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, l
 
   const handleAddExam = async (): Promise<void> => {
     if (dataExam.name.trim() === '') {
-      toast.error('Vui lòng nhập tên bài kiểm tra!')
+      toast.error(t('curriculum.enterExamName'))
       return
     }
 
@@ -88,10 +90,10 @@ const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, l
         numberOfAttempt: dataExam.numberOfAttempt
       }
       editStudyItemAndExam(studyItem.id, payload).then(async () => {
-        toast.success('Lưu thành công')
+        toast.success(t('curriculum.createSuccess'))
         await fetchStudyItems()
       }).catch(() => {
-        toast.error('Lỗi trong quá trình tạo. Xin hãy thử lại!')
+        toast.error(t('curriculum.createError'))
       })
     } catch (error) {
       console.error('Error create new category:', error)
@@ -116,7 +118,7 @@ const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, l
   return (
     <div className="flex flex-col flex-1 h-auto p-2 mb-4 relative border-4 gap-2 bg-white">
       <div className="w-full flex justify-between items-center p-2">
-        <p className="font-bold text-xl">Chỉnh sửa bài kiểm tra</p>
+        <p className="font-bold text-xl">{t('curriculum.addExamTitle')}</p>
         <IconButton
           onClick={() => {
             setIsEditingExam(false)
@@ -138,7 +140,7 @@ const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, l
 
       {/* Tên bài kiểm tra */}
       <div className="flex flex-1 items-center flex-wrap justify-between md:pr-2">
-        <p className="ml-2">Tên bài kiểm tra</p>
+        <p className="ml-2">{t('curriculum.examName')}</p>
         <input
           value={dataExam.name}
           onChange={(e) => setDataExam({ ...dataExam, name: e.target.value })}
@@ -149,7 +151,7 @@ const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, l
 
       <div className="flex flex-col md:flex-row items-center md:justify-between gap-4 mt-4 p-2">
         <div className="flex-1">
-          <p>Điểm đạt yêu cầu (%)</p>
+          <p>{t('curriculum.requiredPoints')} (%)</p>
           <div className="flex items-center">
             <IconButton
               onMouseDown={() => startHolding(() => handleDecrease('pointToPass', 0))}
@@ -181,7 +183,7 @@ const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, l
 
         {/* Thời gian làm bài */}
         <div className="flex-1">
-          <p>Thời gian làm bài (phút)</p>
+          <p>{t('curriculum.examDuration')} ({t('curriculum.minutes')})</p>
           <div className="flex items-center">
             <IconButton
               onMouseDown={() => startHolding(() => handleDecrease('durationInMinute', 0))}
@@ -213,7 +215,7 @@ const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, l
 
         {/* Số lần thử */}
         <div className="flex-1">
-          <p>Số lần thử</p>
+          <p>{t('curriculum.attemptsNumber')}</p>
           <div className="flex items-center">
             <IconButton
               onMouseDown={() => startHolding(() => handleDecrease('numberOfAttempt', 0))}
@@ -246,7 +248,7 @@ const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, l
 
       {/* Mô tả */}
       <div className="flex flex-1 h-auto flex-col justify-between md:pr-2 mt-4">
-        <p className="mb-2 ml-2 w-20">Mô tả</p>
+        <p className="mb-2 ml-2 w-20">{t('curriculum.description')}</p>
         <QuillEditor
           theme="snow"
           value={dataExam.description}
@@ -259,9 +261,10 @@ const EditExamForm: React.FC<EditExamFormProps> = ({ setIsEditingExam, userId, l
       {/* Nút lưu */}
       <div className='w-full space-x-2 justify-end flex'>
         <div
-          className="p-2 cursor-pointer flex justify-center text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95" onClick={handleAddExam}
+          className="p-2 cursor-pointer flex justify-center items-center gap-1 text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95" onClick={handleAddExam}
         >
-          Lưu bài kiểm tra
+          {t('curriculum.button.save')}
+          <Save fontSize='small'/>
         </div>
       </div>
     </div>

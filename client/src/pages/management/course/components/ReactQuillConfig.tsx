@@ -9,6 +9,7 @@ const StyledQuill = styled(ReactQuill)`
 
   .ql-editor {
     padding: 8px; /* Xóa padding cho editor */
+    background: white;
   }
   .ql-editor img {
     display: block;

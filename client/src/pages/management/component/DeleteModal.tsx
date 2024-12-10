@@ -20,8 +20,16 @@ const DeleteModal: FC<DeleteModalProps> = ({ isOpen, onClose, onDelete, warningT
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white rounded-lg shadow-lg p-4 w-full max-w-sm">
+    <div
+      className={`fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 transition-opacity duration-300 ${
+        isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+      }`}
+    >
+      <div
+        className={`bg-white rounded-lg shadow-lg p-4 w-full max-w-sm transition-transform duration-300 ${
+          isOpen ? 'translate-y-0' : '-translate-y-10 hidden'
+        }`}
+      >
         {/* Phần tiêu đề được cải tiến */}
         <div className="flex flex-col items-center justify-center mb-2">
           <FaExclamationTriangle className="h-8 w-8 text-red-500 mr-2" />

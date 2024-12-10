@@ -57,7 +57,7 @@ router.get('/getAllQuestionByExamId/:examId', isAuthenticated, async (req, res) 
 
 router.post('/createQuestion', isAuthenticated, async (req, res) => {
   try {
-    const { examId, instruction, content, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, answer, explanation } = req.body
+    const { examId, instruction, content, a, b, c, d, e, f, g, h, answer, explanation } = req.body
 
     if (!examId || !content || !answer) {
       return res.status(400).json({ message: 'Các trường bắt buộc examId, content, answer là bắt buộc' })
@@ -82,14 +82,6 @@ router.post('/createQuestion', isAuthenticated, async (req, res) => {
         f,
         g,
         h,
-        i,
-        j,
-        k,
-        l,
-        m,
-        n,
-        o,
-        p,
         answer,
         explanation,
         type,
@@ -110,7 +102,7 @@ router.post('/createQuestion', isAuthenticated, async (req, res) => {
 router.put('/editQuestion/:questionId', isAuthenticated, async (req, res) => {
   try {
     const { questionId } = req.params
-    const { instruction, content, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, answer, explanation } = req.body
+    const { instruction, content, a, b, c, d, e, f, g, h, answer, explanation } = req.body
 
     if (!content || !answer) {
       return res.status(400).json({ message: 'Các trường bắt buộc content, answer là bắt buộc' })
@@ -136,14 +128,6 @@ router.put('/editQuestion/:questionId', isAuthenticated, async (req, res) => {
       f,
       g,
       h,
-      i,
-      j,
-      k,
-      l,
-      m,
-      n,
-      o,
-      p,
       answer,
       explanation,
       type

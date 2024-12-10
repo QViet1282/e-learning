@@ -550,11 +550,16 @@
         "createButton": "Create"
       }
     },
-    "curriculum": {
+    "Curriculum": {
       "warningText": "You want to delete this curriculum",
       "warningHiddenQuestion": "The question will not be used in the test from this point on"
     },
     "deleteModal": {
+      "title": "Are you sure?",
+      "yes": "Confirm",
+      "no": "Cancel"
+    },
+    "hiddenModal": {
       "title": "Are you sure?",
       "yes": "Confirm",
       "no": "Cancel"
@@ -1015,6 +1020,92 @@
         "courseId": "Course ID",
         "isManagement": "Course Management"
       }
-    }
+    },
+    "curriculum": {
+      "title": "Curriculum",
+      "addNewCategoryTitle": "Add New Chapter",
+      "categoryNamePlaceholder": "Chapter Name",
+      "saveCategoryButton": "Save Chapter",
+      "addNewCategoryButton": "Add a New Chapter",
+      "errorCategoryName": "Please enter the chapter name!",
+      "successCreateCategory": "Created successfully",
+      "errorCreateCategory": "Error. Please try again!",
+      "errorUpdateCategory": "Error. Please try again!",
+      "successDeleteCategory": "Deleted successfully",
+      "errorDeleteCategory": "Cannot delete. There are elements linked to this chapter.",
+      "errorDeleteStudyItem": "Cannot delete. There are questions linked to this quiz.",
+      "errorDeleteQuestion": "Error occurred while deleting the question.",
+      "successDeleteStudyItem": "Deleted successfully",
+      "curriculum.warningText": "Are you sure you want to delete?",
+      "categoryLession": "Chapter",
+      "button.saveCategory": "Save Chapter",
+      "button.edit": "Edit Chapter Name",
+      "button.delete": "Delete",
+      "modal.editLessionForm": "Edit Lesson",
+      "modal.editExamForm": "Edit Quiz",
+      "button.addLesson": "Add Lesson",
+      "button.addExam": "Add Quiz",
+      "button.cancel": "Cancel",
+      "button.save": "Save Data",
+      "errorCreateLesson": "Please enter the lesson name!",
+      "successCreateLesson": "Created successfully",
+      "errorCreateLessonRetry": "Error. Please try again!",
+      "addLesson": "Add Lesson",
+      "lessonName": "Lesson Name",
+      "lessonDescription": "Description",
+      "mainContent": "Main Content",
+      "addVideo": "Add Video",
+      "addPdf": "Add PDF",
+      "changeVideo": "Change Video",
+      "changePdf": "Change PDF",
+      "uploadPregress": "Uploading:",
+      "addExamTitle": "Add Exam",
+      "examName": "Exam Name",
+      "requiredPoints": "Required Points",
+      "examDuration": "Exam Duration",
+      "attemptsNumber": "Number of Attempts",
+      "description": "Description",
+      "saveExam": "Save Exam",
+      "enterExamName": "Please enter the exam name!",
+      "createSuccess": "Created successfully",
+      "createError": "Error. Please try again!",
+      "button.saveQuestion": "Save Question",
+      "button.saveExam": "Save Exam",
+      "button.saveChanges": "Save Changes",
+      "button.addAnswer": "Add Answer",
+      "placeholder.instruction": "Answer instructions (optional)",
+      "placeholder.questionContent": "Question content",
+      "placeholder.explanation": "Explanation",
+      "placeholder.answer": "Answer ...",
+      "label.answer": "Answer",
+      "label.correctAnswer": "Correct",
+      "alert.maxAnswers": "You can add a maximum of {maxAnswers} answers",
+      "toast": {
+        "error": {
+          "questionEmpty": "The question content cannot be empty.",
+          "insufficientAnswers": "There must be at least 2 valid answers.",
+          "noCorrectAnswer": "At least one correct answer must be selected.",
+          "emptyAnswer": "The answer cannot be empty.",
+          "maxAnswers": "You can add a maximum of {{maxAnswers}} answers."
+        },
+        "success": {
+          "questionCreated": "Question saved successfully!"
+        }
+      },
+      "icon.deleteAnswer": "Delete Answer",
+      "icon.close": "Close",
+      "icon.add": "Add",
+      "dropdown.instructionOptions": [
+        "Choose the best answer:",
+        "Choose the correct answer:",
+        "Select the correct option:",
+        "Choose the most suitable options:"
+      ],
+      "noAttachment": "No attachments",
+      "noContent": "No lesson content",
+      "minutes": "minutes",
+      "question": "Question",
+      "addQuestion": "Add Question"
+    }    
   }
 }
