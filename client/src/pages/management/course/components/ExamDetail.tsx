@@ -9,7 +9,7 @@ import { Question, StudyItem } from 'api/get/get.interface'
 import React, { useEffect, useState } from 'react'
 import AddQuestionForm from './AddQuestionForm'
 import { IconButton, Modal } from '@mui/material'
-import { DeleteOutline, EditTwoTone, VisibilityOff } from '@mui/icons-material'
+import { DeleteOutline, EditTwoTone, Preview, VisibilityOff } from '@mui/icons-material'
 import EditQuestionForm from './EditQuestionForm'
 import { deleteQuestion } from 'api/delete/delete.api'
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator'
@@ -22,6 +22,8 @@ import DeleteModal from 'pages/management/component/DeleteModal'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify'
 import { QuillEditor, QuillEditorQuestion } from './QuillEditor'
+import HiddenModal from 'pages/management/component/HiddenModal'
+import QuestionDetail from './QuestionDetail'
 
 interface DetailProps {
   studyItem: StudyItem
@@ -35,6 +37,7 @@ const ExamDetail: React.FC<DetailProps> = ({ studyItem, load, userId, courseStat
   const [questions, setQuestions] = useState<Question[]>([])
   const [isAddingQuestion, setIsAddingQuestion] = useState(false)
   const [selectedQuestion, setSelectedQuestion] = useState<Question | null>(null)
+  const [selectedShowQuestion, setSelectedShowQuestion] = useState<Question | null>(null)
   const [selectedHiddenQuestion, setSelectedHiddenQuestion] = useState<number | null>(null)
   const [selectedDeleteQuestion, setSelectedDeleteQuestion] = useState<number | null>(null)
   const isRequestStatus = [1, 5, 6, 7].includes(courseStatus)
@@ -137,11 +140,11 @@ const ExamDetail: React.FC<DetailProps> = ({ studyItem, load, userId, courseStat
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        className="flex items-center group w-full justify-between hover:pt-1 hover:border-b-2"
+                        className="flex items-center group w-full justify-between pl-1 hover:pl-2 hover:border-b-2 bg-white"
                       >
                         <div className="flex items-center flex-wrap">
                           <div className='font-medium text-sm w-auto'>
-                          {t('curriculum.question')} {question.order}:
+                            {t('curriculum.question')} {question.order}:
                           </div>
                           <div className='ml-2 flex justify-between items-center' >
                             <QuillEditorQuestion
@@ -153,6 +156,9 @@ const ExamDetail: React.FC<DetailProps> = ({ studyItem, load, userId, courseStat
                           </div>
                         </div>
                         <div className='flex' {...provided.dragHandleProps}>
+                          <IconButton onClick={() => setSelectedShowQuestion(question)} className="h-6 p-0 opacity-0 group-hover:opacity-100">
+                            <Preview fontSize="small" />
+                          </IconButton>
                           {(courseStatus === 0 || !isExamPublic) && (
                             <>
                               <IconButton onClick={() => setSelectedQuestion(question)} className="h-6 p-0 opacity-0 group-hover:opacity-100">
@@ -167,21 +173,24 @@ const ExamDetail: React.FC<DetailProps> = ({ studyItem, load, userId, courseStat
                             </>
                           )}
                           {(courseStatus > 1 && isExamPublic) &&
-                            <IconButton onClick={() => setSelectedHiddenQuestion(question.id ?? null)} className={`h-6 p-0 ${question.isQuestionStopped ? 'opacity-100' : 'opacity-0'} group-hover:opacity-100`}>
-                              <VisibilityOff fontSize="small" />
-                            </IconButton>
+                            <div>
+                              <IconButton disabled={question.isQuestionStopped} onClick={() => setSelectedHiddenQuestion(question.id ?? null)} className={`h-6 p-0 ${question.isQuestionStopped ? 'opacity-100' : 'opacity-0'} group-hover:opacity-100`}>
+                                <VisibilityOff fontSize="small" />
+                              </IconButton>
+                            </div>
+
                           }
-                          <DeleteModal
+                          <HiddenModal
                             isOpen={selectedHiddenQuestion === question.id}
                             onClose={() => setSelectedHiddenQuestion(null)}
-                            onDelete={async () => await handleStopUsingQuestion()}
-                            warningText={t('curriculum.warningHiddenQuestion')}
+                            onHidden={async () => await handleStopUsingQuestion()}
+                            warningText={t('Curriculum.warningHiddenQuestion')}
                           />
                           <DeleteModal
                             isOpen={selectedDeleteQuestion === question.id}
                             onClose={() => setSelectedDeleteQuestion(null)}
                             onDelete={async () => await handleDeleteQuestion()}
-                            warningText={t('curriculum.warningText')}
+                            warningText={t('Curriculum.warningText')}
                           />
                         </div>
                         <Modal
@@ -190,6 +199,14 @@ const ExamDetail: React.FC<DetailProps> = ({ studyItem, load, userId, courseStat
                           className='flex justify-center items-center'>
                           <div className=" max-w-4xl w-full max-h-[90vh] overflow-y-auto rounded-md">
                             <EditQuestionForm userId={userId} examId={studyItem.Exam?.studyItemId ?? 0} setIsAddingQuestion={() => setSelectedQuestion(null)} fetchQuestions={fetchQuestions} question={question} />
+                          </div>
+                        </Modal>
+                        <Modal
+                          open={selectedShowQuestion?.id === question.id}
+                          onClose={() => setSelectedShowQuestion(null)}
+                          className='flex justify-center items-center'>
+                          <div className=" max-w-4xl w-full max-h-[90vh] overflow-y-auto rounded-md">
+                            <QuestionDetail userId={userId} examId={studyItem.Exam?.studyItemId ?? 0} setIsAddingQuestion={() => setSelectedShowQuestion(null)} fetchQuestions={fetchQuestions} question={question} />
                           </div>
                         </Modal>
                       </div>

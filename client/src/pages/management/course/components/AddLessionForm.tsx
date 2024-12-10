@@ -13,6 +13,7 @@ import { Document, Page } from 'react-pdf'
 import { QuillEditor } from './QuillEditor'
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
+import { useMediaQuery } from 'react-responsive'
 
 interface AddExamFormProps {
   userId: number
@@ -38,6 +39,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
   const [progress, setProgress] = useState<number>(0)
   const [cancelToken, setCancelToken] = useState<CancelTokenSource | null>(null)
   const [numPages, setNumPages] = useState<number | null>(null)
+  const isSmallScreen = useMediaQuery({ maxWidth: 767 })
 
   const handleUpload = async (file: File): Promise<void> => {
     const formData = new FormData()
@@ -175,7 +177,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
           <div className='flex flex-wrap gap-2'>
             <div className='w-28 border-2 bg-teal-500 rounded-md p-2 items-center text-center hover:bg-teal-400'>
               <label className="cursor-pointer text-white">
-              {t('curriculum.addVideo')}
+                {t('curriculum.addVideo')}
                 <input
                   type="file"
                   accept="video/*"
@@ -186,7 +188,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
             </div>
             <div className='w-28 border-2 bg-teal-500 rounded-md p-2 items-center text-center hover:bg-teal-400'>
               <label className="cursor-pointer text-white">
-              {t('curriculum.addPdf')}
+                {t('curriculum.addPdf')}
                 <input
                   type="file"
                   accept="application/pdf"
@@ -207,16 +209,25 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
                   <Document
                     file={uploadedUrl}
                     onLoadSuccess={onDocumentLoadSuccess}
+                    onLoadError={console.error}
                   >
                     {(numPages != null) && Array.from(new Array(numPages), (el, index) => (
-                      <Page key={`page_${index + 1}`} pageNumber={index + 1} scale={1.5} />
+                      <React.Fragment key={`page_${index + 1}`}>
+                        <Page
+                          pageNumber={index + 1}
+                          scale={isSmallScreen ? 0.7 : 1.5}
+                          className="pdf-page"
+                          renderMode="canvas"
+                        />
+                        {index < numPages - 1 && <div className="border-t border-gray-200 my-2" />}
+                      </React.Fragment>
                     ))}
                   </Document>
                 </div>
               ))}
             <div className='border-2 bg-teal-500 rounded-md text-center p-2 hover:bg-teal-400'>
               <label className="cursor-pointer text-white">
-              {t('curriculum.changeVideo')}
+                {t('curriculum.changeVideo')}
                 <input
                   type="file"
                   accept="video/*"
@@ -227,7 +238,7 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
             </div>
             <div className='border-2 bg-teal-500 rounded-md text-center p-2 hover:bg-teal-400'>
               <label className="cursor-pointer text-white">
-              {t('curriculum.changePdf')}
+                {t('curriculum.changePdf')}
                 <input
                   type="file"
                   accept="application/pdf"
@@ -253,8 +264,8 @@ const AddLessionForm: React.FC<AddExamFormProps> = ({ setIsAddingLession, userId
       </div>
       <div className='w-full space-x-2 justify-end flex'>
         <div className='p-2 cursor-pointer flex justify-center items-center gap-1 text-white text-lg hover:bg-teal-400 bg-teal-500 rounded-md active:scale-95' onClick={handleAddLesson}>
-        {t('curriculum.button.save')}
-        <Save fontSize='small'/>
+          {t('curriculum.button.save')}
+          <Save fontSize='small' />
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
-import React, { useMemo, useState, useRef, WheelEventHandler } from 'react'
+import React, { useMemo, useState, useRef } from 'react'
 import { StudyItem } from 'api/get/get.interface'
 import 'react-quill/dist/quill.bubble.css'
 import { StyledQuill } from './ReactQuillConfig'
@@ -18,25 +19,21 @@ const LessionDetail: React.FC<DetailProps> = ({ studyItem, load }): JSX.Element 
   const [numPages, setNumPages] = useState<number>(1)
   const { t } = useTranslation()
   const [scale, setScale] = useState<number>(1.5)
-  const documentContainerRef = useRef<HTMLDivElement>(null)
+  // const documentContainerRef = useRef<HTMLDivElement>(null)
   const isSmallScreen = useMediaQuery({ maxWidth: 767 })
 
   // Hàm xử lý sự kiện 'dblclick' để phóng to
-  const handleDoubleClick = () => {
-    setScale(prevScale => Math.min(prevScale + 0.5, 2)) // Tăng scale lên mỗi lần double-click
-  }
+  // const handleDoubleClick = () => {
+  //   setScale((prevScale) => Math.min(prevScale + 0.5, 2)) // Tăng scale lên mỗi lần double-click, tối đa là 2
+  // }
+
+  // // Thu nhỏ khi single-click
+  // const handleClick = () => {
+  //   setScale((prevScale) => Math.max(prevScale - 0.5, 1)) // Giảm scale xuống mỗi lần click, tối thiểu là 1
+  // }
 
   const onDocumentLoadSuccess = ({ numPages }: { numPages: number }): void => {
     setNumPages(numPages)
-  }
-
-  const handleWheel: WheelEventHandler<HTMLDivElement> = (event) => {
-    if (event.ctrlKey) { // Kiểm tra nếu người dùng đang giữ phím Ctrl
-      const newScale = scale + (event.deltaY < 0 ? 0.1 : -0.1)
-      setScale(prevScale => Math.max(0.5, Math.min(2, newScale)))
-    } else {
-      window.scrollBy(0, event.deltaY)
-    }
   }
 
   const renderLessonContent = (type: string, locationPath: string): JSX.Element => {
@@ -47,9 +44,9 @@ const LessionDetail: React.FC<DetailProps> = ({ studyItem, load }): JSX.Element 
         return (
           <div
             className="overflow-y-auto w-full h-96 pdf-container"
-            onWheel={handleWheel}
-            ref={documentContainerRef}
-            onDoubleClick={handleDoubleClick} // Xử lý sự kiện double-click
+            // ref={documentContainerRef}
+            // onDoubleClick={handleDoubleClick}
+            // onClick={handleClick}
           >
             <Document
               file={(locationPath ?? '')}

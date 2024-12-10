@@ -551,12 +551,17 @@
       }
     },
     "Curriculum": {
-      "warningText": "Bạn muốn xóa chương trình giảng dạy này",
+      "warningText": "Bạn muốn xóa thành phần này",
       "warningHiddenQuestion": "Câu hỏi sẽ không được sử dụng trong bài kiểm tra từ thời điểm này"
     },
     "deleteModal": {
-      "title": "Xác nhận xóa",
-      "yes": "Xóa",
+      "title": "Bạn có chắc không?",
+      "yes": "Chắc chắn",
+      "no": "Hủy"
+    },
+    "hiddenModal": {
+      "title": "Bạn có chắc không?",
+      "yes": "Chắc chắn",
       "no": "Hủy"
     },
     "pricingandpublishing": {
@@ -1075,10 +1080,18 @@
       "label.answer": "Đáp án",
       "label.correctAnswer": "Đúng",
       "alert.maxAnswers": "Chỉ được thêm tối đa {maxAnswers} đáp án",
-      "toast.error.questionEmpty": "Vui lòng viết câu hỏi",
-      "toast.error.insufficientAnswers": "Vui lòng viết ít nhất hai đáp án",
-      "toast.error.noCorrectAnswer": "Vui lòng chọn ít nhất một đáp án đúng",
-      "toast.success.questionCreated": "Câu hỏi đã được tạo thành công",
+      "toast": {
+        "error": {
+          "questionEmpty": "Nội dung câu hỏi không được để trống.",
+          "insufficientAnswers": "Phải có ít nhất 2 đáp án hợp lệ.",
+          "noCorrectAnswer": "Phải chọn ít nhất một đáp án đúng.",
+          "emptyAnswer": "Đáp án không được để trống.",
+          "maxAnswers": "Chỉ được thêm tối đa {{maxAnswers}} đáp án"
+        },
+        "success": {
+          "questionCreated": "Lưu câu hỏi thành công!"
+        }
+      },
       "icon.deleteAnswer": "Xóa đáp án",
       "icon.close": "Đóng",
       "icon.add": "Thêm",

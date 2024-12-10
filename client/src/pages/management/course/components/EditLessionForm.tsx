@@ -19,6 +19,7 @@ import { Document, Page } from 'react-pdf'
 import { QuillEditor } from './QuillEditor'
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
+import { useMediaQuery } from 'react-responsive'
 
 interface EditExamFormProps {
   userId: number
@@ -42,6 +43,7 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
   const [progress, setProgress] = useState<number>(0)
   const [cancelToken, setCancelToken] = useState<CancelTokenSource | null>(null)
   const [numPages, setNumPages] = useState<number | null>(null)
+  const isSmallScreen = useMediaQuery({ maxWidth: 767 })
 
   useEffect(() => {
     if (studyItem.Lession != null) {
@@ -211,9 +213,18 @@ const EditLessionForm: React.FC<EditExamFormProps> = ({
                   <Document
                     file={uploadedUrl}
                     onLoadSuccess={onDocumentLoadSuccess}
+                    onLoadError={console.error}
                   >
                     {(numPages != null) && Array.from(new Array(numPages), (el, index) => (
-                      <Page key={`page_${index + 1}`} pageNumber={index + 1} scale={1.5} />
+                      <React.Fragment key={`page_${index + 1}`}>
+                        <Page
+                          pageNumber={index + 1}
+                          scale={isSmallScreen ? 0.7 : 1.5}
+                          className="pdf-page"
+                          renderMode="canvas"
+                        />
+                        {index < numPages - 1 && <div className="border-t border-gray-200 my-2" />}
+                      </React.Fragment>
                     ))}
                   </Document>
                 </div>

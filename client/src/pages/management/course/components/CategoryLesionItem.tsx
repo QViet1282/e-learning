@@ -195,7 +195,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
   return (
     <div key={lessionCategoryId} className="px-4 py-2 my-1 flex flex-col bg-gradient-to-r from-gray-50 to-gray-100 shadow-lg rounded-lg">
       <div className="flex items-center justify-between group">
-        <div className="flex items-center w-4/5">
+        <div className="flex items-center w-4/5 pt-2">
           <div className="text-xl font-medium leading-6 tracking-wide mr-2 whitespace-nowrap overflow-hidden break-words text-ellipsis max-w-full">
             {t('curriculum.categoryLession')} {order}: {nameCategory}
           </div>
@@ -210,7 +210,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
               isOpen={openModalDeleteLessionCategory}
               onClose={() => setOpenModalDeleteLessionCategory(false)}
               onDelete={async () => await handleDeleteCategoryLession()}
-              warningText={t('curriculum.warningText')}
+              warningText={t('Curriculum.warningText')}
             />
           </div>
         </div>
@@ -287,7 +287,7 @@ const CategoryLessonItem: React.FC<CategoryItemProps> = ({ lessionCategoryId, us
                                   isOpen={seletedDeleteStudyItem === studyItem.id}
                                   onClose={() => setSeletedDeleteStudyItem(null)}
                                   onDelete={async () => await handleDeleteStudyItem(studyItem.itemType)}
-                                  warningText={t('curriculum.warningText')}
+                                  warningText={t('Curriculum.warningText')}
                                 />
                               </div>
                             </div>

@@ -24,7 +24,7 @@ interface EditExamFormProps {
 
 const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, userId, examId, fetchQuestions, question }): JSX.Element => {
   const { t } = useTranslation()
-  const maxAnswers = 16
+  const maxAnswers = 8
   const [answers, setAnswers] = useState<Array<{ content: string, isCorrect: boolean }>>(
     Array.from({ length: 2 }, () => ({ content: '', isCorrect: false }))
   )
@@ -94,11 +94,16 @@ const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, us
       toast.error(t('curriculum.toast.error.questionEmpty'))
       return
     }
-
+    const hasEmptyAnswer = answers.some((answer) => answer.content.trim() === '')
     const filteredAnswers = answers.filter((answer) => answer.content.trim() !== '')
 
     if (filteredAnswers.length < 2) {
       toast.error(t('curriculum.toast.error.insufficientAnswers'))
+      return
+    }
+
+    if (hasEmptyAnswer) {
+      toast.error(t('curriculum.toast.error.emptyAnswer'))
       return
     }
 
@@ -126,14 +131,6 @@ const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, us
       f: answers[5]?.content ?? '',
       g: answers[6]?.content ?? '',
       h: answers[7]?.content ?? '',
-      i: answers[8]?.content ?? '',
-      j: answers[9]?.content ?? '',
-      k: answers[10]?.content ?? '',
-      l: answers[11]?.content ?? '',
-      m: answers[12]?.content ?? '',
-      n: answers[13]?.content ?? '',
-      o: answers[14]?.content ?? '',
-      p: answers[15]?.content ?? '',
       answer: correctAnswers
     }
 
@@ -172,105 +169,107 @@ const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, us
   }
 
   return (
-        <div className="flex flex-col px-4 py-2 border-2 border-gray-200 bg-white">
-            <div className="flex justify-between items-center">
-                <p className="font-bold text-lg">{t('curriculum.placeholder.questionContent')}</p>
-                <IconButton onClick={() => setIsAddingQuestion(false)}>
-                    <Close />
-                </IconButton>
-            </div>
+    <div className="flex flex-col px-4 py-2 border-2 border-gray-200 bg-white">
+      <div className="flex justify-between items-center">
+        <p className="font-bold text-lg">{t('curriculum.placeholder.questionContent')}</p>
+        <IconButton onClick={() => setIsAddingQuestion(false)}>
+          <Close />
+        </IconButton>
+      </div>
+      <div>
+        <select
+          value={dataQuestion.instruction}
+          onChange={handleInstructionChange}
+          className="my-2 border text-sm border-gray-300 h-9 p-2 focus:outline-none"
+        >
+          <option value="">{t('curriculum.placeholder.instruction')}</option>
+          {instructions.map((instruction, index) => (
+            <option key={index} value={instruction}>{index + 1}.{instruction}</option>
+          ))}
+        </select>
 
-            <select
-                value={dataQuestion.instruction}
-                onChange={handleInstructionChange}
-                className="my-2 border text-sm border-gray-300 h-9 p-2 focus:outline-none"
-            >
-                <option value="">{t('curriculum.placeholder.instruction')}</option>
-                {instructions.map((instruction, index) => (
-                    <option key={index} value={instruction}>{index + 1}.{instruction}</option>
-                ))}
-            </select>
-
-            <div className="">
-                <QuillEditorQuestion theme='snow' value={dataQuestion.content} onChange={(value) => {
-                  setDataQuestion({ ...dataQuestion, content: value })
-                }}
-                // modules={modules}
-                // className="mt-2 text-xl"
-                placeholder={t('curriculum.placeholder.questionContent').toString()}
-                />
-            </div>
-
-            <div className="mt-2">
-                <div className="flex flex-wrap">
-                    {answers.map((answer, index) => (
-                        <div key={index} className="flex items-center w-full group">
-                            <div className='w-8 items-center opacity-0 group-hover:opacity-100'>
-                                {answers.length > 2 && (
-                                    <div
-                                        className="cursor-pointer"
-                                        onClick={() => handleDeleteAnswer(index)} // Gọi hàm xóa đáp án
-                                    >
-                                        <DeleteOutlined />
-                                    </div>
-                                )}
-                            </div>
-                            <textarea
-                                value={answer.content}
-                                placeholder={`${t('curriculum.label.answer')} ${1 + index}`}
-                                onChange={(e) => handleAnswerChange(index, e.target.value)}
-                                className='w-10/12 h-9 items-center pt-2 px-2 border-solid text-sm border-gray-300 focus:outline-none'
-                                style={{ borderWidth: '1px' }}
-                            />
-                            <div className='flex justify-center items-center w-1/12 ml-2'>
-                                <Checkbox
-                                    key={index}
-                                    checked={answer.isCorrect}
-                                    onChange={() => handleCorrectChange(index)} />
-                                <label className="hidden md:block">{t('curriculum.label.correctAnswer')}</label>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-                <div className="flex flex-wrap">
-                    <div className="flex items-center w-full mt-1">
-                        <div className='w-8'></div>
-                        <textarea
-                            placeholder={t('curriculum.placeholder.answer').toString()}
-                            className='w-10/12 h-9 items-center pt-2 px-2 text-sm border-solid border-gray-300 focus:outline-none'
-                            style={{ borderWidth: '1px' }}
-                            readOnly
-                        />
-                        <div className='flex justify-center items-center w-1/12 border-2 ml-3 py-1 hover:bg-slate-100 cursor-pointer' onClick={handleAddAnswer}>
-                            <Add />
-                            {/* <label className="">Thêm</label> */}
-                        </div>
-                    </div>
-                    <textarea
-                        value={dataQuestion.explanation}
-                        placeholder={t('curriculum.placeholder.explanation').toString()}
-                        onChange={(e) => setDataQuestion({ ...dataQuestion, explanation: e.target.value })}
-                        className='w-full h-14 items-center mt-2 pt-1 px-2 text-sm border-solid border-gray-300 focus:outline-none'
-                        style={{ borderWidth: '1px' }}
-                    />
-                </div>
-            </div>
-
-            <div className='flex justify-end w-full'>
-                <div
-                    onClick={() => {
-                      handleSubmit().catch(error => {
-                        console.error('Error while submitting:', error)
-                      })
-                    }}
-                    className="p-2 cursor-pointer flex justify-center items-center gap-1 mt-2 text-white text-lg hover:bg-teal-400 bg-teal-500  rounded-md active:scale-95"
-                >
-                    {t('curriculum.button.save')}
-                    <Save fontSize='small'/>
-                </div>
-            </div>
-
+        <div className="">
+          <QuillEditorQuestion theme='snow' value={dataQuestion.content} onChange={(value) => {
+            setDataQuestion({ ...dataQuestion, content: value })
+          }}
+            // modules={modules}
+            // className="mt-2 text-xl"
+            placeholder={t('curriculum.placeholder.questionContent').toString()}
+          />
         </div>
+
+        <div className="mt-2">
+          <div className="flex flex-wrap">
+            {answers.map((answer, index) => (
+              <div key={index} className="flex items-center w-full group">
+                <div className='w-8 items-center opacity-0 group-hover:opacity-100'>
+                  {answers.length > 2 && (
+                    <div
+                      className="cursor-pointer"
+                      onClick={() => handleDeleteAnswer(index)} // Gọi hàm xóa đáp án
+                    >
+                      <DeleteOutlined />
+                    </div>
+                  )}
+                </div>
+                <textarea
+                  value={answer.content}
+                  placeholder={`${t('curriculum.label.answer')} ${1 + index}`}
+                  onChange={(e) => handleAnswerChange(index, e.target.value)}
+                  className='w-10/12 h-9 items-center pt-2 px-2 border-solid text-sm border-gray-300 focus:outline-none'
+                  style={{ borderWidth: '1px' }}
+                />
+                <div className='flex justify-center items-center w-1/12 ml-2'>
+                  <Checkbox
+                    key={index}
+                    checked={answer.isCorrect}
+                    onChange={() => handleCorrectChange(index)} />
+                  <label className="hidden md:block">{t('curriculum.label.correctAnswer')}</label>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="flex flex-wrap">
+            <div className="flex items-center w-full mt-1">
+              <div className='w-8'></div>
+              <textarea
+                placeholder={t('curriculum.placeholder.answer').toString()}
+                className='w-10/12 h-9 items-center pt-2 px-2 text-sm border-solid border-gray-300 focus:outline-none'
+                style={{ borderWidth: '1px' }}
+                readOnly
+              />
+              <div className='flex justify-center items-center w-1/12 border-2 ml-3 py-1 hover:bg-slate-100 cursor-pointer' onClick={handleAddAnswer}>
+                <Add />
+                {/* <label className="">Thêm</label> */}
+              </div>
+            </div>
+            <textarea
+              value={dataQuestion.explanation}
+              placeholder={t('curriculum.placeholder.explanation').toString()}
+              onChange={(e) => setDataQuestion({ ...dataQuestion, explanation: e.target.value })}
+              className='w-full h-14 items-center mt-2 pt-1 px-2 text-sm border-solid border-gray-300 focus:outline-none'
+              style={{ borderWidth: '1px' }}
+            />
+          </div>
+        </div>
+
+        <div className='flex justify-end w-full'>
+          <div
+            onClick={() => {
+              handleSubmit().catch(error => {
+                console.error('Error while submitting:', error)
+              })
+            }}
+            className="p-2 cursor-pointer flex justify-center items-center gap-1 mt-2 text-white text-lg hover:bg-teal-400 bg-teal-500  rounded-md active:scale-95"
+          >
+            {t('curriculum.button.save')}
+            <Save fontSize='small' />
+          </div>
+        </div>
+
+      </div>
+
+    </div>
   )
 }
 
