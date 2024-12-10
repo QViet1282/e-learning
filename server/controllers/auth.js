@@ -89,11 +89,49 @@ router.get('/google/callback', (req, res, next) => {
     }
   })(req, res, next)
 })
+router.post('/register/check', async (req, res) => {
+  try {
+    const { username, email, password } = req.body.data
+    console.log(username, email, password, 'check----------------------------1')
 
+    const userByUsername = await models.User.findOne({
+      where: { username }
+    })
+
+    const userByEmail = await models.User.findOne({
+      where: { email }
+    })
+
+    if (userByUsername) {
+      return res.status(409).json({
+        code: 409,
+        message: 'Username already exists'
+      })
+    }
+
+    if (userByEmail) {
+      return res.status(409).json({
+        code: 409,
+        message: 'Email already exists'
+      })
+    }
+    return res.json({
+      username,
+      email,
+      status: 'Register success!'
+    })
+  } catch (error) {
+    console.error('Error during user registration:', error)
+    return res.status(500).json({
+      code: 500,
+      message: 'Internal server error. Please try again later'
+    })
+  }
+})
 router.post('/register', async (req, res) => {
   try {
     const { username, email, password } = req.body.data
-    console.log(username, email)
+    console.log(username, email, password, 'check---------------1')
 
     const userByUsername = await models.User.findOne({
       where: { username }

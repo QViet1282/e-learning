@@ -23,8 +23,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 dir("${APP_DIR}/server") {
-                        sh 'pm2 delete all || true' 
-                        sh 'pm2 start yarn --name "myapp" -- start' 
+                        sh 'pm2 restart myapp || pm2 start yarn --name "myapp" -- start'
                         sh 'pm2 save'
                     }
             }
