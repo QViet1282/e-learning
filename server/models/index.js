@@ -15,7 +15,7 @@ const Role = require('./role')
 const CategoryCourse = require('./category_course')
 
 const Notification = require('./notification')
-const NotificationRecipient = require('./notification_recipient')
+const AlertRecipientsList = require('./alert_recipients_list')
 const Order = require('./order')
 const Payment = require('./payment')
 const PayoutRequest = require('./payout_requests')
@@ -26,11 +26,11 @@ CategoryLession.belongsTo(Course, { foreignKey: 'courseId' })
 Role.hasMany(User, { foreignKey: 'roleId' })
 User.belongsTo(Role, { foreignKey: 'roleId' })
 
-NotificationRecipient.belongsTo(User, { foreignKey: 'userId' })
-NotificationRecipient.belongsTo(Notification, { foreignKey: 'notificationId' })
+AlertRecipientsList.belongsTo(User, { foreignKey: 'userId' })
+AlertRecipientsList.belongsTo(Notification, { foreignKey: 'notificationId' })
 
-User.belongsToMany(Notification, { through: NotificationRecipient, foreignKey: 'userId' })
-Notification.belongsToMany(User, { through: NotificationRecipient, foreignKey: 'notificationId' })
+User.belongsToMany(Notification, { through: AlertRecipientsList, foreignKey: 'userId' })
+Notification.belongsToMany(User, { through: AlertRecipientsList, foreignKey: 'notificationId' })
 
 UserAnswerHistory.belongsTo(User, { foreignKey: 'userId' })
 UserAnswerHistory.belongsTo(Exam, { foreignKey: 'examId' })
@@ -113,7 +113,7 @@ module.exports = {
     Question,
     User,
     Notification,
-    NotificationRecipient,
+    AlertRecipientsList,
     UserAnswerHistory,
     UserEnterExitExamRoom,
     TempUserAnswer,

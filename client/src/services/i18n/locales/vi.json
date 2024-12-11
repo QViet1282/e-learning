@@ -551,12 +551,17 @@
       }
     },
     "Curriculum": {
-      "warningText": "Bạn muốn xóa chương trình giảng dạy này",
+      "warningText": "Bạn muốn xóa thành phần này",
       "warningHiddenQuestion": "Câu hỏi sẽ không được sử dụng trong bài kiểm tra từ thời điểm này"
     },
     "deleteModal": {
-      "title": "Xác nhận xóa",
-      "yes": "Xóa",
+      "title": "Bạn có chắc không?",
+      "yes": "Chắc chắn",
+      "no": "Hủy"
+    },
+    "hiddenModal": {
+      "title": "Bạn có chắc không?",
+      "yes": "Chắc chắn",
       "no": "Hủy"
     },
     "pricingandpublishing": {
@@ -1015,6 +1020,92 @@
         "courseId": "Mã khóa học",
         "isManagement": "Quản lý khóa học"
       }
+    },
+    "curriculum": {
+      "title": "Chương trình giảng dạy",
+      "addNewCategoryTitle": "Thêm chương học mới",
+      "categoryNamePlaceholder": "Tên chương",
+      "saveCategoryButton": "Lưu chương",
+      "addNewCategoryButton": "Thêm một chương mới",
+      "errorCategoryName": "Vui lòng nhập tên chương!",
+      "successCreateCategory": "Tạo thành công",
+      "errorCreateCategory": "Lỗi. Xin hãy thử lại!",
+      "errorUpdateCategory": "Lỗi. Xin hãy thử lại!",
+      "successDeleteCategory": "Xóa thành công",
+      "errorDeleteCategory": "Không thể xóa. Có phần tử liên kết với chương này.",
+      "errorDeleteStudyItem": "Không thể xóa. Có câu hỏi liên kết với bài kiểm tra này.",
+      "errorDeleteQuestion": "Có lỗi xảy ra khi xóa câu hỏi.",
+      "successDeleteStudyItem": "Xóa thành công",
+      "curriculum.warningText": "Bạn có chắc chắn muốn xóa không?",
+      "categoryLession": "Chương",
+      "button.saveCategory": "Lưu chương",
+      "button.edit": "Chỉnh sửa tên chương học",
+      "button.delete": "Xóa",
+      "modal.editLessionForm": "Chỉnh sửa bài học",
+      "modal.editExamForm": "Chỉnh sửa trắc nghiệm",
+      "button.addLesson": "Thêm bài học",
+      "button.addExam": "Thêm trắc nghiệm",
+      "button.cancel": "Hủy bỏ",
+      "button.save": "Lưu dữ liệu",
+      "errorCreateLesson": "Vui lòng nhập tên bài học!",
+      "successCreateLesson": "Tạo thành công",
+      "errorCreateLessonRetry": "Lỗi. Xin hãy thử lại!",
+      "addLesson": "Thêm bài học",
+      "lessonName": "Tên bài học",
+      "lessonDescription": "Mô tả",
+      "mainContent": "Nội dung chính",
+      "addVideo": "Thêm video",
+      "addPdf": "Thêm PDF",
+      "changeVideo": "Thay đổi video",
+      "changePdf": "Thay đổi PDF",
+      "uploadPregress": "Đang tải lên:",
+      "addExamTitle": "Thêm bài kiểm tra",
+      "examName": "Tên bài kiểm tra",
+      "requiredPoints": "Điểm đạt yêu cầu",
+      "examDuration": "Thời gian làm bài",
+      "attemptsNumber": "Số lần thử",
+      "description": "Mô tả",
+      "saveExam": "Lưu bài kiểm tra",
+      "enterExamName": "Vui lòng nhập tên bài kiểm tra!",
+      "createSuccess": "Tạo thành công",
+      "createError": "Lỗi. Xin hãy thử lại!",
+      "button.saveQuestion": "Lưu câu hỏi",
+      "button.saveExam": "Lưu bài kiểm tra",
+      "button.saveChanges": "Lưu các thay đổi",
+      "button.addAnswer": "Thêm",
+      "placeholder.instruction": "Hướng dẫn trả lời (Có thể không chọn)",
+      "placeholder.questionContent": "Nội dung câu hỏi",
+      "placeholder.explanation": "Giải thích",
+      "placeholder.answer": "Đáp án ...",
+      "label.answer": "Đáp án",
+      "label.correctAnswer": "Đúng",
+      "alert.maxAnswers": "Chỉ được thêm tối đa {maxAnswers} đáp án",
+      "toast": {
+        "error": {
+          "questionEmpty": "Nội dung câu hỏi không được để trống.",
+          "insufficientAnswers": "Phải có ít nhất 2 đáp án hợp lệ.",
+          "noCorrectAnswer": "Phải chọn ít nhất một đáp án đúng.",
+          "emptyAnswer": "Đáp án không được để trống.",
+          "maxAnswers": "Chỉ được thêm tối đa {{maxAnswers}} đáp án"
+        },
+        "success": {
+          "questionCreated": "Lưu câu hỏi thành công!"
+        }
+      },
+      "icon.deleteAnswer": "Xóa đáp án",
+      "icon.close": "Đóng",
+      "icon.add": "Thêm",
+      "dropdown.instructionOptions": [
+        "Chọn câu trả lời đúng nhất:",
+        "Chọn câu trả lời đúng:",
+        "Hãy chỉ ra sự lựa chọn đúng:",
+        "Chọn những phương án phù hợp nhất:"
+      ],
+      "noAttachment": "Không có file đính kèm",
+      "noContent": "Không có nội dung bài học",
+      "minutes": "phút",
+      "question": "Câu",
+      "addQuestion": "Thêm câu hỏi"
     }
   }
 }
