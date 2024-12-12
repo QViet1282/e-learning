@@ -258,15 +258,7 @@ const Question = (props: Props) => {
               { value: props?.option_5 ?? '', label: 'e' },
               { value: props?.option_6 ?? '', label: 'f' },
               { value: props?.option_7 ?? '', label: 'g' },
-              { value: props?.option_8 ?? '', label: 'h' },
-              { value: props?.option_9 ?? '', label: 'i' },
-              { value: props?.option_10 ?? '', label: 'j' },
-              { value: props?.option_11 ?? '', label: 'k' },
-              { value: props?.option_12 ?? '', label: 'l' },
-              { value: props?.option_13 ?? '', label: 'm' },
-              { value: props?.option_14 ?? '', label: 'n' },
-              { value: props?.option_15 ?? '', label: 'o' },
-              { value: props?.option_16 ?? '', label: 'p' }
+              { value: props?.option_8 ?? '', label: 'h' }
             ]}
             disabled={isInViewMode}
             correctAnswer={props?.correctAnswer}

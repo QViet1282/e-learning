@@ -42,14 +42,6 @@ export interface Question {
   f?: string
   g?: string
   h?: string
-  i?: string
-  j?: string
-  k?: string
-  l?: string
-  m?: string
-  n?: string
-  o?: string
-  p?: string
   answer?: string
   explanation?: string
   isQuestionStopped: boolean

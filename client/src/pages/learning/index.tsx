@@ -888,8 +888,8 @@ const Learning = () => {
     // console.log('alreadyWatched', alreadyWatched)
     // console.log('watchRef.current', watchRef.current)
     // console.log('percentagePlayed', percentagePlayed)
-    // Chỉ thêm tiến trình nếu bài học chưa được xem và đạt đủ % đã xem (ví dụ: >= 10%)
-    if (percentagePlayed >= 10 && !alreadyWatched && !watchRef.current) {
+    // Chỉ thêm tiến trình nếu bài học chưa được xem và đạt đủ % đã xem (ví dụ: >= 80%)
+    if (percentagePlayed >= 80 && !alreadyWatched && !watchRef.current) {
       watchRef.current = true
       const payload = {
         lessionId: lession?.id,

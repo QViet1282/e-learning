@@ -35,7 +35,7 @@ async function createQuestions (req) {
 
   // Duyệt qua các phần tử trong body request để lấy thông tin câu hỏi
   req.body.results.forEach((element) => {
-    const { a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p } = getOptions(element) // Lấy các tùy chọn trả lời cho câu hỏi
+    const { a, b, c, d, e, f, g, h } = getOptions(element) // Lấy các tùy chọn trả lời cho câu hỏi
     const type = getQuestionType(element) // Xác định loại câu hỏi (chọn 1 hoặc chọn nhiều)
     const answer = element.correct_response.join('::') // Lưu đáp án chính xác dưới dạng chuỗi
 
@@ -52,14 +52,6 @@ async function createQuestions (req) {
       f,
       g,
       h,
-      i,
-      j,
-      k,
-      l,
-      m,
-      n,
-      o,
-      p, // Các tùy chọn trả lời
       answer, // Đáp án chính xác
       explanation: element.prompt.explanation // Giải thích cho câu hỏi
     }
@@ -82,7 +74,7 @@ function getQuestionType (element) {
 
 // Lấy các tùy chọn trả lời cho câu hỏi
 function getOptions (element) {
-  let a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p
+  let a, b, c, d, e, f, g, h
   // Lấy tùy chọn trả lời tương ứng với chỉ số
   if (getAnswerAt(element, 0) !== undefined) { a = getAnswerAt(element, 0) }
   if (getAnswerAt(element, 1) !== undefined) { b = getAnswerAt(element, 1) }
@@ -92,15 +84,7 @@ function getOptions (element) {
   if (getAnswerAt(element, 5) !== undefined) { f = getAnswerAt(element, 5) }
   if (getAnswerAt(element, 6) !== undefined) { g = getAnswerAt(element, 6) }
   if (getAnswerAt(element, 7) !== undefined) { h = getAnswerAt(element, 7) }
-  if (getAnswerAt(element, 8) !== undefined) { i = getAnswerAt(element, 8) }
-  if (getAnswerAt(element, 9) !== undefined) { j = getAnswerAt(element, 9) }
-  if (getAnswerAt(element, 10) !== undefined) { k = getAnswerAt(element, 10) }
-  if (getAnswerAt(element, 11) !== undefined) { l = getAnswerAt(element, 11) }
-  if (getAnswerAt(element, 12) !== undefined) { m = getAnswerAt(element, 12) }
-  if (getAnswerAt(element, 13) !== undefined) { n = getAnswerAt(element, 13) }
-  if (getAnswerAt(element, 14) !== undefined) { o = getAnswerAt(element, 14) }
-  if (getAnswerAt(element, 15) !== undefined) { p = getAnswerAt(element, 15) }
-  return { a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p }
+  return { a, b, c, d, e, f, g, h }
 }
 
 // Tạo mới kỳ thi trong cơ sở dữ liệu

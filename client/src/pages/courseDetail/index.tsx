@@ -27,7 +27,7 @@ import bannerDark from '../../assets/images/courseDetail/inner-banner2.jpg'
 import TimerIcon from '@mui/icons-material/Timer'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
-import ShareIcon from '@mui/icons-material/Share'
+import ShareButton from './components/ShareButton'
 import ModalEnrollComponent from 'components/ModelEnroll'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
@@ -696,10 +696,7 @@ const CourseDetail = () => {
                           </button>
                         )
                       )}
-                      <button className='text-red-400 flex-1 border border-red-400 rounded-3xl p-2 text-sm hover:bg-red-400 hover:text-white transition-colors duration-200 font-bold'>
-                        <ShareIcon className='mr-2' />
-                        {t('course_detail.share')}
-                      </button>
+                      <ShareButton />
                     </div>
                   </div>
                   <div className='flex justify-center mt-4'>

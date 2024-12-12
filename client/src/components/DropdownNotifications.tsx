@@ -15,9 +15,10 @@ import NotificationsNoneOutlinedIcon from '@mui/icons-material/NotificationsNone
 import { setNotification, deleteNotification, selectNotifications, selectTotalNotifications, updateStatus, updateAllStatus, removeAllNotificationsSlice, setTotal } from '../redux/notification/notifySlice'
 import { getNotifications, readNotification, readAllNotification, markUnread, markAllUnread, removeNotification, removeAllNotification } from 'api/post/post.api'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
+import TuneRoundedIcon from '@mui/icons-material/TuneRounded'
 import { PulseLoader } from 'react-spinners'
-import CloseIcon from '@mui/icons-material/Close'
-import CheckIcon from '@mui/icons-material/Check'
+import RemoveCircleOutlineSharpIcon from '@mui/icons-material/RemoveCircleOutlineSharp'
+import CheckCircleOutlineSharpIcon from '@mui/icons-material/CheckCircleOutlineSharp'
 import LensIcon from '@mui/icons-material/Lens'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import { toast } from 'react-toastify'
@@ -275,31 +276,31 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
              onFocus={() => setDropdownOpen(true)}
              onBlur={() => setDropdownOpen(false)}
            >
-             <div className="text-xs font-semibold text-slate-400 uppercase pt-1.5 pb-2 px-4 flex items-center justify-between">
+             <div className="text-xs font-semibold text-black uppercase pt-1.5 pb-2 px-4 flex items-center justify-between bg-teal-300">
                <div>{t('notification.notifications')}</div>
                <div className="relative">
-                 <MoreHorizIcon
-                   className="cursor-pointer rounded-full hover:bg-slate-200 mx-4"
+                 <TuneRoundedIcon
+                   className="cursor-pointer hover:bg-slate-200 mx-4"
                    onClick={toggleMainMenu}
                  />
                  {isMainMenuOpen && (
-                   <div className="absolute right-0 mt-2 sm:w-72 w-40 bg-teal-200 shadow-2xl rounded-2xl border z-30">
+                   <div className="absolute right-0 mt-2 sm:w-72 w-40 bg-teal-200 shadow-2xl border z-30">
                      <div className="absolute -top-2 right-5 w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-teal-200"></div>
                      <ul className='m-2 text-xs text-slate-800 normal-case'>
-                       <li className="px-4 py-2 hover:bg-slate-100 cursor-pointer font-bold rounded-2xl" onClick={async () => {
+                       <li className="px-4 py-2 hover:bg-slate-100 cursor-pointer font-bold " onClick={async () => {
                          await handleMarkAllAsRead()
                        }}>
-                         <CheckIcon className='mr-2' />{t('notification.mark_all_as_read')}
+                         <CheckCircleOutlineSharpIcon className='mr-2' />{t('notification.mark_all_as_read')}
                        </li>
-                       <li className="px-4 py-2 hover:bg-slate-100 cursor-pointer font-bold rounded-2xl" onClick={async () => {
+                       {/* <li className="px-4 py-2 hover:bg-slate-100 cursor-pointer font-bold" onClick={async () => {
                          await handleMarkAllAsUnread()
                        }}>
                          <NotificationsIcon className='mr-2' />{t('notification.mark_all_as_unread')}
-                       </li>
-                       <li className="px-4 py-2 hover:bg-slate-100 cursor-pointer font-bold rounded-2xl" onClick={async () => {
+                       </li> */}
+                       <li className="px-4 py-2 hover:bg-slate-100 cursor-pointer font-bold" onClick={async () => {
                          await handleRemoveAllNotifications()
                        }}>
-                         <CloseIcon className='mr-2' />{t('notification.removed_all_notifications')}
+                         <RemoveCircleOutlineSharpIcon className='mr-2' />{t('notification.removed_all_notifications')}
                        </li>
                      </ul>
                    </div>
@@ -362,11 +363,11 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
                        onClick={() => toggleMenu(parseInt(notification.id))}
                      />
                      {openMenuId === parseInt(notification.id) && (
-                       <div className="absolute right-0 mt-2 w-72 bg-teal-200 shadow-2xl rounded-2xl border z-30">
+                       <div className="absolute right-0 mt-2 w-72 bg-teal-200 shadow-2xl border z-30">
                          <div className="absolute -top-2 right-5 w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-teal-200"></div>
                          <ul className='m-2 text-xs text-slate-800'>
                            <li
-                             className={`px-4 py-2 cursor-pointer font-bold rounded-2xl ${notification.status ? 'cursor-not-allowed opacity-50' : 'hover:bg-slate-100'}`}
+                             className={`px-4 py-2 cursor-pointer font-bold ${notification.status ? 'cursor-not-allowed opacity-50' : 'hover:bg-slate-100'}`}
                              onClick={async () => {
                                if (!notification.status) {
                                  console.log('notification.id', notification.id)
@@ -374,10 +375,10 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
                                }
                              }}
                            >
-                             <CheckIcon className='mr-2' />{t('notification.mark_as_read')}
+                             <CheckCircleOutlineSharpIcon className='mr-2' />{t('notification.mark_as_read')}
                            </li>
-                           <li
-                             className={`px-4 py-2  cursor-pointer font-bold rounded-2xl ${notification.status ? 'hover:bg-slate-100' : 'cursor-not-allowed opacity-50'}`}
+                           {/* <li
+                             className={`px-4 py-2  cursor-pointer font-bold ${notification.status ? 'hover:bg-slate-100' : 'cursor-not-allowed opacity-50'}`}
                              onClick={async () => {
                                if (notification.status) {
                                  await handleMarkAsUnread(notification.id)
@@ -385,14 +386,14 @@ function DropdownNotification ({ align }: DropdownNotificationProps) {
                              }}
                            >
                              <NotificationsIcon className='mr-2' />{t('notification.mark_as_unread')}
-                           </li>
+                           </li> */}
                            <li
-                             className='px-4 py-2 hover:bg-slate-100 cursor-pointer font-bold rounded-2xl'
+                             className='px-4 py-2 hover:bg-slate-100 cursor-pointer font-bold'
                              onClick={async () => {
                                await handleRemoveNotification(notification.id)
                              }}
                            >
-                             <CloseIcon className='mr-2' />{t('notification.removed_notification')}
+                             <RemoveCircleOutlineSharpIcon className='mr-2' />{t('notification.removed_notification')}
                            </li>
                          </ul>
                        </div>

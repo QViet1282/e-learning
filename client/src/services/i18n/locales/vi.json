@@ -274,7 +274,8 @@
       "adding": "Đang thêm...",
       "enrolling": "Đang ghi danh...",
       "go_to_cart": "Đi đến Giỏ Hàng",
-      "course_not_exist": "Khóa học không tồn tại hoặc đã bị xóa"
+      "course_not_exist": "Khóa học không tồn tại hoặc đã bị xóa",
+      "link_copied": "Đã sao chép liên kết"
     },
     "learning": {
       "updated_at": "Cập nhật vào",

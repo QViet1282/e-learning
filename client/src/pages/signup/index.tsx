@@ -270,6 +270,11 @@ const RegisterAndVerifyPage = () => {
 
   useEmailVerification(handleVerified)
 
+  const googleLogin = () => {
+    const backendUrl = process.env.REACT_APP_API
+    window.location.href = `${backendUrl}/auth/google` // URL của server để bắt đầu quá trình xác thực với Google
+  }
+
   return (
        <div className="flex h-screen items-center justify-center bg-gray-100 overflow-hidden">
          <div className="flex w-full h-full shadow-lg overflow-hidden relative">
@@ -546,15 +551,14 @@ const RegisterAndVerifyPage = () => {
                      <hr className="w-full border-t border-gray-400 ml-2" />
                    </div>
 
-                   <div className="mt-4 flex items-center justify-center space-x-4">
-                     <button className="flex items-center justify-center h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14 border rounded-full">
-                       <img
-                         src={google_icon}
-                         alt="Google"
-                         className="h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14"
-                       />
-                     </button>
-                   </div>
+                  <div className="mt-4 flex items-center justify-center space-x-4">
+                    <button
+                      className="flex items-center justify-center h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14 border rounded-full"
+                      onClick={googleLogin}
+                    >
+                      <img src={google_icon} alt="Google" className="h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14" />
+                    </button>
+                  </div>
 
                    <div className="mt-4 text-center">
                      <p className="text-gray-600">
