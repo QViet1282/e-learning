@@ -10,7 +10,7 @@ import Pagination from '../component/Pagination'
 import { createAndReplicateNotification } from 'api/post/post.api'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { PacmanLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 import { deleteNotification } from 'api/put/put.api'
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
@@ -165,7 +165,7 @@ const Notification = ({ courseId }: { courseId: number }) => {
         {loading
           ? (
             <div className="flex justify-center items-center w-full min-h-80 mt-40">
-              <PacmanLoader
+              <HashLoader
                 className='flex justify-center items-center w-full mt-20 min-h-96'
                 color='#5EEAD4'
                 cssOverride={{
@@ -174,9 +174,6 @@ const Notification = ({ courseId }: { courseId: number }) => {
                   borderColor: 'blue'
                 }}
                 loading
-                margin={10}
-                speedMultiplier={3}
-                size={40}
               />
             </div>
             )

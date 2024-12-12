@@ -17,7 +17,7 @@ import { getCommentsByCourseId, getCommentsByCourseIdPublic, addComment, updateC
 import { getFromLocalStorage } from 'utils/functions'
 import { Menu } from '@headlessui/react'
 import { FaStar, FaEllipsisV, FaStarHalfAlt } from 'react-icons/fa'
-import { ClipLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 import { useTranslation } from 'react-i18next'
 
 interface CommentSectionProps {
@@ -314,7 +314,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ courseId }) => {
       </div>
       <div className="space-y-6">
       {isLoading ? (
-        <p className="text-gray-500 text-center py-10"> <ClipLoader color='#5EEAD4' loading={isLoading} size={50} /></p>
+        <p className="text-gray-500 text-center py-10"> <HashLoader color='#5EEAD4' loading={isLoading}/></p>
       ) : comments.length === 0 ? (
         <p className="text-gray-500 text-center py-10">{t('commentSection.no_reviews')}</p>
       ) : (

@@ -16,7 +16,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getFromLocalStorage } from 'utils/functions'
-import { ClipLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 import { useTranslation } from 'react-i18next'
 import { getPurchaseHistory } from '../../api/post/post.api'
 interface Order {
@@ -68,7 +68,7 @@ const PurchaseHistory: React.FC = () => {
       {loading
         ? (
         <div className="flex justify-center items-center h-[40vh] ">
-          <ClipLoader color="#5EEAD4" loading={loading} size={50} />
+          <HashLoader color="#5EEAD4" loading={loading}/>
         </div>
           )
         : (

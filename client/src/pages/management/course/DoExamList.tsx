@@ -6,7 +6,7 @@ import { getExamsByCourseId } from 'api/get/get.api' // Thay đổi đường d�
 import { IconButton } from '@mui/material'
 import { Refresh, Search } from '@mui/icons-material'
 import Pagination from '../component/Pagination'
-import { PacmanLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 import { useTranslation } from 'react-i18next'
 
 interface DoExamProps {
@@ -97,7 +97,7 @@ const DoExamList: React.FC<DoExamProps> = ({ courseId }) => {
 
         {loading ? (
           <div className="flex justify-center items-center w-full min-h-96 mt-15">
-            <PacmanLoader
+            <HashLoader
               className='flex justify-center items-center w-full mt-20'
               color='#5EEAD4'
               cssOverride={{
@@ -106,9 +106,6 @@ const DoExamList: React.FC<DoExamProps> = ({ courseId }) => {
                 borderColor: 'blue'
               }}
               loading
-              margin={10}
-              speedMultiplier={3}
-              size={40}
             />
           </div>
         ) : (

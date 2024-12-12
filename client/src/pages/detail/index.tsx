@@ -20,7 +20,7 @@ import ModalComponent from 'components/Modal'
 import CountDownTimer from './components/timer/CountDownTimer'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
-import { ClipLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 
 enum Mode {
   VIEW = 'view',
@@ -260,7 +260,7 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
   return (
     isLoading ? (
     <div className="flex justify-center items-center h-[40vh]">
-      <ClipLoader color="red" loading={isLoading} size={50} />
+      <HashLoader color="#5EEAD4" loading={isLoading}/>
     </div>
     ) : (
     <FormProvider {...method}>

@@ -7,7 +7,7 @@ import PayoutCard from './components/PayoutCard'
 import StatisticsCards from './components/StatisticsCards'
 import { getAllPayout } from 'api/get/get.api'
 import { AxiosResponse } from 'axios'
-import { PacmanLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 import { Search } from '@mui/icons-material'
 import Pagination from '../component/Pagination'
 import { useTranslation } from 'react-i18next'
@@ -124,7 +124,7 @@ const PayoutPage: React.FC = () => {
         {loading
           ? (
             <div className="flex justify-center items-center w-full min-h-screen mt-15">
-              <PacmanLoader
+              <HashLoader
                 className='flex justify-center items-center w-full mt-20'
                 color='#5EEAD4'
                 cssOverride={{
@@ -133,9 +133,6 @@ const PayoutPage: React.FC = () => {
                   borderColor: 'blue'
                 }}
                 loading
-                margin={10}
-                speedMultiplier={3}
-                size={40}
               /></div>
           )
           : error

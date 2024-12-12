@@ -56,7 +56,7 @@ import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit'
 import { set } from 'react-hook-form'
 import CommentSection from './components/CommentSection'
-import { ClipLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 import { toast } from 'react-toastify'
 
 interface Course {

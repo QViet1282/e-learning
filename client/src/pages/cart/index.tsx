@@ -13,7 +13,7 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { ClipLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 import {
   selectCartItems,
   selectTotalPrice,
@@ -163,7 +163,7 @@ const CartPage: React.FC = () => {
       <h1 className="text-3xl font-bold mb-4">{t('cart.title')}</h1>
       {isLoading ? (
         <div className="flex justify-center items-center h-[40vh]">
-          <ClipLoader color="red" loading={isLoading} size={50} />
+          <HashLoader color="#5EEAD4" loading={isLoading}/>
         </div>
       ) : (
         <>
