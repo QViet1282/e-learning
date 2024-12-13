@@ -16,10 +16,10 @@ const generatePayments = async () => {
   for (let i = 0; i < 10; i++) {
     const randomIndex = Math.floor(Math.random() * orderIds.length)
     const orderId = orderIds.splice(randomIndex, 1)[0] // Lấy và loại bỏ orderId khỏi mảng
-    const amount = faker.finance.amount(50, 1000, 2)
+    const amount = 10000
     const paymentDate = faker.date.past()
     const transactionId = faker.datatype.uuid()
-    const status = faker.helpers.arrayElement(['COMPLETED', 'FAILED', 'PENDING'])
+    const status = faker.helpers.arrayElement(['COMPLETED'])
     payments.push({
       orderId,
       amount,

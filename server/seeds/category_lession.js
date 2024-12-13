@@ -11,19 +11,19 @@ const CategoryLession = require('../models/category_lession')
 // }
 const sampleNames = [
   'Frontend', 'Backend', 'NodeJS', 'Docker', 'Golang', 'Python',
-  'UX/UI Design', 'Digital Marketing', 'Project Management', 'Testing',
-  'Data Science', 'Machine Learning', 'Cybersecurity', 'Cloud Computing',
-  'Mobile Development', 'Artificial Intelligence', 'Blockchain',
-  'Big Data', 'Web Development', 'iOS Development', 'Android Development',
-  'Network Security', 'Game Development', 'DevOps', 'UI/UX Design',
-  'Software Engineering', 'Internet of Things', 'Agile Development',
-  'Database Management', 'Computer Vision', 'Natural Language Processing',
-  'UI Design Fundamentals', 'Web Security', 'Server Administration',
-  'Network Engineering', 'Embedded Systems', 'Software Testing',
-  'Content Management Systems', 'IoT Protocols', 'Cloud Security',
-  'eCommerce Platforms', 'Data Analysis', 'Algorithm Design',
-  'Project Planning', 'API Development', 'Machine Learning Algorithms',
-  'Mobile App Design'
+  'Thiết kế UX/UI', 'Tiếp thị Kỹ thuật số', 'Quản lý Dự án', 'Kiểm thử',
+  'Khoa học Dữ liệu', 'Học Máy', 'An ninh Mạng', 'Điện toán Đám mây',
+  'Phát triển Di động', 'Trí tuệ Nhân tạo', 'Blockchain',
+  'Dữ liệu Lớn', 'Phát triển Web', 'Phát triển iOS', 'Phát triển Android',
+  'An ninh Mạng', 'Phát triển Trò chơi', 'DevOps', 'Thiết kế UI/UX',
+  'Kỹ thuật Phần mềm', 'Internet Vạn Vật', 'Phát triển Agile',
+  'Quản lý Cơ sở Dữ liệu', 'Thị giác Máy tính', 'Xử lý Ngôn ngữ Tự nhiên',
+  'Cơ bản về Thiết kế UI', 'Bảo mật Web', 'Quản trị Máy chủ',
+  'Kỹ thuật Mạng', 'Hệ thống Nhúng', 'Kiểm thử Phần mềm',
+  'Hệ quản trị Nội dung', 'Giao thức IoT', 'An ninh Đám mây',
+  'Nền tảng Thương mại Điện tử', 'Phân tích Dữ liệu', 'Thiết kế Thuật toán',
+  'Lập Kế hoạch Dự án', 'Phát triển API', 'Thuật toán Học Máy',
+  'Thiết kế Ứng dụng Di động'
 ]
 
 // const generateCategoryLession = async () => {

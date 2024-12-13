@@ -58,6 +58,24 @@ const generateAdminUser = async () => {
   }
 }
 
+const generateGVUser = async () => {
+  const password = 'giangvien'
+  const hashPassword = bcrypt.hashSync(password, SALT_KEY)
+  return {
+    firstName: 'Giang',
+    lastName: 'Tran',
+    email: 'giangvien@gmail.com',
+    gender: 'Other',
+    age: 30,
+    password: hashPassword,
+    username: 'giangvientest',
+    refreshToken: faker.random.alphaNumeric(32),
+    expiredToken: faker.date.future(),
+    roleId: 2,
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }
+}
 const seedUsers = async () => {
   try {
     const count = await User.count()
@@ -65,6 +83,8 @@ const seedUsers = async () => {
       const users = await generateUsers()
       const adminUser = await generateAdminUser()
       users.push(adminUser)
+      const gvUser = await generateGVUser()
+      users.push(gvUser)
       await User.bulkCreate(users, { validate: true })
     } else {
       console.log('Users table is not empty.')

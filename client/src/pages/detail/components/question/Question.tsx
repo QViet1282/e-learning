@@ -36,14 +36,6 @@ interface QuestionProps {
   option_6?: string | null
   option_7?: string | null
   option_8?: string | null
-  option_9?: string | null
-  option_10?: string | null
-  option_11?: string | null
-  option_12?: string | null
-  option_13?: string | null
-  option_14?: string | null
-  option_15?: string | null
-  option_16?: string | null
   value?: string
   isCorrect: boolean
   explanation?: string | null

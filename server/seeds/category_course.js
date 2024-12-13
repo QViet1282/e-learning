@@ -12,14 +12,14 @@ const CategoryCourse = require('../models/category_course')
 //   }
 // }
 
-const sampleNames = ['Programming', 'Networking', 'Cybersecurity', 'Database Management', 'Web Development']
+const sampleNames = ['Lập trình', 'Mạng máy tính', 'An ninh mạng', 'Quản lý cơ sở dữ liệu', 'Phát triển web']
 
 const sampleDescriptions = [
-  'Programming courses teach fundamental concepts and skills required to develop software applications.',
-  'Networking courses focus on the design, implementation, and management of computer networks.',
-  'Cybersecurity courses cover techniques and practices to protect computer systems, networks, and data from cyber threats.',
-  'Database management courses explore the principles and techniques for organizing, storing, and retrieving data efficiently.',
-  'Web development courses focus on building and maintaining websites and web applications.'
+  'Các khóa học lập trình dạy các khái niệm cơ bản và kỹ năng cần thiết để phát triển ứng dụng phần mềm.',
+  'Các khóa học mạng máy tính tập trung vào thiết kế, triển khai và quản lý các mạng máy tính.',
+  'Các khóa học an ninh mạng bao gồm các kỹ thuật và thực hành bảo vệ hệ thống máy tính, mạng và dữ liệu khỏi các mối đe dọa mạng.',
+  'Các khóa học quản lý cơ sở dữ liệu khám phá các nguyên tắc và kỹ thuật để tổ chức, lưu trữ và truy xuất dữ liệu một cách hiệu quả.',
+  'Các khóa học phát triển web tập trung vào xây dựng và bảo trì các trang web và ứng dụng web.'
 ]
 
 const generateCategoryCourse = async () => {

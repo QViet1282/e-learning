@@ -17,10 +17,15 @@ const explanationData = [
   'RAM là bộ nhớ tạm thời trong máy tính, giúp lưu trữ dữ liệu khi máy tính hoạt động.',
   'IP là địa chỉ định danh các thiết bị trong mạng máy tính.',
   'HTML là ngôn ngữ đánh dấu siêu văn bản, được dùng để tạo cấu trúc cho trang web.',
-  'JavaScript là ngôn ngữ lập trình phía máy khách giúp tạo các tính năng động trên trang web.'
+  'JavaScript là ngôn ngữ lập trình phía máy khách giúp tạo các tính năng động trên trang web.',
+  'CSS là ngôn ngữ định kiểu được sử dụng để mô tả giao diện của một tài liệu viết bằng HTML.',
+  'SQL là ngôn ngữ truy vấn được sử dụng để giao tiếp với cơ sở dữ liệu.',
+  'Python là ngôn ngữ lập trình bậc cao được sử dụng cho nhiều mục đích khác nhau.',
+  'React là một thư viện JavaScript để xây dựng giao diện người dùng.',
+  'Node.js là một môi trường chạy JavaScript phía máy chủ.'
 ]
 
-const contentExamples = [
+const singleChoiceContentExamples = [
   'HTTP là gì?',
   'RAM là gì?',
   'IP là gì?',
@@ -28,7 +33,15 @@ const contentExamples = [
   'JavaScript là gì?'
 ]
 
-const answerOptions = [
+const multipleChoiceContentExamples = [
+  'CSS là gì?',
+  'SQL là gì?',
+  'Python là gì?',
+  'React là gì?',
+  'Node.js là gì?'
+]
+
+const singleChoiceAnswerOptions = [
   {
     a: 'Giao thức truyền tải siêu văn bản',
     b: 'Ngôn ngữ lập trình',
@@ -61,6 +74,55 @@ const answerOptions = [
   }
 ]
 
+const multipleChoiceAnswerOptions = [
+  {
+    a: 'Ngôn ngữ định kiểu',
+    b: 'Ngôn ngữ lập trình',
+    c: 'Hệ điều hành',
+    d: 'Phần mềm diệt virus'
+  },
+  {
+    a: 'Ngôn ngữ truy vấn',
+    b: 'Ngôn ngữ lập trình',
+    c: 'Giao thức kết nối internet',
+    d: 'Phần mềm bảo mật'
+  },
+  {
+    a: 'Ngôn ngữ lập trình bậc cao',
+    b: 'Ngôn ngữ lập trình bậc thấp',
+    c: 'Ngôn ngữ định kiểu',
+    d: 'Phần mềm mã nguồn mở'
+  },
+  {
+    a: 'Thư viện JavaScript',
+    b: 'Ngôn ngữ lập trình',
+    c: 'Cơ sở dữ liệu',
+    d: 'Phần mềm'
+  },
+  {
+    a: 'Môi trường chạy JavaScript phía máy chủ',
+    b: 'Ngôn ngữ lập trình',
+    c: 'Hệ điều hành',
+    d: 'Phần mềm diệt virus'
+  }
+]
+
+const singleChoiceCorrectAnswers = [
+  'a',
+  'a',
+  'a',
+  'a',
+  'a'
+]
+
+const multipleChoiceCorrectAnswers = [
+  'a::b',
+  'a::c',
+  'a::d',
+  'a::b',
+  'a::c'
+]
+
 const generateQuestions = async () => {
   const questions = []
   const exams = await Exam.findAll() // Lấy danh sách tất cả các bài thi (exams)
@@ -71,35 +133,25 @@ const generateQuestions = async () => {
     return questions
   }
 
-  const types = ['MULTIPLE_CHOICE', 'SINGLE_CHOICE']
-
   for (const examId of examIds) {
     for (let i = 0; i < 5; i++) { // Mỗi exam có 5 câu hỏi
-      const content = contentExamples[i]
-      const explanation = explanationData[i]
-      const questionType = faker.helpers.arrayElement(types) // Chọn kiểu câu hỏi ngẫu nhiên
-
-      let answer
-      if (questionType === 'MULTIPLE_CHOICE') {
-        // Chọn ngẫu nhiên từ 2 đến 4 đáp án và nối chúng bằng '::'
-        const selectedAnswers = faker.helpers.arrayElements(['a', 'b', 'c', 'd'], faker.datatype.number({ min: 2, max: 4 }))
-        answer = selectedAnswers.join('::')
-      } else {
-        // Chọn một đáp án duy nhất cho SINGLE_CHOICE
-        answer = faker.helpers.arrayElement(['a', 'b', 'c', 'd'])
-      }
+      const questionType = i % 2 === 0 ? 'SINGLE_CHOICE' : 'MULTIPLE_CHOICE' // Xen kẽ giữa SINGLE_CHOICE và MULTIPLE_CHOICE
+      const content = questionType === 'SINGLE_CHOICE' ? singleChoiceContentExamples[i % 5] : multipleChoiceContentExamples[i % 5]
+      const explanation = explanationData[i % 10]
+      const answerOptions = questionType === 'SINGLE_CHOICE' ? singleChoiceAnswerOptions[i % 5] : multipleChoiceAnswerOptions[i % 5]
+      const answer = questionType === 'SINGLE_CHOICE' ? singleChoiceCorrectAnswers[i % 5] : multipleChoiceCorrectAnswers[i % 5]
 
       questions.push({
         examId, // Gán examId vào câu hỏi
         instruction: faker.helpers.arrayElement(instructionExamples),
         content,
         type: questionType,
-        a: answerOptions[i].a,
-        b: answerOptions[i].b,
-        c: answerOptions[i].c,
-        d: answerOptions[i].d,
+        a: answerOptions.a,
+        b: answerOptions.b,
+        c: answerOptions.c,
+        d: answerOptions.d,
         order: i + 1, // Gán thứ tự câu hỏi (bắt đầu từ 1)
-        answer, // Đáp án được gán tùy theo kiểu câu hỏi
+        answer, // Đáp án chính xác
         explanation,
         createdAt: faker.date.past(),
         updatedAt: faker.date.recent()

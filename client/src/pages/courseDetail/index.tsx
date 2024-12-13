@@ -734,7 +734,6 @@ const CourseDetail = () => {
                     <div className='p-2'><BatteryChargingFullTwoToneIcon className='mr-3 text-indigo-800' />{t('course_detail.study_anywhere_anytime')}</div>
                     <div className='p-2'><KeyIcon className='mr-3 text-indigo-800' />{t('course_detail.full_life_time_access')}</div>
                     <div className='p-2'><AssignmentReturnedIcon className='mr-3 text-indigo-800' />{t('course_detail.assignments')}</div>
-                    <div className='p-2'><SchoolIcon className='mr-3 text-indigo-800' />{t('course_detail.certificate_of_completion')}</div>
                   </div>
                 </div>
               </div>
