@@ -274,7 +274,8 @@
       "enrolling": "Enrolling...",
       "go_to_cart": "Go to Cart",
       "requirements": "Requirements",
-      "course_not_exist": "The course does not exist or has been deleted"
+      "course_not_exist": "The course does not exist or has been deleted",
+      "link_copied": "Link copied"
     },
     "learning": {
       "updated_at": "Updated at",

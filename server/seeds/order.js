@@ -16,7 +16,7 @@ const generateOrder = async () => {
   for (let i = 0; i < 10; i++) {
     const userId = await generateUserId()
     const orderDate = faker.date.past()
-    const totalAmount = faker.finance.amount(50, 1000, 2)
+    const totalAmount = 10000
     orders.push({
       userId,
       orderDate,

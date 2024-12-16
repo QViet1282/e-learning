@@ -27,7 +27,7 @@ import bannerDark from '../../assets/images/courseDetail/inner-banner2.jpg'
 import TimerIcon from '@mui/icons-material/Timer'
 import MenuBookIcon from '@mui/icons-material/MenuBook'
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart'
-import ShareIcon from '@mui/icons-material/Share'
+import ShareButton from './components/ShareButton'
 import ModalEnrollComponent from 'components/ModelEnroll'
 import AddIcon from '@mui/icons-material/Add'
 import RemoveIcon from '@mui/icons-material/Remove'
@@ -56,7 +56,7 @@ import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit'
 import { set } from 'react-hook-form'
 import CommentSection from './components/CommentSection'
-import { ClipLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 import { toast } from 'react-toastify'
 
 interface Course {
@@ -696,10 +696,7 @@ const CourseDetail = () => {
                           </button>
                         )
                       )}
-                      <button className='text-red-400 flex-1 border border-red-400 rounded-3xl p-2 text-sm hover:bg-red-400 hover:text-white transition-colors duration-200 font-bold'>
-                        <ShareIcon className='mr-2' />
-                        {t('course_detail.share')}
-                      </button>
+                      <ShareButton />
                     </div>
                   </div>
                   <div className='flex justify-center mt-4'>
@@ -737,7 +734,6 @@ const CourseDetail = () => {
                     <div className='p-2'><BatteryChargingFullTwoToneIcon className='mr-3 text-indigo-800' />{t('course_detail.study_anywhere_anytime')}</div>
                     <div className='p-2'><KeyIcon className='mr-3 text-indigo-800' />{t('course_detail.full_life_time_access')}</div>
                     <div className='p-2'><AssignmentReturnedIcon className='mr-3 text-indigo-800' />{t('course_detail.assignments')}</div>
-                    <div className='p-2'><SchoolIcon className='mr-3 text-indigo-800' />{t('course_detail.certificate_of_completion')}</div>
                   </div>
                 </div>
               </div>

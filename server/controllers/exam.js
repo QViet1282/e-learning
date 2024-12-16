@@ -229,14 +229,6 @@ router.get('/:id/:attempt?', isAuthenticated, async (req, res) => {
         f: questionData.f,
         g: questionData.g,
         h: questionData.h,
-        i: questionData.i,
-        j: questionData.j,
-        k: questionData.k,
-        l: questionData.l,
-        m: questionData.m,
-        n: questionData.n,
-        o: questionData.o,
-        p: questionData.p,
         order: questionData.order,
         userAnswer, // Câu trả lời của người dùng
         isCorrect, // Câu trả lời đúng/sai

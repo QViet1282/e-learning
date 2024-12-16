@@ -16,12 +16,12 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getFromLocalStorage } from 'utils/functions'
-import { ClipLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 import { useTranslation } from 'react-i18next'
 import { getPurchaseHistory } from '../../api/post/post.api'
 interface Order {
   id: number
-  Payments: { paymentDate: string, paymentMethod: string, amount: number }[]
+  Payment: { paymentDate: string, paymentMethod: string, amount: number }
   Enrollments: { Course: { name: string, price: number, locationPath: string } }[]
 }
 
@@ -44,7 +44,7 @@ const PurchaseHistory: React.FC = () => {
       try {
         const response = await getPurchaseHistory(userId)
         const result = response.data
-
+        console.log('result', result)
         if (result.error === 0) {
           setOrders(result.data)
         }
@@ -68,7 +68,7 @@ const PurchaseHistory: React.FC = () => {
       {loading
         ? (
         <div className="flex justify-center items-center h-[40vh] ">
-          <ClipLoader color="#5EEAD4" loading={loading} size={50} />
+          <HashLoader color="#5EEAD4" loading={loading}/>
         </div>
           )
         : (
@@ -97,23 +97,19 @@ const PurchaseHistory: React.FC = () => {
                       {t('purchaseHistory.payment_info')}
                     </h3>
                     <ul className="mt-2">
-                      {order.Payments.map((payment, index) => (
-                        <li
-                          key={index}
-                          className="text-gray-600 text-sm flex flex-col sm:flex-row sm:justify-between py-1 border-b last:border-b-0"
-                        >
-                          <span>
-                            {t('purchaseHistory.payment_time')}:{' '}
-                            {new Date(payment.paymentDate).toLocaleString()}
-                          </span>
-                          <span>
-                            {t('purchaseHistory.payment_method')}: {payment.paymentMethod}
-                          </span>
-                          <span>
-                          {t('purchaseHistory.amount')}: {formatCurrency(payment.amount)}
-                          </span>
-                        </li>
-                      ))}
+                    {order.Payment && (
+                    <div className="text-gray-600 text-sm flex flex-col sm:flex-row sm:justify-between py-1 border-b last:border-b-0">
+                      <span>
+                        {t('purchaseHistory.payment_time')}: {new Date(order.Payment.paymentDate).toLocaleString()}
+                      </span>
+                      <span>
+                        {t('purchaseHistory.payment_method')}: {order.Payment.paymentMethod}
+                      </span>
+                      <span>
+                        {t('purchaseHistory.amount')}: {formatCurrency(Number(order.Payment.amount))}
+                      </span>
+                    </div>
+                    )}
                     </ul>
                   </div>
 
@@ -122,7 +118,7 @@ const PurchaseHistory: React.FC = () => {
                       {t('purchaseHistory.purchased_courses')}
                     </h3>
                     <ul className="mt-2 grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-                      {order.Enrollments.map((enrollment, index) => (
+                      {order.Enrollments?.map((enrollment, index) => (
                         <li
                           key={index}
                           className="flex items-center space-x-4 border p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow"

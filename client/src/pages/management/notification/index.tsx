@@ -13,7 +13,7 @@ import DeletedNotificationManager from './components/deletedNotificationManager'
 import { IconButton } from '@mui/material'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { PacmanLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
 
@@ -168,7 +168,7 @@ const NotificationManager = () => {
       {loading
         ? (
           <div className="flex justify-center items-center w-full min-h-screen mt-15">
-            <PacmanLoader
+            <HashLoader
               className='flex justify-center items-center w-full mt-20'
               color='#5EEAD4'
               cssOverride={{
@@ -177,9 +177,6 @@ const NotificationManager = () => {
                 borderColor: 'blue'
               }}
               loading
-              margin={10}
-              speedMultiplier={3}
-              size={40}
             />
           </div>
           )

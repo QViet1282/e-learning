@@ -13,7 +13,8 @@ const Payment = sequelize.define(
     },
     orderId: {
       type: DataTypes.BIGINT,
-      allowNull: false
+      allowNull: false,
+      unique: true
     },
     amount: {
       type: DataTypes.DECIMAL(15, 2),

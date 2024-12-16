@@ -92,7 +92,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({ user, onClose, roles, fet
     formData.append('file', image)
     formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
     formData.append('folder', 'avatar')
-    formData.append('public_id', uniqueId) // Add unique public_id
+    formData.append('public_id', `avatar/${uniqueId}`) // Add unique public_id
 
     const response = await axios.post(
       `https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/image/upload`,

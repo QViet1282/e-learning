@@ -1,6 +1,11 @@
 import styled from 'styled-components'
 
 const Styled = {
+  ButtonContainer: styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+`,
   CloseButton: styled.div`
     position: absolute;
     cursor: pointer;
@@ -18,51 +23,52 @@ const Styled = {
     height: 100vh;
 `,
   ModalChildren: styled.div`
-  position: relative;
-  background: white;
-  padding: 32px;
-  border-radius: 8px;
-  min-width: 300px;
-  max-width: 250px; // Adjust this to make the modal narrower
-  min-height: 150px; // Adjust this to make the modal shorter
-`,
+    position: relative;
+    background: white;
+    padding: 32px;
+    border-radius: 8px;
+    min-width: 300px;
+    max-width: 500px; // Increase modal width
+    // min-height: 300px; // Loại bỏ dòng này
+  `,
+  // ...existing code...
   ModalTitle: styled.div`
     font-weight: bold;
-    font-size: 28px;
-    text-align: center;
-    word-break: break-word
-`,
-  ModalDescription: styled.div`
-    margin-top: 12px;
-    font-size: 16px;
+    font-size: 24px; // Reduce font size
     text-align: center;
     word-break: break-word;
-`,
-  CancelButton: styled.button`
-    margin-top: 4px;
-    outline: none;
-    width: 100%;
-    border: none;
-    cursor: pointer;
-    background-color: #ff5858;
-    border-radius: 8px;
-    &:hover {
-        background-color: #d1061e;
-    }
-    height: 40px;
+  `,
+  // ...existing code...
+  ModalDescription: styled.div`
+    margin-top: 12px;
+    font-size: 14px; // Reduce font size
+    text-align: center;
+    word-break: break-word;
   `,
   OKButton: styled.button`
-    margin-top: 10px;
     outline: none;
     border: none;
-    width: 100%;
     color: white;
     height: 40px;
     cursor: pointer;
-    background-color: #42f572;
+    background-color: #3B82F8;
     border-radius: 8px;
+    width: 100px;
     &:hover {
-        background-color: #30d95d;
+      background-color: #285FB8;
+    }
+  `,
+  CancelButton: styled.button`
+    outline: none;
+    border: 2px solid red;
+    cursor: pointer;
+    background-color: white;
+    color: red;
+    border-radius: 8px;
+    height: 40px;
+    width: 100px;
+    &:hover {
+      background-color: #ffe6e6;
     }
   `
 }

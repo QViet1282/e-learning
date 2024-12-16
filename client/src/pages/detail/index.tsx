@@ -20,7 +20,7 @@ import ModalComponent from 'components/Modal'
 import CountDownTimer from './components/timer/CountDownTimer'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
-import { ClipLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 
 enum Mode {
   VIEW = 'view',
@@ -42,14 +42,6 @@ export interface Question {
   f: string | null
   g: string | null
   h: string | null
-  i: string | null
-  j: string | null
-  k: string | null
-  l: string | null
-  m: string | null
-  n: string | null
-  o: string | null
-  p: string | null
   createdAt: string
   score: string
   id: string
@@ -260,7 +252,7 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
   return (
     isLoading ? (
     <div className="flex justify-center items-center h-[40vh]">
-      <ClipLoader color="red" loading={isLoading} size={50} />
+      <HashLoader color="#5EEAD4" loading={isLoading}/>
     </div>
     ) : (
     <FormProvider {...method}>
@@ -362,14 +354,6 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
                 option_6={data.questions[currentQuestionIndex].f}
                 option_7={data.questions[currentQuestionIndex].g}
                 option_8={data.questions[currentQuestionIndex].h}
-                option_9={data.questions[currentQuestionIndex].i}
-                option_10={data.questions[currentQuestionIndex].j}
-                option_11={data.questions[currentQuestionIndex].k}
-                option_12={data.questions[currentQuestionIndex].l}
-                option_13={data.questions[currentQuestionIndex].m}
-                option_14={data.questions[currentQuestionIndex].n}
-                option_15={data.questions[currentQuestionIndex].o}
-                option_16={data.questions[currentQuestionIndex].p}
                 value={data.questions[currentQuestionIndex].userAnswer === null ? undefined : data.questions[currentQuestionIndex].userAnswer}
                 no={currentQuestionIndex + 1}
                 isCorrect={data.questions[currentQuestionIndex].isCorrect}
@@ -397,14 +381,6 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
                 option_6={i.f}
                 option_7={i.g}
                 option_8={i.h}
-                option_9={i.i}
-                option_10={i.j}
-                option_11={i.k}
-                option_12={i.l}
-                option_13={i.m}
-                option_14={i.n}
-                option_15={i.o}
-                option_16={i.p}
                 value={i.userAnswer === null ? undefined : i.userAnswer}
                 no={index + 1}
                 isCorrect={i.isCorrect}

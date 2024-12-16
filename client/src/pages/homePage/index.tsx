@@ -28,7 +28,7 @@ import HomeCourseCard from 'pages/homePage/components/HomeCourseCard'
 import SlideBar from 'pages/homePage/components/Slide'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
-import { PacmanLoader, ClipLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 import { ShowButtonTopContext, DivRefContext } from '../../containers/layouts/default'
 import { useTheme } from 'services/styled-themes'
 import imgHome from '../../assets/images/homePage/imgHome.png'
@@ -607,7 +607,7 @@ const HomePage = () => {
           )}
           {isLoading
             ? <div className="flex justify-center items-center w-full h-140 mt-20">
-              <PacmanLoader
+              <HashLoader
                 className='flex justify-center items-center w-full mt-20'
                 color='#5EEAD4'
                 cssOverride={{
@@ -616,9 +616,6 @@ const HomePage = () => {
                   borderColor: 'blue'
                 }}
                 loading
-                margin={10}
-                speedMultiplier={3}
-                size={40}
               /></div>
             : <div className='w-4/5 mx-auto pt-5'>
               <Tabs selectedIndex={currentTab} onSelect={(index) => setCurrentTab(index)}>
@@ -632,7 +629,7 @@ const HomePage = () => {
                   <div className='grid grid-cols-12 gap-6 mt-4 scroll-mt-32' ref={targetDivRef}>
                   {isLoadingCourse ? (
                   <div className="flex justify-center items-center w-full h-full col-span-12">
-                        <ClipLoader color="#5EEAD4" loading={isLoadingCourse} size={50} />
+                        <HashLoader color="#5EEAD4" loading={isLoadingCourse}/>
                   </div>
                   ) : dataState?.data?.length
                     ? (

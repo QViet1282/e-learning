@@ -2,10 +2,10 @@
 /* LOADABLE FALLBACK COMPONENT: LOADING
    ========================================================================== */
 import React from 'react'
-import { PacmanLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 const Loading = () => {
   return <div className="flex justify-center items-center w-full h-140 mt-20">
-       <PacmanLoader
+       <HashLoader
          className='flex justify-center items-center w-full mt-20'
          color='#5EEAD4'
          cssOverride={{
@@ -14,9 +14,6 @@ const Loading = () => {
            borderColor: 'blue'
          }}
          loading
-         margin={10}
-         speedMultiplier={3}
-         size={40}
        /></div>
 }
 

@@ -28,7 +28,18 @@ const generateUserId = async () => {
   return randomUserId
 }
 
-const userAnswerExample = ['insufficient light source', 'cannot see the license plate', 'traffic light is red', 'traffic light is green', 'speeding', 'broken', 'slippery road', 'road is too crowded', 'street light is not bright', 'traffic light is yellow']
+const userAnswerExample = [
+  'Đăng nhập không thành công',
+  'Kết nối mạng bị gián đoạn',
+  'Lỗi hệ thống',
+  'Mã thông báo hết hạn',
+  'Không thể truy cập cơ sở dữ liệu',
+  'Ứng dụng treo',
+  'Lỗi xác thực',
+  'Không đủ quyền truy cập',
+  'Giao diện người dùng không phản hồi',
+  'Dữ liệu không được lưu trữ'
+]
 
 const generateTempUserAnswer = async () => {
   const usedPairs = new Set()

@@ -21,8 +21,8 @@ const ModelEnrollComponent = ({
   onClose,
   onOk,
   onCancel,
-  cancelText = 'Cancel',
-  okText = 'OK'
+  cancelText = 'Hủy',
+  okText = 'Đồng ý'
 }: Props) => {
   return (
     <Modal open={isOpen}>
@@ -33,14 +33,10 @@ const ModelEnrollComponent = ({
           </Styled.CloseButton>
           <Styled.ModalTitle>{title}</Styled.ModalTitle>
           <Styled.ModalDescription>{description}</Styled.ModalDescription>
-          <div>
+          <Styled.ButtonContainer>
             <Styled.OKButton onClick={onOk}>{okText}</Styled.OKButton>
-          </div>
-          <div>
-            <Styled.CancelButton onClick={onCancel}>
-              {cancelText}
-            </Styled.CancelButton>
-          </div>
+            <Styled.CancelButton onClick={onCancel}>{cancelText}</Styled.CancelButton>
+          </Styled.ButtonContainer>
         </Styled.ModalChildren>
       </Styled.ModalContainer>
     </Modal>

@@ -10,7 +10,7 @@ import UserItem from './component/UserItem'
 import { Search } from '@mui/icons-material'
 import Modal from '@mui/material/Modal' // Thêm Modal từ MUI
 import EditUserModal from './component/EditUserModel'
-import { PacmanLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 import { useTranslation } from 'react-i18next'
 
 const UserManagementPage: React.FC = () => {
@@ -122,7 +122,7 @@ const UserManagementPage: React.FC = () => {
         {loading
           ? (
             <div className="flex justify-center items-center w-full min-h-screen mt-15">
-              <PacmanLoader
+              <HashLoader
                 className='flex justify-center items-center w-full mt-20'
                 color='#5EEAD4'
                 cssOverride={{
@@ -131,9 +131,6 @@ const UserManagementPage: React.FC = () => {
                   borderColor: 'blue'
                 }}
                 loading
-                margin={10}
-                speedMultiplier={3}
-                size={40}
               />
             </div>
           )

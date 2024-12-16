@@ -74,7 +74,7 @@ Order.belongsTo(User, { foreignKey: 'userId' })
 User.hasMany(Order, { foreignKey: 'userId' })
 
 Payment.belongsTo(Order, { foreignKey: 'orderId' })
-Order.hasMany(Payment, { foreignKey: 'orderId' })
+Order.hasOne(Payment, { foreignKey: 'orderId' })
 
 Enrollment.belongsTo(Order, { foreignKey: 'orderId' })
 Order.hasMany(Enrollment, { foreignKey: 'orderId' })

@@ -23,7 +23,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth'
 import FilterListIcon from '@mui/icons-material/FilterList'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import { styled } from '@mui/system'
-import { PacmanLoader } from 'react-spinners'
+import { HashLoader } from 'react-spinners'
 import FormatListBulletedOutlinedIcon from '@mui/icons-material/FormatListBulletedOutlined'
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined'
 interface ParamsList extends ListCourseParams {
@@ -270,78 +270,11 @@ const MyCourse = () => {
   const categoryNames = dataCategory?.map((item: { name: any }) => item.name) ?? []
   return (
     <div className='w-full mx-auto'>
-      <div className='flex justify-between items-center border-y-2'>
-        <div className='flex items-center w-full'>
-          <form className="flex flex-col sm:flex-row justify-between items-center rounded-lg w-full space-x-0 sm:space-x-2 py-2 sm:py-0" onSubmit={handleSearch}>
-            <div className='flex flex-col sm:flex-row items-center sm:space-x-0 px-2 space-x-0 w-full sm:w-5/12 md:w-1/2'>
-              <div className='flex sm:w-1/2 w-full space-x-2 items-center'>
-                <div className='font-bold items-center bg-gray-200 rounded-md h-11 sm:w-2/5 w-1/5'>
-                  <div className='p-2 flex justify-center items-center space-x-3 w-full'>
-                    <FilterListIcon />
-                    <div className='font-bold items-center hidden sm:hidden lg:flex'>{t('homepage.filter_label')}</div>
-                  </div>
-                </div>
-                <select
-                  className="h-10 p-2 text-gray-800 w-4/5 sm:w-3/5 outline-none cursor-pointer rounded-md border"
-                  value={categorySearch}
-                  onChange={handleCategoryChange}
-                >
-                  <option value="all">{t('homepage.all_courses')}</option>
-                  {categoryNames.map((name: string, index: number) => (
-                    <option key={index} value={name}>
-                      {name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex my-4 w-full sm:w-1/2 items-center justify-center sm:space-x-0 space-x-4">
-                <div className='font-bold md:hidden flex w-1/5 justify-end'>
-                  <div className='sm:hidden flex'>Search</div>
-                </div>
-                <div className='w-4/5 flex border border-gray-300 rounded-md'>
-                  <div className="p-2 bg-white border-r">
-                    <SearchIcon className="" />
-                  </div>
-                  <input
-                    className="py-2 px-4 outline-none w-full"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder={t('homepage.findByCourseName') ?? 'Defaultplaceholder'}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className='flex flex-col sm:flex-row items-center justify-between space-x-0 sm:space-x-4 space-y-2 sm:space-y-0 w-full sm:w-7/12 md:w-1/2 px-2'>
-              <div className='flex items-center space-x-4 w-full sm:w-auto justify-between'>
-                <div className='font-bold w-1/5 text-end justify-end flex sm:hidden md:flex'>{t('homepage.from_label')}</div>
-                  <input
-                    type='date'
-                    className='w-full text-gray-700 border rounded-md p-2 bg-white'
-                    value={startDate ? startDate.toISOString().substring(0, 10) : ''}
-                    onChange={handleStartDateChange}
-                  />
-              </div>
-              <div className='flex items-center space-x-4 w-full sm:w-auto justify-between'>
-                <div className='font-bold w-1/5 text-end justify-end flex sm:hidden md:flex'>{t('homepage.to_label')}</div>
-                  <input
-                    type='date'
-                    className='w-full text-gray-700 border rounded-md p-2 bg-white'
-                    value={endDate ? endDate.toISOString().substring(0, 10) : ''}
-                    onChange={handleEndDateChange}
-                  />
-              </div>
-              <div className='flex items-center'>
-                <button type='submit' className='bg-lime-500 hover:bg-lime-600 rounded-md font-bold px-7 sm:px-4 py-2 m-2 transition duration-200' onClick={handleSearch}>{t('homepage.find')}</button>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
       <div className='font-semibold text-2xl mt-8 ml-10'>{t('mycourse.myCourse')}</div>
       <div className='w-full flex items-center justify-center mt-8'>
         {isLoading
           ? <div className="flex justify-center items-center w-full h-140 mt-20">
-            <PacmanLoader
+            <HashLoader
               className='flex justify-center items-center w-full mt-20'
               color='#5EEAD4'
               cssOverride={{
@@ -350,9 +283,6 @@ const MyCourse = () => {
                 borderColor: 'blue'
               }}
               loading
-              margin={10}
-              speedMultiplier={3}
-              size={40}
             /></div>
           : <div className='w-11/12'>
             <Tabs selectedIndex={currentTab} onSelect={(index) => setCurrentTab(index)}>
