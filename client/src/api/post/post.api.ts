@@ -375,14 +375,38 @@ export const getUserOverview = async (): Promise<AxiosResponse<any>> => {
 export const getLearningProgress = async (page: number, limit: number): Promise<AxiosResponse<any>> => {
   return await requestWithJwt.get<any>(`/dashboard-report/learningProgress?page=${page}&limit=${limit}`)
 }
-export const getUserExamScores = async (courseId: number): Promise<AxiosResponse<any>> => {
-  return await requestWithJwt.get<any>(`/dashboard-report/userExamScores?courseId=${courseId}`)
+export const getUserExamScores = async (courseId: number, userId?: number): Promise<AxiosResponse<any>> => {
+  const queryParams = new URLSearchParams({ courseId: courseId.toString() })
+  if (userId != null) {
+    queryParams.append('userId', userId.toString())
+  }
+  return await requestWithJwt.get<any>(`/dashboard-report/userExamScores?${queryParams.toString()}`)
 }
-export const getUserExamResults = async (courseId: number): Promise<AxiosResponse<any>> => {
-  return await requestWithJwt.get<any>(`/dashboard-report/userExamResults?courseId=${courseId}`)
+export const getUserExamResults = async (courseId: number, userId?: number): Promise<AxiosResponse<any>> => {
+  const queryParams = new URLSearchParams({ courseId: courseId.toString() })
+  if (userId != null) {
+    queryParams.append('userId', userId.toString())
+  }
+  return await requestWithJwt.get<any>(`/dashboard-report/userExamResults?${queryParams.toString()}`)
 }
-export const getUserLessonResults = async (courseId: number): Promise<AxiosResponse<any>> => {
-  return await requestWithJwt.get<any>(`/dashboard-report/userLessonResults?courseId=${courseId}`)
+export const getUserLessonResults = async (courseId: number, userId?: number): Promise<AxiosResponse<any>> => {
+  const queryParams = new URLSearchParams({ courseId: courseId.toString() })
+  if (userId != null) {
+    queryParams.append('userId', userId.toString())
+  }
+  return await requestWithJwt.get<any>(`/dashboard-report/userLessonResults?${queryParams.toString()}`)
+}
+
+export const getTeacherComment = async (courseId: number, userId?: number): Promise<AxiosResponse<any>> => {
+  const queryParams = new URLSearchParams({ courseId: courseId.toString() })
+  if (userId != null) {
+    queryParams.append('userId', userId.toString())
+  }
+  return await requestWithJwt.get<any>(`/dashboard-report/teacherComment?${queryParams.toString()}`)
+}
+
+export const putTeacherComment = async (courseId: number, studentId: number, comment: string): Promise<AxiosResponse<any>> => {
+  return await requestWithJwt.put<any>(`/dashboard-report/${courseId.toString()}/teacher-comment`, { studentId, comment })
 }
 export const getUserDailyProgress = async (date: string): Promise<AxiosResponse<any>> => {
   return await requestWithJwt.get<any>(`/dashboard-report/userDailyProgress?date=${date}`)

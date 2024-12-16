@@ -91,6 +91,7 @@ export default function CourseDetailPage (): JSX.Element {
           fetchCourse={fetchCourse}
         />
       case 'Danh sách học viên':
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         return <StudentList courseId={course?.id} />
       case 'Kết quả các bài trắc nghiệm':
         return <DoExamList courseId={courseId} />

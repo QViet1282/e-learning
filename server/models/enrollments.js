@@ -45,6 +45,14 @@ const Enrollment = sequelize.define(
     ratingDate: {
       type: DataTypes.DATE,
       defaultValue: null
+    },
+    teacherComment: {
+      type: DataTypes.TEXT,
+      allowNull: true
+    },
+    teacherCommentDate: {
+      type: DataTypes.DATE,
+      defaultValue: null
     }
   },
   {
