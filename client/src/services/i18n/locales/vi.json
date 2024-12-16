@@ -592,6 +592,7 @@
     },
     "courseDetails": {
       "overview": "Đánh Giá Tiến Độ và Kết Quả Học Tập Cá Nhân",
+      "overview2": "Đánh Giá Tiến Độ và Kết Quả Học Tập Học Viên",
       "incompleteWarning": "Bạn chưa hoàn thành tất cả các bài kiểm tra hoặc bài học. Hãy hoàn thành để cải thiện đánh giá tổng quan!",
       "examCompletionRate": "Phần trăm bài kiểm tra đạt",
       "averageExamScore": "Phần trăm thành tích trung bình",
@@ -631,7 +632,12 @@
       "generalEvaluation": "Tổng Quan Kết Quả Học Tập",
       "highestScore": "Điểm cao nhất của bạn",
       "passingScore": "Điểm cần đạt",
-      "result": "Kết quả"
+      "result": "Kết quả",
+      "showTeacherAssessment": "Đánh giá từ giảng viên khóa học này",
+      "save": "Lưu dữ liệu",
+      "teacherAssessment": "Để lại đánh giá của bạn cho học viên này",
+      "success": "Lưu thành công",
+      "failed": "Lưu thất bại"
     },
     "notification": {
       "notifications": "Thông báo",
@@ -940,7 +946,8 @@
       "progressPercentage": "{percentage}%",
       "reloadButton": "Tải lại",
       "searchButton": "Tìm kiếm",
-      "searchQueryLog": "Tìm kiếm học viên với từ khóa: {searchQuery}"
+      "searchQueryLog": "Tìm kiếm học viên với từ khóa: {searchQuery}",
+      "close": "Đóng"
     },
     "examList": {
       "title": "Danh sách bài kiểm tra",
@@ -951,7 +958,8 @@
         "score": "Điểm:",
         "totalQuestions": "Tổng số câu hỏi:",
         "attempts": "Lần làm bài:",
-        "student": "Học viên:"
+        "student": "Học viên:",
+        "noExamsFound": "Không có bài kiểm tra nào được tìm thấy."
       },
       "reloadButton": "Tải lại",
       "searchButton": "Tìm kiếm",

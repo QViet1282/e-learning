@@ -1882,10 +1882,11 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs'
 import 'react-tabs/style/react-tabs.css'
 import { Doughnut, Bar, Line } from 'react-chartjs-2'
-import { getUserExamResults, getUserLessonResults, getUserExamScores, getEnrollmentByCourseId } from '../../../api/post/post.api'
+import { getUserExamResults, getUserLessonResults, getUserExamScores, getEnrollmentByCourseId, getTeacherComment } from '../../../api/post/post.api'
 import { FaStar, FaThumbsUp, FaExclamationCircle, FaFrown } from 'react-icons/fa'
 import { Pagination } from '@mui/material'
 import { useTranslation } from 'react-i18next'
+import { QuillEditorTeacherComment } from 'pages/management/course/components/QuillEditor'
 
 interface ExamResult {
   examId: number
@@ -1918,6 +1919,7 @@ const CourseDetailsPage: React.FC = () => {
   const [lessonResults, setLessonResults] = useState<LessonResult[]>([])
   const [examCompletionRate, setExamCompletionRate] = useState<number>(0)
   const [lessonCompletionRate, setLessonCompletionRate] = useState<number>(0)
+  const [teacherComment, setTeacherComment] = React.useState<string>('')
   const [showExamWarning, setShowExamWarning] = useState<boolean>(false)
   const [showLessonWarning, setShowLessonWarning] = useState<boolean>(false)
   // Ref cho biểu đồ đường
@@ -2035,6 +2037,9 @@ const CourseDetailsPage: React.FC = () => {
 
     const fetchData = async () => {
       try {
+        const teacherComment = await getTeacherComment(parseInt(courseId || '0', 10))
+        setTeacherComment(teacherComment.data.teacherComment)
+
         // Fetch Exam Results
         const examResponse = await getUserExamResults(parseInt(courseId || '0', 10))
         let exams = examResponse.data.examResults
@@ -2299,6 +2304,21 @@ const CourseDetailsPage: React.FC = () => {
                 </span>
               </div>
             </div>
+
+            {teacherComment &&
+            <div className="bg-white shadow p-6 rounded-lg mb-6">
+                <h3 className="text-lg font-semibold mb-2">{t('courseDetails.showTeacherAssessment')}</h3>
+                <div className='border-2 border-gray-100 rounded-sm pointer-events-none'>
+                  <QuillEditorTeacherComment
+                    theme='bubble'
+                    value={teacherComment}
+                    // modules={modules}
+                    // className='w-full pb-0 md:h-auto'
+                    readOnly={true}
+                />
+                </div>
+            </div>
+            }
 
              {/* Biểu đồ cột */}
              <div className="bg-white shadow p-6 rounded-lg mb-6" style={{ height: '300px' }}>

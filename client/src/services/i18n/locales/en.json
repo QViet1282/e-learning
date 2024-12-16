@@ -631,7 +631,12 @@
       "generalEvaluation": "Overall Study Results",
       "highestScore": "Your highest score",
       "passingScore": "Passing Score",
-      "result": "Result"
+      "result": "Result",
+      "showTeacherAssessment": "Instructor's assessment for this course",
+      "save": "Save data",
+      "teacherAssessment": "Leave your feedback for this student",
+      "success": "Save successful",
+      "failed": "Save failed"
     },
     "notification": {
       "notifications": "Notifications",
@@ -940,7 +945,8 @@
       "progressPercentage": "{percentage}%",
       "reloadButton": "Reload",
       "searchButton": "Search",
-      "searchQueryLog": "Searching students with keyword: {searchQuery}"
+      "searchQueryLog": "Searching students with keyword: {searchQuery}",
+      "close": "Close"
     },
     "examList": {
       "title": "Exam List",
@@ -951,7 +957,8 @@
         "score": "Score:",
         "totalQuestions": "Total Questions:",
         "attempts": "Attempts:",
-        "student": "Student:"
+        "student": "Student:",
+        "noExamsFound": "Không tìm thấy bài kiểm tra nào."
       },
       "reloadButton": "Reload",
       "searchButton": "Search",
@@ -1107,6 +1114,6 @@
       "minutes": "minutes",
       "question": "Question",
       "addQuestion": "Add Question"
-    }    
+    }
   }
 }

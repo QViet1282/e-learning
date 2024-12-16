@@ -859,8 +859,8 @@ router.get('/learningProgress', isAuthenticated, async (req, res) => {
 
 // Lấy kq thi + số lần kiểm tra của người
 router.get('/userExamScores', isAuthenticated, async (req, res) => {
-  const { courseId } = req.query
-  const loggedInUserId = req.user.id
+  const { courseId, userId: queryUserId } = req.query
+  const loggedInUserId = queryUserId || req.user.id
 
   try {
     const examScores = await sequelize.query(
@@ -1010,8 +1010,8 @@ router.get('/userHighestExamScores', isAuthenticated, async (req, res) => {
 // })
 // lấy bao gồm cả bài chưa làm -> điểm = 0
 router.get('/userExamResults', isAuthenticated, async (req, res) => {
-  const { courseId } = req.query
-  const loggedInUserId = req.user.id // Lấy ID người dùng hiện tại
+  const { courseId, userId: queryUserId } = req.query
+  const loggedInUserId = queryUserId || req.user.id
 
   try {
     const examResults = await sequelize.query(
@@ -1084,8 +1084,8 @@ router.get('/userExamResults', isAuthenticated, async (req, res) => {
 })
 
 router.get('/userLessonResults', isAuthenticated, async (req, res) => {
-  const { courseId } = req.query
-  const loggedInUserId = req.user.id
+  const { courseId, userId: queryUserId } = req.query
+  const loggedInUserId = queryUserId || req.user.id
 
   try {
     const lessonResults = await sequelize.query(
@@ -1203,6 +1203,85 @@ router.get('/userMonthlyProgress', isAuthenticated, async (req, res) => {
   } catch (error) {
     console.error('Error fetching monthly progress:', error)
     res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+router.put('/:courseId/teacher-comment', isAuthenticated, async (req, res) => {
+  const { courseId } = req.params
+  const { studentId, comment } = req.body
+
+  try {
+    const enrollment = await models.Enrollment.findOne({
+      include: [{
+        model: models.Order,
+        where: {
+          userId: studentId,
+          status: 1
+        }
+      }],
+      where: {
+        courseId,
+        status: 1
+      }
+    })
+
+    if (!enrollment) {
+      return res.status(404).json({ message: 'Enrollment does not exist' })
+    }
+
+    enrollment.teacherComment = comment
+    enrollment.teacherCommentDate = Date.now()
+
+    await enrollment.save()
+
+    const title = 'Teacher Feedback Received'
+    const message = 'Your Teacher has left feedback for you on course.'
+    const url = `/analysis-summary/${courseId}`
+    const notification = await models.Notification.create({ title, message, url })
+
+    await models.AlertRecipientsList.create({
+      notificationId: notification.id,
+      userId: studentId,
+      status: false
+    })
+
+    res.status(200).json({ enrollment })
+  } catch (error) {
+    console.error('Error adding instructor review:', error)
+    res.status(500).json({ message: 'Internal server error' })
+  }
+})
+
+router.get('/teacherComment', isAuthenticated, async (req, res) => {
+  const { courseId, userId: queryUserId } = req.query
+  const studentId = queryUserId || req.user.id
+
+  try {
+    const enrollment = await models.Enrollment.findOne({
+      include: [{
+        model: models.Order,
+        where: {
+          userId: studentId,
+          status: 1
+        }
+      }],
+      where: {
+        courseId,
+        status: 1
+      }
+    })
+
+    if (!enrollment) {
+      return res.status(404).json({ message: 'Enrollment does not exist' })
+    }
+
+    res.status(200).json({
+      teacherComment: enrollment.teacherComment,
+      teacherCommentDate: enrollment.teacherCommentDate
+    })
+  } catch (error) {
+    console.error('Error fetching teacher comment:', error)
+    res.status(500).json({ message: 'Internal server error' })
   }
 })
 

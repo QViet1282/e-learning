@@ -3,11 +3,12 @@
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 import React, { useEffect, useState } from 'react'
 import { getEnrollmentUserByCourseId } from 'api/get/get.api'
-import { IconButton } from '@mui/material'
+import { IconButton, Dialog, DialogContent, DialogActions, Button } from '@mui/material'
 import { Refresh, Search } from '@mui/icons-material'
 import Pagination from '../component/Pagination'
 import { HashLoader } from 'react-spinners'
 import { useTranslation } from 'react-i18next'
+import AnalysisSummary from './components/analysisSummary'
 
 interface StudentListProps {
   courseId?: number
@@ -31,6 +32,10 @@ const StudentList: React.FC<StudentListProps> = ({ courseId }) => {
   const [totalPages, setTotalPages] = useState(0)
   const [searchQuery, setSearchQuery] = useState('')
   const [totalStudents, setTotalStudents] = useState(0)
+
+  // Modal state
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const fetchStudents = async (page: number, search: string) => {
     setLoading(true)
@@ -58,6 +63,16 @@ const StudentList: React.FC<StudentListProps> = ({ courseId }) => {
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage)
+  }
+
+  const handleStudentClick = (student: Student) => {
+    setSelectedStudent(student)
+    setIsModalOpen(true)
+  }
+
+  const handleModalClose = () => {
+    setIsModalOpen(false)
+    setSelectedStudent(null)
   }
 
   return (
@@ -107,7 +122,8 @@ const StudentList: React.FC<StudentListProps> = ({ courseId }) => {
               students.map((student) => (
                 <div
                   key={student.id}
-                  className="flex items-center justify-between border-b-2 p-4 flex-wrap bg-white rounded-lg shadow-md mb-2"
+                  className="flex items-center justify-between border-b-2 p-2 md:p-4 flex-wrap bg-white rounded-lg shadow-md mb-2 cursor-pointer"
+                  onClick={() => handleStudentClick(student)}
                 >
                   {/* Avatar và thông tin */}
                   <div className="flex items-center space-x-4">
@@ -166,6 +182,29 @@ const StudentList: React.FC<StudentListProps> = ({ courseId }) => {
           onPageChange={handlePageChange}
         />
       </div>
+
+      {/* Modal hiển thị chi tiết sinh viên */}
+      <Dialog
+        open={isModalOpen}
+        onClose={handleModalClose}
+        maxWidth="lg"
+        fullWidth
+      >
+        {/* <DialogTitle>{t('courseDetails.overview2')}</DialogTitle> */}
+        <DialogContent>
+          {selectedStudent && (
+            <React.Fragment>
+              <AnalysisSummary studentId={selectedStudent.id} courseId={courseId?.toString()} studentName={`${selectedStudent.firstName} ${selectedStudent.lastName}`}/>
+            </React.Fragment>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleModalClose} color="primary">
+            {t('studentList.close')}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
     </div>
   )
 }
