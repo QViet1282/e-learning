@@ -1886,7 +1886,7 @@ import { getUserExamResults, getUserLessonResults, getUserExamScores, getEnrollm
 import { FaStar, FaThumbsUp, FaExclamationCircle, FaFrown } from 'react-icons/fa'
 import { Pagination } from '@mui/material'
 import { useTranslation } from 'react-i18next'
-import { QuillEditorTeacherComment } from 'pages/management/course/components/QuillEditor'
+import { QuillEditorShow, QuillEditorTeacherComment } from 'pages/management/course/components/QuillEditor'
 
 interface ExamResult {
   examId: number
@@ -2308,8 +2308,8 @@ const CourseDetailsPage: React.FC = () => {
             {teacherComment &&
             <div className="bg-white shadow p-6 rounded-lg mb-6">
                 <h3 className="text-lg font-semibold mb-2">{t('courseDetails.showTeacherAssessment')}</h3>
-                <div className='border-2 border-gray-100 rounded-sm pointer-events-none'>
-                  <QuillEditorTeacherComment
+                <div className='border-2 border-gray-100 rounded-sm'>
+                  <QuillEditorShow
                     theme='bubble'
                     value={teacherComment}
                     // modules={modules}
