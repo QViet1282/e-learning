@@ -9,7 +9,7 @@ import { ModalType } from '../..'
 import Styled from './index.style'
 import { useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-
+import { QuillEditorShow } from '../../../../pages/management/course/components/QuillEditor'
 export enum QUESTION_TYPE {
   MULTIPLE_CHOICE = 'MULTIPLE_CHOICE',
   SINGLE_CHOICE = 'SINGLE_CHOICE'
@@ -132,7 +132,14 @@ const MultiChoice = ({
                 onChange={(e) => handleChange(e.target.checked, item?.label)}
               />
               <Styled.MultiChoiceLabel disabled={disabled}>
-                <div dangerouslySetInnerHTML={{ __html: item?.value.toString() }}></div>
+                {/* <div dangerouslySetInnerHTML={{ __html: item?.value.toString() }}></div> */}
+                <div>
+                      <QuillEditorShow
+                        theme='bubble'
+                        value={item?.value.toString()}
+                        readOnly={true}
+                      />
+                </div>
               </Styled.MultiChoiceLabel>
               <Styled.ShowIcon>{showIcon(item?.label)}</Styled.ShowIcon>
             </Styled.MultiChoiceContainer>
@@ -197,7 +204,14 @@ const SingleChoice = ({
                 label={''}
                 disabled={disabled}
               />
-              <div dangerouslySetInnerHTML={{ __html: item?.value.toString() }}></div>
+              {/* <div dangerouslySetInnerHTML={{ __html: item?.value.toString() }}></div> */}
+              <div>
+                 <QuillEditorShow
+                   theme='bubble'
+                   value={item?.value.toString()}
+                   readOnly={true}
+                 />
+              </div>
               <Styled.ShowIcon>{showIcon(item?.label)}</Styled.ShowIcon>
             </Styled.FormControlLabelContainer>
           )
@@ -305,7 +319,14 @@ const Question = (props: Props) => {
         <Styled.QuestionNo>
           {t('detail.question_no') + ' ' + props?.no}:
         </Styled.QuestionNo>
-        <div dangerouslySetInnerHTML={{ __html: getTitleHTMLDisplay }}></div>
+        {/* <div dangerouslySetInnerHTML={{ __html: getTitleHTMLDisplay }}></div> */}
+        <div>
+          <QuillEditorShow
+            theme='bubble'
+            value={getTitleHTMLDisplay}
+            readOnly={true}
+          />
+        </div>
       </Styled.QuestionTitle>
       {renderTypeQuestion()}
       <Styled.QuestionExplanation>
@@ -319,7 +340,14 @@ const Question = (props: Props) => {
             <Styled.QuestionExplanationTitle>
             {t('detail.explanation')}
             </Styled.QuestionExplanationTitle>
-            <div dangerouslySetInnerHTML={{ __html: getExplanationHTMLDisplay }}></div>
+            {/* <div dangerouslySetInnerHTML={{ __html: getExplanationHTMLDisplay }}></div> */}
+            <div>
+              <QuillEditorShow
+                theme='bubble'
+                value={getExplanationHTMLDisplay}
+                readOnly={true}
+              />
+            </div>
           </>
         )}
       </Styled.QuestionExplanation>

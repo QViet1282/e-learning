@@ -21,7 +21,7 @@ import CountDownTimer from './components/timer/CountDownTimer'
 import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import { HashLoader } from 'react-spinners'
-
+import { QuillEditorShow, QuillEditorTeacherComment } from 'pages/management/course/components/QuillEditor'
 enum Mode {
   VIEW = 'view',
   TEST = 'test',
@@ -269,11 +269,13 @@ const Detail = ({ examId, attempt, mode, onBack, onSubmitComplete, onModeChange 
             </button>
             <div className="text-2xl font-bold">{data?.name}</div>
             {/* <div className="text-lg break-words">{data?.description}</div> */}
-            <div
-              className="ql-editor"
-              data-gramm="false"
-              dangerouslySetInnerHTML={{ __html: data?.description ?? '' }}
-            />
+            <div className='border-2 border-gray-100 rounded-sm'>
+              <QuillEditorShow
+                theme='bubble'
+                value={data.description ?? ''}
+                readOnly={true}
+              />
+            </div>
           </div>
           {validEndTime && (
             <CountDownTimer targetDate={validEndTime.getTime()}></CountDownTimer>

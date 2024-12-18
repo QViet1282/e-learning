@@ -58,7 +58,7 @@ import { set } from 'react-hook-form'
 import CommentSection from './components/CommentSection'
 import { HashLoader } from 'react-spinners'
 import { toast } from 'react-toastify'
-
+import { QuillEditorShow, QuillEditorTeacherComment } from 'pages/management/course/components/QuillEditor'
 interface Course {
   id: number
   name: string
@@ -549,11 +549,13 @@ const CourseDetail = () => {
                     readOnly={true}
                     theme="bubble"
                   /></div> */}
-                    <div
-                      className="ql-editor"
-                      data-gramm="false"
-                      dangerouslySetInnerHTML={{ __html: data?.summary ?? '' }}
-                    />
+                    <div className='border-2 border-gray-100 rounded-sm'>
+                      <QuillEditorShow
+                        theme='bubble'
+                        value={data.summary ?? ''}
+                        readOnly={true}
+                      />
+                    </div>
                     <div className='font-bold text-pretty mt-3'>{t('course_detail.what_u_will_learn')}</div>
                     <div className="grid md:grid-cols-2 gap-4 mt-3">
                       {data.description?.split('.').map((item, index) =>

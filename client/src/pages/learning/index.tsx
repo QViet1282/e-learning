@@ -75,6 +75,7 @@ import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 import VolumeOffIcon from '@mui/icons-material/VolumeOff'
 import FullscreenIcon from '@mui/icons-material/Fullscreen'
 import FullscreenExitIcon from '@mui/icons-material/FullscreenExit'
+import { QuillEditorShow, QuillEditorTeacherComment } from 'pages/management/course/components/QuillEditor'
 declare global {
   interface Window {
     YT: any
@@ -1178,11 +1179,13 @@ const Learning = () => {
                             <div className='text-3xl font-bold'>{lession.name}</div>
                             <div className='mt-3'>{t('learning.updated_at')} {formattedDate}</div>
                             {/* <div className='font-bold mt-3'>{lession.description}</div> */}
-                            <div
-                              className="ql-editor"
-                              data-gramm="false"
-                              dangerouslySetInnerHTML={{ __html: lession?.description ?? '' }}
-                            />
+                              <div className='border-2 border-gray-100 rounded-sm'>
+                                <QuillEditorShow
+                                  theme='bubble'
+                                  value={lession.description ?? ''} // Set giá trị cho editor
+                                  readOnly={true}
+                                />
+                              </div>
                             <div className='mt-3'>{t('learning.description')}</div>
                           </div>
                         </div>

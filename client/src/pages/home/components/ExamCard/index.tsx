@@ -8,7 +8,7 @@ import React, { useMemo, useState } from 'react'
 import SearchIcon from '@mui/icons-material/Search'
 import SportsScoreIcon from '@mui/icons-material/SportsScore'
 import ModalComponent from 'components/Modal'
-
+import { QuillEditorShow } from 'pages/management/course/components/QuillEditor'
 interface Props {
   description?: string
   id?: string
@@ -99,11 +99,13 @@ const ExamCard = ({
         <div className="text-sm text-gray-500 mb-2">{duration}</div>
       </div>
       {/* <div className="text-sm text-gray-800 mb-4">{description}</div> */}
-      <div
-        className="ql-editor"
-        data-gramm="false"
-        dangerouslySetInnerHTML={{ __html: description ?? '' }}
-      />
+      <div className='border-2 border-gray-100 rounded-sm'>
+        <QuillEditorShow
+          theme='bubble'
+          value={description ?? ''}
+          readOnly={true}
+        />
+      </div>
       <div className="flex flex-col md:flex-row justify-start mt-2 gap-2">
         {attempted && onViewHistory && (
           <div onClick={onViewHistory} className="flex items-center justify-center px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-500 cursor-pointer">
