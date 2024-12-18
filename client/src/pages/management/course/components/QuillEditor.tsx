@@ -12,7 +12,7 @@ import 'quill-image-uploader/dist/quill.imageUploader.min.css'
 import { ImageActions } from '@xeger/quill-image-actions'
 import { ImageFormats } from '@xeger/quill-image-formats'
 import BlotFormatter from 'quill-blot-formatter'
-import { StyledQuill } from './ReactQuillConfig'
+import { StyledQuill, StyledQuillShow } from './ReactQuillConfig'
 
 Quill.register('modules/blotFormatter', BlotFormatter)
 Quill.register('modules/imageActions', ImageActions)
@@ -225,7 +225,69 @@ const QuillEditorTeacherComment: React.FC<QuillEditorProps> = ({ theme, onChange
   )
 }
 
-export { QuillEditor, QuillEditorQuestion, QuillEditorTeacherComment }
+const QuillEditorShow: React.FC<QuillEditorProps> = ({ theme, onChange, value, placeholder, readOnly, className }) => {
+  const Parchment = Quill.import('parchment')
+  const Block = Quill.import('blots/block')
+  Block.tagName = 'H3'
+  Quill.register(Block, true)
+
+  console.log(value)
+
+  const modules = useMemo(() => ({
+    imageActions: {},
+    imageFormats: {},
+    history: {
+      delay: 500,
+      maxStack: 100,
+      userOnly: true
+    },
+    toolbar: [
+      [{ font: [] }],
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      [{ size: ['small', false, 'large', 'huge'] }],
+      [{ color: [] }, { background: [] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote', 'code-block'],
+      ['link', 'image'],
+      [{ list: 'ordered' }, { list: 'bullet' }, { list: 'check' }],
+      [{ indent: '-1' }, { indent: '+1' }],
+      [{ align: [] }],
+      ['clean']
+    ],
+    imageUploader: {
+      upload: async (file: File) => {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('upload_preset', process.env.REACT_APP_CLOUDINARY_UPLOAD_PRESET ?? '')
+        try {
+          const response = await axios.post(`https://api.cloudinary.com/v1_1/${process.env.REACT_APP_CLOUDINARY_CLOUD_NAME ?? ''}/upload`, formData)
+          const imageUrl = response.data.secure_url
+          return imageUrl // Trả về URL của ảnh sau khi upload thành công
+        } catch (error) {
+          console.error('Error uploading image:', error)
+          throw new Error('Image upload failed')
+        }
+      }
+    },
+    blotFormatter: {}
+  }), [])
+
+  return (
+    <div>
+      <StyledQuillShow
+        theme={theme}
+        modules={modules}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        readOnly={readOnly}
+        className={className}
+      />
+    </div>
+  )
+}
+
+export { QuillEditor, QuillEditorQuestion, QuillEditorTeacherComment, QuillEditorShow }
 
 // [
 //   ['bold', 'italic', 'underline', 'strike'],

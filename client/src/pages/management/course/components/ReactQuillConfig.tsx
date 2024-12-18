@@ -18,5 +18,22 @@ const StyledQuill = styled(ReactQuill)`
   }
 `
 
+const StyledQuillShow = styled(ReactQuill)`
+  .ql-container {
+    padding: 0; /* Xóa padding cho container */
+  }
+
+  .ql-editor {
+    padding: 8px; /* Xóa padding cho editor */
+    background: white;
+  }
+  .ql-editor img {
+    display: block;
+    margin-left: 0px;
+    margin-right: 8px;
+    pointer-events: none;
+  }
+`
+
 // Xuất StyledQuill
-export { StyledQuill }
+export { StyledQuill, StyledQuillShow }
