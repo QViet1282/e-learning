@@ -21,7 +21,7 @@ import { StyledQuill } from './ReactQuillConfig'
 import DeleteModal from 'pages/management/component/DeleteModal'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'react-toastify'
-import { QuillEditor, QuillEditorQuestion } from './QuillEditor'
+import { QuillEditor, QuillEditorQuestion, QuillEditorShow } from './QuillEditor'
 import HiddenModal from 'pages/management/component/HiddenModal'
 import QuestionDetail from './QuestionDetail'
 
@@ -117,7 +117,7 @@ const ExamDetail: React.FC<DetailProps> = ({ studyItem, load, userId, courseStat
         <p className="text-base sm:text-base font-medium w-1/4 border-2 border-t-0 p-2 text-center border-b-0"> {t('curriculum.description')} </p>
       </div>
       <div className="text-base border-x-2 p-2">
-        <QuillEditor
+        <QuillEditorShow
           theme="bubble"
           value={studyItem.description ?? ''}
           readOnly={true}
@@ -147,7 +147,7 @@ const ExamDetail: React.FC<DetailProps> = ({ studyItem, load, userId, courseStat
                             {t('curriculum.question')} {question.order}:
                           </div>
                           <div className='ml-2 flex justify-between items-center' >
-                            <QuillEditorQuestion
+                            <QuillEditorShow
                               theme="bubble"
                               value={question.content ?? ''}
                               readOnly={true}
