@@ -25,9 +25,9 @@ interface EditExamFormProps {
 const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, userId, examId, fetchQuestions, question }): JSX.Element => {
   const { t } = useTranslation()
   const maxAnswers = 8
-  const [answers, setAnswers] = useState<Array<{ content: string, isCorrect: boolean }>>(
-    Array.from({ length: 2 }, () => ({ content: '', isCorrect: false }))
-  )
+  // const [answers, setAnswers] = useState<Array<{ content: string, isCorrect: boolean }>>(
+  //   Array.from({ length: 2 }, () => ({ content: '', isCorrect: false }))
+  // )
   const [dataQuestion, setDataQuestion] = useState<newQuestion>({
     examId,
     instruction: question?.instruction ?? '',
@@ -52,11 +52,17 @@ const EditQuestionForm: React.FC<EditExamFormProps> = ({ setIsAddingQuestion, us
   }
 
   // useEffect để đồng bộ dữ liệu từ answer và question
+  // useEffect(() => {
+  //   const questionAnswers = getQuestionAnswers(question)
+
+  //   setAnswers(questionAnswers)
+  // }, [dataQuestion, question])
+  const [answers, setAnswers] = useState<Array<{ content: string, isCorrect: boolean }>>([])
+
   useEffect(() => {
     const questionAnswers = getQuestionAnswers(question)
-
     setAnswers(questionAnswers)
-  }, [dataQuestion, question])
+  }, [question])
 
   const handleInstructionChange = (event: { target: { value: any } }): void => {
     setDataQuestion({ ...dataQuestion, instruction: event.target.value })
