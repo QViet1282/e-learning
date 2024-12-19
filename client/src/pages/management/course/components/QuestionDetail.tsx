@@ -10,7 +10,7 @@ import 'quill-image-uploader/dist/quill.imageUploader.min.css'
 import { Question } from 'api/get/get.interface'
 import { editLession, editQuestionItem } from 'api/put/put.interface'
 import { editQuestion } from 'api/put/put.api'
-import { QuillEditorQuestion } from './QuillEditor'
+import { QuillEditorQuestion, QuillEditorShow } from './QuillEditor'
 import { toast } from 'react-toastify'
 import { useTranslation } from 'react-i18next'
 
@@ -83,9 +83,12 @@ const QuestionDetail: React.FC<QuestionDetailProps> = ({ setIsAddingQuestion, us
         </select>
 
         <div className="">
-          <QuillEditorQuestion theme='snow' value={dataQuestion.content} onChange={(value) => {
-            setDataQuestion({ ...dataQuestion, content: value })
-          }}
+          <QuillEditorShow
+            theme='snow'
+            value={dataQuestion.content}
+            onChange={(value) => {
+              setDataQuestion({ ...dataQuestion, content: value })
+            }}
             // modules={modules}
             // className="mt-2 text-xl"
             placeholder={t('curriculum.placeholder.questionContent').toString()}

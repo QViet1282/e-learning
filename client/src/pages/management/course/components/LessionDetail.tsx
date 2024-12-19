@@ -9,6 +9,7 @@ import 'react-pdf/dist/esm/Page/TextLayer.css'
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css'
 import { useTranslation } from 'react-i18next'
 import { useMediaQuery } from 'react-responsive'
+import { QuillEditorShow } from './QuillEditor'
 
 interface DetailProps {
   studyItem: StudyItem
@@ -95,10 +96,10 @@ const LessionDetail: React.FC<DetailProps> = ({ studyItem, load }): JSX.Element 
       <p className="text-xl">{t('curriculum.description')}</p>
 
       <div className="text-base w-full h-auto">
-        <StyledQuill
+        <QuillEditorShow
           theme="bubble"
           value={descriptionContent}
-          readOnly
+          readOnly={true}
           className="w-full md:h-auto bg-white"
         />
       </div>
